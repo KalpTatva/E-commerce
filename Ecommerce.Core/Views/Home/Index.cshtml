@@ -1,0 +1,68 @@
+﻿@model Ecommerce.Repository.ViewModels.LoginViewModel
+<div class="LoginContent bg-white p-4 border rounded-3 ">
+    <h1 class="display-4 text-center">E-commerce</h1>
+    <h3 class="display-6 mb-4 text-center">Login</h3>
+    <div class="w-100 ">
+        <form asp-action="Index" asp-controller="Home" method="post" class="d-flex flex-column inputlogin">
+            <div class=" has-validation my-2 mb-4 w-100">
+                <input type="text" class="form-control" placeholder="Email" asp-for="Email" >
+                <span asp-validation-for="Email" class="text-danger float-start"></span>
+            </div>
+
+            <div class="has-validation my-2 mb-4 w-100">
+                <div class="position-relative password-section">
+                    <input type="password" class="form-control" id="exampleInputPassword"  placeholder="password" asp-for="Password" >
+                    <div class="eye">
+                        <i class="bi bi-eye openeye eye inactive"></i>
+                        <i class="bi bi-eye-slash closeeye eye active"></i>
+                    </div>
+                </div>
+
+                <span class="text-danger float-start " asp-validation-for="Password">@TempData["error"]</span>
+            </div>
+
+            <div class="d-flex justify-content-between ">
+                <div>
+                    <input type="checkbox" class="form-check-input mb-4" id="rememberMe" asp-for="RememberMe">
+                    <label class="form-check-label" for="rememberMe">Remember me</label>            
+                </div>
+                <div>
+                    <a class="text-decoration-none" asp-action="ForgetPassword" asp-controller="Home">Forget Password?</a>
+                </div>
+            </div>
+
+            <div class="">
+                <button type="submit" class="w-100 btn btn-color text-white rounded-3">
+                    <span class="login">Login</span>
+                    <span class="loader2 " style="width: 20px; height: 20px;"></span>
+                </button>
+
+            </div>
+        </form>
+    </div>
+    <div class="d-flex justify-content-center mt-3">
+        <a class="text-decoration-none" asp-action="RegisterUser" asp-controller="Home">Register New User</a>
+    </div>
+
+</div>
+
+
+@section scripts {  
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(".login").show();
+        $(".loader2").hide();
+
+        window.successMessage = '@TempData["SuccessMessage"]';
+        window.errorMessage = '@TempData["ErrorMessage"]';
+
+        $(document).ready(function(){
+           
+            $(document).on('submit', '.inputlogin', function () {
+                $(".login").hide();
+                $(".loader2").show();
+            });
+        })
+    </script>
+    <script src="~/js/toastr_script.js"></script>
+}
