@@ -19,7 +19,11 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Country> Countries { get; set; }
 
+    public virtual DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+
     public virtual DbSet<Profile> Profiles { get; set; }
+
+    public virtual DbSet<Session> Sessions { get; set; }
 
     public virtual DbSet<State> States { get; set; }
 
@@ -60,6 +64,25 @@ public partial class EcommerceContext : DbContext
                 .HasColumnName("country");
         });
 
+        modelBuilder.Entity<PasswordResetRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("password_reset_requests_pkey");
+
+            entity.ToTable("password_reset_requests");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Closedate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("closedate");
+            entity.Property(e => e.Createdate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("createdate");
+            entity.Property(e => e.Guidtoken)
+                .HasMaxLength(255)
+                .HasColumnName("guidtoken");
+            entity.Property(e => e.Userid).HasColumnName("userid");
+        });
+
         modelBuilder.Entity<Profile>(entity =>
         {
             entity.HasKey(e => e.ProfileId).HasName("profile_pkey");
@@ -85,6 +108,12 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.EditedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("edited_at");
+            entity.Property(e => e.FirstName)
+                .HasMaxLength(100)
+                .HasColumnName("first_name");
+            entity.Property(e => e.LastName)
+                .HasMaxLength(100)
+                .HasColumnName("last_name");
             entity.Property(e => e.PhoneNumber)
                 .HasColumnType("character varying")
                 .HasColumnName("phone_number");
@@ -102,6 +131,28 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.State).WithMany(p => p.Profiles)
                 .HasForeignKey(d => d.StateId)
                 .HasConstraintName("profile_state_id_fkey");
+        });
+
+        modelBuilder.Entity<Session>(entity =>
+        {
+            entity.HasKey(e => e.SessionId).HasName("session_pkey");
+
+            entity.ToTable("session");
+
+            entity.Property(e => e.SessionId)
+                .HasColumnType("character varying")
+                .HasColumnName("session_id");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.ExpiresAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("expires_at");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
+            entity.Property(e => e.Jwttoken)
+                .HasColumnType("character varying")
+                .HasColumnName("jwttoken");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
         });
 
         modelBuilder.Entity<State>(entity =>

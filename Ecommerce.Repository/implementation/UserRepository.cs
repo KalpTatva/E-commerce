@@ -1,5 +1,3 @@
-
-
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 
@@ -16,7 +14,7 @@ public class UserRepository : IUserRepository
 
 
     /// <summary>
-    /// function for getting perticular user by email
+    /// method for getting perticular user by email
     /// </summary>
     /// <param name="email"></param>
     /// <returns></returns>
@@ -28,6 +26,194 @@ public class UserRepository : IUserRepository
         }
         catch(Exception e){
             throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for getting perticular user by userId
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public User? GetUserById(int userId)
+    {
+        try
+        {
+            return _context.Users.FirstOrDefault(x => x.UserId == userId);
+        }
+        catch(Exception ex)
+        { 
+            throw new Exception("An error occurred while fetching user by ID.", ex);   
+        }
+    }
+
+    /// <summary>
+    /// updates user details
+    /// </summary>
+    /// <param name="user">User</param>
+    /// <exception cref="Exception"></exception>
+    public void UpdateUser(User user)
+    {
+        try
+        {
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+        catch(Exception ex)
+        { 
+            throw new Exception("An error occurred while updating user.", ex);   
+        }
+    }
+
+    /// <summary>
+    /// updates password reset request
+    /// </summary>
+    /// <param name="passwordResetRequest"></param>
+    /// <exception cref="Exception"></exception>
+    public void UpdatePasswordResetRequest(PasswordResetRequest passwordResetRequest)
+    {
+        try
+        {
+            _context.PasswordResetRequests.Update(passwordResetRequest);
+            _context.SaveChanges();
+        }
+        catch(Exception ex)
+        { 
+            throw new Exception("An error occurred while updating password reset request.", ex);   
+        }
+    }
+
+    /// <summary>
+    /// function for getting user by id
+    /// </summary>
+    /// <param name="sessionId"></param>
+    /// <param name="userId"></param>
+    /// <param name="expiresAt"></param>
+    public void CreateSession(string sessionId, int userId, DateTime expiresAt, string jwtToken)
+    {
+        try{
+
+            var session = new Session
+            {
+                SessionId = sessionId,
+                UserId = userId,
+                CreatedAt = DateTime.Now,
+                ExpiresAt = expiresAt,
+                IsActive = true,
+                Jwttoken = jwtToken
+            };
+            _context.Sessions.Add(session);
+            _context.SaveChanges();
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// function for getting session details by session id
+    /// </summary>
+    /// <param name="sessionId"></param>
+    public Session? GetSessionDetails(string sessionId)
+    {
+        try{
+            return _context.Sessions.FirstOrDefault(s => s.SessionId == sessionId && s.IsActive == true && s.ExpiresAt > DateTime.Now);
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// function for updating session (when session is expire after 30 days, need to soft delete it in db)
+    /// </summary>
+    /// <param name="session"></param>
+    /// <exception cref="Exception"></exception>
+    public void UpdateSession(Session session)
+    {
+        try
+        {
+            _context.Sessions.Update(session);
+            _context.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+
+    /// <summary>
+    /// db call for adding password reset request in db
+    /// </summary>
+    /// <param name="passwordResetRequest"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddPasswordResetRequest(PasswordResetRequest passwordResetRequest)
+    {
+        try{
+            _context.PasswordResetRequests.Add(passwordResetRequest);
+            _context.SaveChanges();
+        }catch(Exception e){
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// getting password reset request details basaed on token
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public PasswordResetRequest? GetPasswordResetRequestByToken(string token)
+    {
+        try
+        {
+            return _context.PasswordResetRequests.FirstOrDefault(x => x.Guidtoken == token);
+        }
+        catch(Exception ex)
+        { 
+            throw new Exception("An error occurred while fetching password reset request by token.", ex);   
+        }
+    }
+
+
+    public List<Country>? GetCountries()
+    {
+        try
+        {
+            return _context.Countries.ToList() ?? new List<Country>();
+        }
+        catch(Exception ex)
+        { 
+            throw new Exception("An error occurred while fetching Country.", ex);   
+        }
+    }
+
+    public List<State>? GetStates(int countryId)
+    {
+        try
+        {
+            return _context.States.Where(x => x.CountryId == countryId).ToList() ?? new List<State>();
+        }
+        catch(Exception ex)
+        { 
+            throw new Exception("An error occurred while fetching state.", ex);   
+        }
+    }
+
+    public List<City>? GetCities(int stateId)
+    {
+        try
+        {
+            return _context.Cities.Where(x => x.StateId == stateId).ToList() ?? new List<City>();
+        }
+        catch(Exception ex)
+        { 
+            throw new Exception("An error occurred while fetching state.", ex);   
         }
     }
 }

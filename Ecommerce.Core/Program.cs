@@ -4,6 +4,7 @@ using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 using Ecommerce.Service.implementation;
 using Ecommerce.Service.interfaces;
+using Ecommerce.Service.interfaces.implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<EcommerceContext>(options =>
 
 // services injection
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailService, EmailService>(); // Register IEmailService and its implementation
 
 // repositories injection
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
@@ -51,18 +53,17 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
-    // Read JWT from session and cookies instead of Authorization header
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
-            // Retrieve JWT token from session
-            string? token = context.HttpContext.Session.GetString("auth_token");
-
-            // If session token is not available, check cookies
+            // Trying to get token from cookies first (for "Remember Me")
+            context.Request.Cookies.TryGetValue("auth_token", out string? token);
+            
+            // if no cookie token
             if (string.IsNullOrEmpty(token))
             {
-                context.Request.Cookies.TryGetValue("auth_token", out token);
+                token = context.HttpContext.Session.GetString("auth_token");
             }
 
             context.Token = token;
@@ -87,8 +88,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession();
-
 app.UseStatusCodePages(async context =>
 {
     if (context.HttpContext.Response.StatusCode == 401)
@@ -105,12 +104,19 @@ app.UseStatusCodePages(async context =>
     }
     await Task.CompletedTask;
 });
-app.UseAuthentication();
+
+app.UseSession(); // Ensure session middleware is executed before authentication
+app.UseAuthentication(); // Ensure authentication middleware is executed after session
 app.UseAuthorization();
+
+app.UseMiddleware<TokenRefreshMiddleware>(); // Place after authentication middleware
+
+
+
 
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=UserDashboard}/{id?}");
 
 app.Run();

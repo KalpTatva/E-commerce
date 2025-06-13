@@ -1,4 +1,5 @@
 @using static Ecommerce.Repository.Helpers.Enums
+@model Ecommerce.Repository.ViewModels.BaseViewModel
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,7 +16,7 @@
 
 <body>
 
-    <div class="vh-100">
+    <div class="">
         <header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark border-bottom box-shadow">
                 <div class="container-fluid">
@@ -38,7 +39,16 @@
                             </li>
 
                         </ul>
-                        <button class="btn btn-success" id="LogoutButton">Logout</button>
+                       
+                            @if(Model.Email != null){
+                                    
+                                    <a asp-action="EditProfile" asp-controller="Dashboard" class="text-white me-3 text-decoration-none profile-link">@Model.Email</a>
+                                    <button class="btn btn-danger" id="LogoutButton">Logout</button>
+                            }else{
+                                <a class="btn btn-success" asp-controller="Home" asp-action="Index">Login</a>
+                                <a class="text-white me-3 text-decoration-none profile-link ms-2" asp-controller="Home" asp-action="RegisterUser">Sign up</a>
+                            }
+                     
 
                     </div>
                 </div>
@@ -48,6 +58,7 @@
             @RenderBody()
         </main>
     </div>
+    
     <partial name="_LogoutModalPartial" />
 
 

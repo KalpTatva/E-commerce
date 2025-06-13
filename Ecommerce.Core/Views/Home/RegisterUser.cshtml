@@ -1,0 +1,224 @@
+@using static Ecommerce.Repository.Helpers.Enums
+@model Ecommerce.Repository.ViewModels.RegisterUserViewModel
+
+<div class="d-flex p-2 justify-content-center align-items-start ">
+    <div class="bg-white border rounded">
+        <h4 class="font-monospace text-secondary">Guide Line</h4>
+    </div>
+    <div class="LoginContent bg-white p-4 border rounded">
+        <h1 class="display-4 text-center">E-commerce</h1>
+        <h3 class="display-6 mb-4 text-center">Sign up</h3>
+
+        <div class="w-100 ">
+            <form class="RegisterUser-form" asp-action="RegisterUser" asp-controller="Home" method="post" class="d-flex flex-column inputlogin">
+
+                <div class="d-flex gap-2">
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="FirstName" class="form-control" id="floatingInput"
+                            placeholder="First Name">
+                        <label for="floatingInput">First Name</label>
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="LastName" class="form-control" id="floatingInput"
+                            placeholder="Last Name">
+                        <label for="floatingInput">Last Name</label>
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-floating has-validation my-2 mb-3 w-100">
+                    <input type="text" class="form-control" id="email-login" placeholder="Email" asp-for="Email">
+                    <span asp-validation-for="Email" class="text-danger float-start"></span>
+                    <label for="email-login">Email</label>
+                </div>
+
+                <div class="d-flex gap-2 w-100">
+                    <div class="form-floating mb-3 w-100">
+                        <input type="text" asp-for="UserName" class="form-control" id="floatingInput"
+                            placeholder="Username">
+                        <label for="floatingInput">UserName</label>
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3 w-100">
+                        <select class="form-select" asp-for="RoleId" id="floatingSelect" aria-label="Role"
+                            asp-items="Html.GetEnumSelectList<RegisterRoleEnum>()"></select>
+                        <label for="floatingSelect">Role</label>
+                        <span asp-validation-for="RoleId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input type="text" asp-for="Address" class="form-control" id="floatingInput" placeholder="Address">
+                    <label for="floatingInput">Address</label>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <div class="form-floating mb-3 w-100">
+                        <select class="form-select" asp-for="CountryId" id="countrydropdown" aria-label="Country">
+                            <option value="">Select Country</option>
+                            
+                        </select>
+                        <span asp-validation-for="CountryId" class="text-danger"></span>
+                        <label for="floatingSelect">Country</label>
+                    </div>
+                    <div class="form-floating mb-3 w-100">
+                        <select class="form-select" asp-for="StateId" id="statedropdown" aria-label="State">
+                            <option value="">Select state</option>
+                        </select>
+                        <label for="floatingSelect">State</label>
+                        <span asp-validation-for="StateId" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3 w-100">
+                        <select class="form-select" asp-for="CityId" id="citydropdown" aria-label="City">
+                            <option value="">Select city</option>
+                        </select>
+                        <label for="floatingSelect">City</label>
+                        <span asp-validation-for="CityId" class="text-danger"></span>
+
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="PhoneNumber" class="form-control" id="floatingInput"
+                            placeholder="Phone">
+                        <label for="floatingInput">Phone</label>
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" asp-for="Pincode" class="form-control" id="floatingInput"
+                            placeholder="Zipcode">
+                        <label for="floatingInput">Pincode</label>
+                        <span asp-validation-for="Pincode" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                <div class="d-flex gap-2">
+                    <div class="my-2 mb-3">
+                        <div class="form-floating position-relative password-section ">
+                            <input asp-for="Password" type="password" class="form-control" id="exampleInputPassword2"
+                                placeholder="New Password*">
+                            <div class="eye z-10">
+                                <i class="bi bi-eye openeye1 eye inactive"></i>
+                                <i class="bi bi-eye-slash closeeye1 eye active"></i>
+                            </div>
+                            <label for="exampleInputPassword2">Password</label>
+
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="my-2 mb-3">
+                        <div class="form-floating position-relative password-section  ">
+                            <input asp-for="ConfirmPassword" type="password" class="form-control"
+                                id="exampleInputPassword3" placeholder="Confirm New Password*">
+                            <div class="eye z-10">
+                                <i class="bi bi-eye openeye2 eye inactive"></i>
+                                <i class="bi bi-eye-slash closeeye2 eye active"></i>
+                            </div>
+                            <label for="exampleInputPassword3">Confirm Password</label>
+
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+                <div class="">
+                    <button type="submit" class="w-100 btn btn-color text-white rounded-3">
+                        <span class="login">Register</span>
+                        <span class="loader2 " style="width: 20px; height: 20px;"></span>
+                    </button>
+
+                </div>
+            </form>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <a class="text-decoration-none" asp-action="Index" asp-controller="Home">back to Login</a>
+        </div>
+
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(".login").show();
+        $(".loader2").hide();
+
+        window.successMessage = '@TempData["SuccessMessage"]';
+        window.errorMessage = '@TempData["ErrorMessage"]';
+
+        $(document).ready(function () {
+
+            $(document).on('submit', '.RegisterUser-form', function () {
+                $(".login").hide();
+                $(".loader2").show();
+            });
+
+            function GetCountries(){
+                $.ajax({
+                    url: '/Home/GetCountries',
+                    type: 'GET',
+                    success: function(data) {
+                        $("#countrydropdown").append(data);
+                    },
+                    error: function(error) {
+                        console.error('Error in country details:', error);
+                    }
+                });
+            }
+
+            $(document).on('change','#countrydropdown',function(){
+                var countryId = $(this).val();
+                console.log(countryId,"______");
+                $('#statedropdown').html('<option value="">Select State</option>');
+                $('#citydropdown').html('<option value="">Select City</option>');
+
+                if(countryId)
+                {
+                    $.ajax({
+                        url: '/Home/GetStates',
+                        type: 'GET',
+                        data: {countryId : countryId},
+                        success: function(data) 
+                        {
+                            $("#statedropdown").append(data);
+                        },
+                        error: function(error) {
+                            console.error('Error in state details:', error);
+                        }
+                    });
+                }
+            });
+
+            $(document).on('change','#statedropdown',function(){
+                var stateId = $(this).val();
+                $('#citydropdown').html('<option value="">Select City</option>');
+                console.log(stateId,"______state",);
+                if(stateId)
+                {
+                    $.ajax({
+                        url: '/Home/GetCities',
+                        type: 'GET',
+                        data: {stateId : stateId},
+                        success: function(data) 
+                        {
+                            $("#citydropdown").append(data);
+                        },
+                        error: function(error) {
+                            console.error('Error in city details:', error);
+                        }
+                    });
+                }
+            });
+
+            GetCountries();
+        })
+    </script>
+    <script src="~/js/toastr_script.js"></script>
+}

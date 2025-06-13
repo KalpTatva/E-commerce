@@ -1,0 +1,26 @@
+@{
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+<h2>profile</h2>
+<div class="d-flex p-2 justify-content-center align-items-center ">
+    <div class="LoginContent bg-white p-4 border  rounded-end">
+    
+        <div class="w-100 ">
+            <!-- info which can not be changed-->
+            
+
+            <form  method="post" class="d-flex flex-column inputlogin">
+                
+            </form>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        window.successMessage = '@TempData["SuccessMessage"]';
+        window.errorMessage = '@TempData["ErrorMessage"]';
+    </script>
+    <script src="~/js/toastr_script.js"></script>
+}

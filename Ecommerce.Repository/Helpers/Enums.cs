@@ -12,6 +12,12 @@ public class Enums
     {
         Computers = 1,
 	    Laptops = 2,
-	    Accessories = 3
+ 	    Accessories = 3
+    }
+
+    public enum RegisterRoleEnum
+    {
+        Buyer = 1,
+        Seller = 2
     }
 }

@@ -27,6 +27,10 @@ public partial class Profile
 
     public int? CityId { get; set; }
 
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
+
     public virtual City? City { get; set; }
 
     public virtual Country? Country { get; set; }
