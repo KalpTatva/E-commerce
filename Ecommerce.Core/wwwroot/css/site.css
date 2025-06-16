@@ -27,10 +27,15 @@ html {
   min-height: 100vh;
 }
 
+.widthOfForms{
+  min-width: 500px ;
+}
+
 /* colors */
 
 
 .btn-color{background-color: #45AD82 ;}
+.font-green{color:#45AD82 !important;}
 .bg-lightblue{background-color: #9db1c59f;}
 
 
@@ -70,11 +75,96 @@ html {
 }
 
 
-/* profile link */
+/* profile link + sidebar*/
 
 .profile-link:hover{
   cursor: pointer;
   color: #45AD82!important;
+}
+
+.asideBar{
+  width: 250px;
+  color: white;
+}
+
+.brand{
+  height: 55px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.brand-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+/* image inputs */
+
+.file-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* border: 1px dashed #48494a; */
+  border-radius: 5px;
+  margin: 13px 0px 13px 0px !important;
+}
+
+.file-upload span img {
+  height: 2rem;
+}
+
+
+.drag-area {
+  height: 230px;
+  border: 3px dashed #e0eafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin: 5px auto;
+  padding-bottom: 20px;
+  margin-bottom: 50px;
+}
+
+
+.drag-area .support {
+  font-size: 12px;
+  color: gray;
+  margin: 10px 0 15px 0;
+}
+
+.drag-area .button {
+  font-size: 20px;
+  font-weight: 500;
+  color: #1683ff;
+  cursor: pointer;
+}
+
+.drag-area.active {
+  border: 2px solid #1683ff;
+}
+
+.drag-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 10000 !important;
+}
+
+
+.header {
+  margin-top: -20px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.icon {
+  font-size: 50px;
+  color: #1683ff;
 }
 
 /* loaders */

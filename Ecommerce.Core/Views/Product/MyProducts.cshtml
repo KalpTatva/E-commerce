@@ -1,0 +1,49 @@
+@{
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+
+<div class="d-flex justify-content-between w-100 p-3">
+    <h3>
+        MyProducts
+    </h3>
+    <a class="btn btn-success" id="AddProduct-btn" asp-action="AddProduct" asp-controller="Product">
+        <i class="bi bi-plus-lg"></i> Add New Product
+    </a>
+</div>
+
+<div class="p-3 w-100">
+    <div class="bg-white border rounded-3 p-3">
+        <div id="productDetails" class="overflow-auto"></div>
+
+    </div>
+
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+       
+        window.successMessage = '@TempData["SuccessMessage"]';
+        window.errorMessage = '@TempData["ErrorMessage"]';
+
+        $(document).ready(function(){
+            function FetchProductsDetails()
+            {
+                $.ajax({
+                    url: '/Product/GetSellerSpecificProducts',
+                    type: 'GET',
+                    success: function (response) {
+                        $("#productDetails").html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        toastr.error('An error occurred while loading the product.');
+                    }
+                });
+            }
+            FetchProductsDetails();
+        });
+    </script>
+    <script src="~/js/toastr_script.js"></script>
+    
+}

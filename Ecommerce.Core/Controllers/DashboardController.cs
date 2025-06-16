@@ -21,15 +21,6 @@ public class DashboardController : Controller
         return View();
     }
 
-    public IActionResult EditProfile()
-    {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        
-        EditRegisteredUserViewModel? model = _userService.GetUserDetailsByEmail(email);    
-        model.BaseEmail = email;
-        return View(model);
-    }
    
     public IActionResult UserDashboard()
     {
@@ -39,5 +30,34 @@ public class DashboardController : Controller
             BaseEmail = email
         };        
         return View(baseViewModel);
+    }
+   
+   
+    public IActionResult EditProfile()
+    {
+        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
+                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        
+        EditRegisteredUserViewModel? model = _userService.GetUserDetailsByEmail(email);    
+        model.BaseEmail = email;
+        return View(model);
+    }
+
+    public IActionResult EditUser(EditRegisteredUserViewModel model)
+    {
+        try
+        {
+            ResponsesViewModel responses = _userService.EditUserDetails(model);
+            if(responses.IsSuccess)
+            {
+                return Json(new {success= true,message=responses.Message});
+            }
+            return Json(new {success= false,message=responses.Message});
+
+        }
+        catch(Exception e)
+        {
+            return Json(new{success = false, message=e.Message});
+        }
     }
 }

@@ -88,4 +88,11 @@ public interface IUserService
     /// <param name="email"></param>
     /// <returns> returns EditRegisteredUserViewModel </returns>
     EditRegisteredUserViewModel? GetUserDetailsByEmail(string email);
+
+    /// <summary>
+    /// method for edit user and profile
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>ResponsesViewModel</returns>
+    ResponsesViewModel EditUserDetails(EditRegisteredUserViewModel model);
 }

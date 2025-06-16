@@ -209,7 +209,7 @@ public class UserRepository : IUserRepository
     public void AddProfile(Profile profile)
     {
         try
-        {
+        {    
             _context.Profiles.Add(profile);
             _context.SaveChanges();
         }
@@ -294,7 +294,8 @@ public class UserRepository : IUserRepository
                                                     LastName = x.Profile.LastName,
                                                     Email = x.Email,
                                                     UserName = x.UserName,
-                                                    userId = x.UserId,
+                                                    UserId = x.UserId,
+                                                    ProfileId = x.ProfileId,
                                                     RoleId  = x.RoleId,
                                                     PhoneNumber = x.Profile.PhoneNumber,
                                                     Address = x.Profile.Address,
@@ -304,8 +305,7 @@ public class UserRepository : IUserRepository
                                                     CityId = x.Profile.CityId,
                                                     CityName = x.Profile.City.City1,
                                                     CountryName = x.Profile.Country.Country1,
-                                                    
-
+                                                    StateName = x.Profile.State.State1
                                                 })
                                                 .FirstOrDefault();
             
@@ -316,4 +316,42 @@ public class UserRepository : IUserRepository
             throw new Exception(e.Message);
         }
     }
+
+    /// <summary>
+    /// method for getting profile based on profile id
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public Profile? GetProfileById(int profileId)
+    {
+        try
+        {
+            return _context.Profiles.FirstOrDefault( p => p.ProfileId == profileId) ?? null;
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for update profile
+    /// </summary>
+    /// <param name="profile"></param>
+    /// <exception cref="Exception"></exception>
+    public void UpdateProfile(Profile profile)
+    {
+        try
+        {
+            _context.Profiles.Update(profile);
+            _context.SaveChanges();
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    
 }

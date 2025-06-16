@@ -524,4 +524,62 @@ public class UserService : IUserService
             throw new Exception("error occured while fatching user : " + e.Message);
         }
     }
+
+    /// <summary>
+    /// method for edit user and profile
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>ResponsesViewModel</returns>
+    public ResponsesViewModel EditUserDetails(EditRegisteredUserViewModel model)
+    {
+        try
+        {   
+            if(model!= null)
+            {
+                User? user = _userRepository.GetUserById(model.UserId);
+                Profile? profile = _userRepository.GetProfileById(model.ProfileId);
+
+                if(user!=null && profile!=null && user.ProfileId == model.ProfileId)
+                {
+                    // profile update //
+                    profile.Address = model.Address;
+                    profile.Pincode = model.Pincode;
+                    profile.CityId = model.CityId;
+                    profile.StateId = model.StateId;
+                    profile.CountryId = model.CountryId;
+                    profile.PhoneNumber = model.PhoneNumber;
+                    profile.EditedAt = DateTime.Now;
+
+                    _userRepository.UpdateProfile(profile);
+
+                    // user update //
+                    user.EditedAt = DateTime.Now;
+                    
+                    _userRepository.UpdateUser(user);
+                    
+                    return new ResponsesViewModel{
+                        IsSuccess = true,
+                        Message = $"user details edited successfully!"
+                    };
+                }
+                return new ResponsesViewModel{
+                        IsSuccess = false,
+                        Message = $"Error in EditUserDetails!"
+                    };
+            }
+            return new ResponsesViewModel{
+                    IsSuccess = false,
+                    Message = $"Error in EditUserDetails!"
+                };
+        }
+        catch (Exception e)
+        {
+            return new ResponsesViewModel
+            {
+                IsSuccess = false,
+                Message = $"Error in EditUserDetails: {e.Message}"
+            };
+        }
+    }
+
 }

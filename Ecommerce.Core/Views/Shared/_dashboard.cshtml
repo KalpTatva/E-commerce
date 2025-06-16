@@ -10,59 +10,83 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Ecommerce.Core.styles.css" asp-append-version="true" />
-     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 
 <body>
 
-    <div class="bg-lightblue height">
-        <header>
-            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark border-bottom box-shadow">
-                <div class="container-fluid">
-                    <a class="navbar-brand text-white">E-commerce</a>
-                    <button class="navbar-toggler text-white bg-white" type="button" data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                        <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item">
-                                <a class="nav-link text-white">@((CategoriesEnum.Computers).ToString())</a>
-                            </li>
-                            <li class="nav-item">  
-                                <a class="nav-link text-white">@((CategoriesEnum.Laptops).ToString())</a>   
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-white">@((CategoriesEnum.Accessories).ToString())</a>
-                            </li>
+    <div class="bg-lightblue d-flex height">
+        <aside class="asideBar bg-dark ">
+            <div class="brand">
+                <a class="navbar-brand font-green ">E-commerce</a>
+            </div>
+            <div class="brand-content">
+                <ul class="list-unstyled">
+                    <li class="my-4"><a asp-action="EditProfile" asp-controller="Dashboard"
+                    class="text-white text-decoration-none profile-link">My profile</a></li>
+                    <li class="my-4"><a asp-action="MyProducts" asp-controller="Product"
+                    class="text-white text-decoration-none profile-link">My products</a></li>
+                    <li class="my-4"><a 
+                    class="text-white text-decoration-none profile-link">Offers</a></li>
+                </ul>
+            </div>
+        </aside>
+        <div class="w-100 h-100">
+            <header>
+                <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark border-bottom box-shadow">
+                    <div class="container-fluid">
 
-                        </ul>
-                       
-                            @if(Model.BaseEmail != null){
-                                    
-                                    <a asp-action="EditProfile" asp-controller="Dashboard" class="text-white me-3 text-decoration-none profile-link">@Model.BaseEmail</a>
-                                    <button class="btn btn-danger" id="LogoutButton">Logout</button>
-                            }else{
-                                <a class="btn btn-success" asp-controller="Home" asp-action="Index">Login</a>
-                                <a class="text-white me-3 text-decoration-none profile-link ms-2" asp-controller="Home" asp-action="RegisterUser">Sign up</a>
+                        <button class="navbar-toggler text-white bg-white" type="button" data-bs-toggle="collapse"
+                            data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link text-white">@((CategoriesEnum.Computers).ToString())</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white">@((CategoriesEnum.Laptops).ToString())</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white">@((CategoriesEnum.Accessories).ToString())</a>
+                                </li>
+
+                            </ul>
+
+                            @if (Model.BaseEmail != null)
+                            {
+
+                                <a asp-action="EditProfile" asp-controller="Dashboard"
+                                    class="text-white me-3 text-decoration-none profile-link">@Model.BaseEmail</a>
+                                <button class="btn btn-danger" id="LogoutButton">Logout</button>
                             }
-                     
+                            else
+                            {
+                                <a class="btn btn-success" asp-controller="Home" asp-action="Index">Login</a>
+                                <a class="text-white me-3 text-decoration-none profile-link ms-2" asp-controller="Home"
+                                    asp-action="RegisterUser">Sign up</a>
+                            }
 
+
+                        </div>
                     </div>
-                </div>
-            </nav>
-        </header>
-        <main class="h-100 d-flex flex-column justify-content-center align-items-center">
-            @RenderBody()
-        </main>
+                </nav>
+            </header>
+
+            <main class="w-100 d-flex flex-column justify-content-center align-items-center">
+                @RenderBody()
+            </main>
+
+        </div>
     </div>
-    
+
     <partial name="_LogoutModalPartial" />
 
 
-   <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

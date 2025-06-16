@@ -21,10 +21,12 @@ builder.Services.AddDbContext<EcommerceContext>(options =>
 
 // services injection
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IEmailService, EmailService>(); // Register IEmailService and its implementation
+builder.Services.AddScoped<IEmailService, EmailService>(); 
+builder.Services.AddScoped<IProductService, ProductService>(); 
 
 // repositories injection
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
+builder.Services.AddScoped(typeof(IProductRepository), typeof(ProductRepository));
 
 // Add session services
 builder.Services.AddDistributedMemoryCache();

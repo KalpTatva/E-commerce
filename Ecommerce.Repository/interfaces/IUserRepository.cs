@@ -111,5 +111,20 @@ public interface IUserRepository
     /// <param name="email"></param>
     /// <returns> returns EditRegisteredUserViewModel </returns>
     EditRegisteredUserViewModel? GetUserDetailsByEmail(string email);
+
+    /// <summary>
+    /// method for getting profile based on profile id
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    Profile? GetProfileById(int profileId);
+
+    /// <summary>
+    /// method for update profile
+    /// </summary>
+    /// <param name="profile"></param>
+    /// <exception cref="Exception"></exception>
+    void UpdateProfile(Profile profile);
     
 }

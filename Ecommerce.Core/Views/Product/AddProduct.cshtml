@@ -1,0 +1,146 @@
+@using static Ecommerce.Repository.Helpers.Enums
+@model Ecommerce.Repository.ViewModels.AddProductViewModel
+
+@{
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+
+<div class="d-flex justify-content-between w-100 p-3">
+    <h3>
+        Add new product
+    </h3>
+    <a class="btn btn-primary" id="AddProduct-btn" asp-action="MyProducts" asp-controller="Product">
+        Back to products
+    </a>
+</div>
+
+<div class="w-100 d-flex justify-content-center align-items-center">
+    <div class="bg-white border rounded-3 widthOfForms">
+        <div class="p-3">
+            <form action="POST" id="AddProductForm">
+                <div class="form-floating has-validation my-2 mb-3 w-100">
+                    <input type="text" class="form-control" id="ProductName" placeholder="Product Name"
+                        asp-for="ProductName">
+                    <span asp-validation-for="ProductName" class="text-danger float-start"></span>
+                    <label for="ProductName">product name</label>
+                </div>
+
+                <div class="form-floating mb-3 w-100">
+                    <textarea class="form-control" asp-for="Description" placeholder="Leave a comment here"
+                        id="Description" style="height: 100px"></textarea>
+                    <label for="Description">Description</label>
+                    <span class="text-danger" asp-validation-for="Description"></span>
+                </div>
+
+                <div class="form-floating mb-3 w-100">
+                    <select class="form-select" asp-for="CategoryId" id="floatingSelect" aria-label="Role"
+                        asp-items="Html.GetEnumSelectList<CategoriesEnum>()"></select>
+                    <label for="floatingSelect">Category</label>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating has-validation my-2 mb-3 w-100">
+                    <input type="text" class="form-control" id="Price" placeholder="Price" asp-for="Price">
+                    <span asp-validation-for="Price" class="text-danger float-start"></span>
+                    <label for="Price">Price</label>
+                </div>
+
+                <div class="form-floating has-validation my-2 mb-3 w-100">
+                    <input type="text" class="form-control" id="Stocks" placeholder="Stocks" asp-for="Stocks">
+                    <span asp-validation-for="Stocks" class="text-danger float-start"></span>
+                    <label for="Stocks">Stocks</label>
+                </div>
+
+                <div class="my-2 mb-3 w-100">
+                    <input type="file" class="form-control" id="ProductImages" asp-for="imageFile" multiple>
+                    <span asp-validation-for="imageFile" class="text-danger float-start"></span>
+                </div>
+
+                <div class="image-preview-container mt-3"></div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success ">Add product</button>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        window.successMessage = '@TempData["SuccessMessage"]';
+        window.errorMessage = '@TempData["ErrorMessage"]';
+
+        $(document).ready(function () {
+
+            $(document).on('submit','#AddProductForm',function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: '/Product/AddProduct',
+                    type: 'POST',
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => {
+                                window.location.href = '/Product/MyProducts';
+                            }, 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        toastr.error('An error occurred while adding the product.');
+                    }
+                });
+            })
+
+            // mthod for image showcasing
+            $('#ProductImages').on('change', function (event) {
+                
+                const files = event.target.files;
+                const previewContainer = $('.image-preview-container');
+                
+                $('#ProductImages').after(previewContainer);
+                
+                const existingImages = new Set();
+
+                Array.from(files).forEach((file) => {
+                    if (existingImages.has(file.name)) {
+                        toastr.error(`Image "${file.name}" is already added.`);
+                        return;
+                    }
+                    existingImages.add(file.name);
+                });
+                
+                Array.from(files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imgWrapper = $('<div class="img-wrapper d-inline-block position-relative m-2"></div>');
+                        const img = $('<img class="img-thumbnail" style="width: 100px; height: 100px;">');
+                        img.attr('src', e.target.result);
+
+                        const removeBtn = $('<button class="btn btn-danger btn-sm position-absolute top-0 end-0">X</button>');
+                        removeBtn.on('click', function () {
+                            imgWrapper.remove();
+                        });
+
+                        imgWrapper.append(img).append(removeBtn);
+                        previewContainer.append(imgWrapper);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        });
+    </script>
+    <script src="~/js/toastr_script.js"></script>
+
+}

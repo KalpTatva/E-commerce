@@ -19,7 +19,13 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Country> Countries { get; set; }
 
+    public virtual DbSet<Image> Images { get; set; }
+
+    public virtual DbSet<Offer> Offers { get; set; }
+
     public virtual DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+
+    public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Profile> Profiles { get; set; }
 
@@ -64,6 +70,60 @@ public partial class EcommerceContext : DbContext
                 .HasColumnName("country");
         });
 
+        modelBuilder.Entity<Image>(entity =>
+        {
+            entity.HasKey(e => e.ImageId).HasName("image_pkey");
+
+            entity.ToTable("image");
+
+            entity.Property(e => e.ImageId).HasColumnName("image_id");
+            entity.Property(e => e.ImageUrl)
+                .HasColumnType("character varying")
+                .HasColumnName("image_url");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Images)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("image_product_id_fkey");
+        });
+
+        modelBuilder.Entity<Offer>(entity =>
+        {
+            entity.HasKey(e => e.OfferId).HasName("offers_pkey");
+
+            entity.ToTable("offers");
+
+            entity.Property(e => e.OfferId).HasColumnName("offer_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Description)
+                .HasColumnType("character varying")
+                .HasColumnName("description");
+            entity.Property(e => e.DiscountRate).HasColumnName("discount_rate");
+            entity.Property(e => e.EditedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("edited_at");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("end_date");
+            entity.Property(e => e.OfferType).HasColumnName("offer_type");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("start_date");
+            entity.Property(e => e.Title)
+                .HasColumnType("character varying")
+                .HasColumnName("title");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Offers)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("offers_product_id_fkey");
+        });
+
         modelBuilder.Entity<PasswordResetRequest>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("password_reset_requests_pkey");
@@ -81,6 +141,38 @@ public partial class EcommerceContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("guidtoken");
             entity.Property(e => e.Userid).HasColumnName("userid");
+        });
+
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.HasKey(e => e.ProductId).HasName("product_pkey");
+
+            entity.ToTable("product");
+
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DeletedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("deleted_at");
+            entity.Property(e => e.Description)
+                .HasColumnType("character varying")
+                .HasColumnName("description");
+            entity.Property(e => e.EditedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("edited_at");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
+            entity.Property(e => e.Price).HasColumnName("price");
+            entity.Property(e => e.ProductName)
+                .HasColumnType("character varying")
+                .HasColumnName("product_name");
+            entity.Property(e => e.SellerId).HasColumnName("seller_id");
+            entity.Property(e => e.Stocks).HasColumnName("stocks");
         });
 
         modelBuilder.Entity<Profile>(entity =>
