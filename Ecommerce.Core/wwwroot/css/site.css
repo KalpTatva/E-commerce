@@ -23,11 +23,15 @@ html {
 }
 
 
+.height{
+  min-height: 100vh;
+}
+
 /* colors */
 
 
 .btn-color{background-color: #45AD82 ;}
-.bg-lightblue{background-color: #057af89f;}
+.bg-lightblue{background-color: #9db1c59f;}
 
 
 

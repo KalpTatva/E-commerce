@@ -1,5 +1,7 @@
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
+using Ecommerce.Repository.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Repository.implementation;
 
@@ -181,6 +183,47 @@ public class UserRepository : IUserRepository
     }
 
 
+    /// <summary>
+    /// method for registering user
+    /// </summary>
+    /// <param name="user"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddUser(User user)
+    {
+        try
+        {
+            _context.Users.Add(user);
+            _context.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while registering user.", ex);
+        }
+    }
+
+    /// <summary>
+    /// method for registering profile
+    /// </summary>
+    /// <param name="profile"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddProfile(Profile profile)
+    {
+        try
+        {
+            _context.Profiles.Add(profile);
+            _context.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while registering profile.", ex);
+        }
+    }
+
+    /// <summary>
+    /// method for getting countries
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public List<Country>? GetCountries()
     {
         try
@@ -193,6 +236,12 @@ public class UserRepository : IUserRepository
         }
     }
 
+    /// <summary>
+    /// method for getting states by country id
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public List<State>? GetStates(int countryId)
     {
         try
@@ -205,6 +254,12 @@ public class UserRepository : IUserRepository
         }
     }
 
+    /// <summary>
+    /// method for getting cities by state id
+    /// </summary>
+    /// <param name="stateId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public List<City>? GetCities(int stateId)
     {
         try
@@ -214,6 +269,51 @@ public class UserRepository : IUserRepository
         catch(Exception ex)
         { 
             throw new Exception("An error occurred while fetching state.", ex);   
+        }
+    }
+
+
+    /// <summary>
+    /// method for getting user + profile data using email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns> returns EditRegisteredUserViewModel </returns>
+    public EditRegisteredUserViewModel? GetUserDetailsByEmail(string email)
+    {
+        try
+        {
+            EditRegisteredUserViewModel? query = _context.Users
+                                                .Include(p => p.Profile)
+                                                .ThenInclude(c => c.Country)
+                                                .ThenInclude(s => s.States)
+                                                .ThenInclude(x => x.Cities)
+                                                .Where(x => x.Email == email)
+                                                .Select(x => new EditRegisteredUserViewModel 
+                                                {
+                                                    FirstName = x.Profile.FirstName,
+                                                    LastName = x.Profile.LastName,
+                                                    Email = x.Email,
+                                                    UserName = x.UserName,
+                                                    userId = x.UserId,
+                                                    RoleId  = x.RoleId,
+                                                    PhoneNumber = x.Profile.PhoneNumber,
+                                                    Address = x.Profile.Address,
+                                                    Pincode = x.Profile.Pincode,
+                                                    CountryId = x.Profile.CountryId,
+                                                    StateId = x.Profile.StateId,
+                                                    CityId = x.Profile.CityId,
+                                                    CityName = x.Profile.City.City1,
+                                                    CountryName = x.Profile.Country.Country1,
+                                                    
+
+                                                })
+                                                .FirstOrDefault();
+            
+            return query ?? new EditRegisteredUserViewModel();
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
         }
     }
 }

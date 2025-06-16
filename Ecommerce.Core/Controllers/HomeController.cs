@@ -21,7 +21,6 @@ public class HomeController : Controller
 
 
 
-
     #region login
 
     /// <summary>
@@ -36,19 +35,23 @@ public class HomeController : Controller
             string? sessionId = null;
 
             // Check for session ID in cookies
-            if (CookieUtils.ContainsKey( Request, "session_id"))
+            if (CookieUtils.ContainsKey(Request, "session_id"))
             {
                 sessionId = Request.Cookies["session_id"];
                 Session? sessionDetails = _userService.GetSessionDetails(sessionId ?? "");
-                if (sessionDetails == null)
+                if (sessionDetails == null || !sessionDetails.IsActive || sessionDetails.ExpiresAt < DateTime.Now)
                 {
                     TempData["ErrorMessage"] = "Session expired. Please log in again.";
+                    // Clear invalid session data
+                    HttpContext.Session.Clear();
+                    CookieUtils.ClearCookies(Response, "session_id");
+                    CookieUtils.ClearCookies(Response, "auth_token");
                     return View();
                 }
             }
 
+            // Check for auth token in cookies or session
             string? cookieToken = CookieUtils.GetCokkieData(Request, "auth_token");
-            
             if (HttpContext.Session.TryGetValue("auth_token", out byte[]? sessionToken))
             {
                 authToken = System.Text.Encoding.UTF8.GetString(sessionToken);
@@ -58,32 +61,43 @@ public class HomeController : Controller
                 authToken = cookieToken;
             }
 
-            if (!string.IsNullOrEmpty(authToken) && User?.Identity?.IsAuthenticated == true)
+            // If no valid token or user is not authenticated, return login view
+            if (string.IsNullOrEmpty(authToken) || User?.Identity?.IsAuthenticated != true)
             {
-                string? role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-                if (role == RoleEnum.Admin.ToString())
-                {
-                    return RedirectToAction("Index", "Dashboard");
-                }
-                else if (role == RoleEnum.Buyer.ToString() || role == RoleEnum.Seller.ToString())
-                {
-                    return RedirectToAction("UserDashboard", "Dashboard");
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Invalid user role. Please contact to support staf.";
-                    return View();
-                }
+                HttpContext.Session.Clear();
+                CookieUtils.ClearCookies(Response, "auth_token");
+                return View();
             }
 
-            return View();
+            // Redirect based on role
+            string? role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (role == RoleEnum.Admin.ToString())
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else if (role == RoleEnum.Buyer.ToString() || role == RoleEnum.Seller.ToString())
+            {
+                return RedirectToAction("UserDashboard", "Dashboard");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Invalid user role. Please contact support.";
+                HttpContext.Session.Clear();
+                CookieUtils.ClearCookies(Response, "session_id");
+                CookieUtils.ClearCookies(Response, "auth_token");
+                return View();
+            }
         }
-        catch
+        catch (Exception ex)
         {
             TempData["ErrorMessage"] = "An unexpected error occurred. Please try again later.";
+            HttpContext.Session.Clear();
+            CookieUtils.ClearCookies(Response, "session_id");
+            CookieUtils.ClearCookies(Response, "auth_token");
             return View();
         }
     }
+
 
     /// <summary>
     /// post method for login 
@@ -110,7 +124,7 @@ public class HomeController : Controller
                 {
                     // Store session ID and JWT in secure cookies
                     CookieUtils.SetJwtCookie(Response, "session_id", response.sessionId ?? "");
-                    CookieUtils.SetJwtCookie(Response, "auth_token",  response.token);// Store JWT in cookie
+                    CookieUtils.SetJwtCookie(Response, "auth_token", response.token);// Store JWT in cookie
 
                 }
                 else
@@ -119,10 +133,10 @@ public class HomeController : Controller
                     HttpContext.Session.SetString("auth_token", response.token);
                 }
 
-                return RedirectToAction("Index","Home");
+                return RedirectToAction("Index", "Home");
             }
 
-            TempData["ErrorMessage"] = "Invalid user credentials!";
+            TempData["ErrorMessage"] = "Invalid user credentials, please try again !";
             return View(model);
         }
         catch (Exception e)
@@ -138,29 +152,36 @@ public class HomeController : Controller
     /// <returns></returns>
     public IActionResult Logout()
     {
-        // Clear session
-        HttpContext.Session.Clear();
-
-        // Clear cookies
-        CookieUtils.ClearCookies(Response,"session_id");
-        CookieUtils.ClearCookies(Response,"auth_token");
-
-        // Invalidate session in database if stored
-        string? sessionId = CookieUtils.GetCokkieData(Request, "session_id");
-        if (sessionId!=null)
+        try
         {
-            Session? session = _userService.GetSessionDetails(sessionId);
-            if (session != null)
+            // Invalidate session in database if stored
+            string? sessionId = CookieUtils.GetCokkieData(Request, "session_id");
+            if (sessionId != null)
             {
-                session.IsActive = false;
-                _userService.UpdateSession(session);
+                Session? session = _userService.GetSessionDetails(sessionId);
+                if (session != null)
+                {
+                    session.IsActive = false;
+                    _userService.UpdateSession(session);
+                }
             }
+
+            // Clear session and cookies
+            HttpContext.Session.Clear();
+            CookieUtils.ClearCookies(Response, "session_id");
+            CookieUtils.ClearCookies(Response, "auth_token");
+
+            TempData["SuccessMessage"] = "Logged out successfully!";
+            return RedirectToAction("UserDashboard", "Dashboard"); // Redirect to login page
         }
-        TempData["SuccessMessage"] = "logout successfully!";
-        return RedirectToAction("UserDashboard","Dashboard");
+        catch
+        {
+            TempData["ErrorMessage"] = "An error occurred during logout. Please try again.";
+            return RedirectToAction("Index", "Home");
+        }
     }
 
-    
+
     #endregion
     #region Forgot Password
 
@@ -185,13 +206,14 @@ public class HomeController : Controller
         {
             TempData["ErrorMessage"] = "Email address is required.";
         }
-        try{
-            
+        try
+        {
+
             ResponsesViewModel response = await _userService.ForgotPassword(model);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = response.Message;
-                return RedirectToAction("Index","Home");
+                return RedirectToAction("Index", "Home");
             }
             else
             {
@@ -200,7 +222,8 @@ public class HomeController : Controller
             }
 
 
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             TempData["ErrorMessage"] = $"Error occurred while processing your request: {ex.Message}";
             return View(model);
@@ -236,7 +259,7 @@ public class HomeController : Controller
             }
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while validating the reset password token.");
             TempData["ErrorMessage"] = $"Error occurred while processing your request: {ex.Message}";
@@ -271,7 +294,7 @@ public class HomeController : Controller
                 return View(model);
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while resetting the password.");
             TempData["ErrorMessage"] = $"Error occurred while processing your request: {ex.Message}";
@@ -284,38 +307,95 @@ public class HomeController : Controller
     #endregion
 
     #region Register User
+
+    /// <summary>
+    /// register user get method
+    /// </summary>
+    /// <returns></returns>
     public IActionResult RegisterUser()
     {
         return View();
     }
 
+    /// <summary>
+    /// register user post method, which registers a new user
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public IActionResult RegisterUser(RegisterUserViewModel model)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Invalid user details. Please check your input.";
+                return View(model);
+            }
+
+            ResponsesViewModel response = _userService.RegisterUser(model);
+            if (response.IsSuccess)
+            {
+                TempData["SuccessMessage"] = response.Message;
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = response.Message;
+                return View(model);
+            }
+        }
+        catch (Exception e)
+        {
+            TempData["ErrorMessage"] = e.Message;
+            return View(model);
+        }
+    }
+
+
+    /// <summary>
+    /// GetCountries method to fetch list of countries for registration
+    /// </summary>
+    /// <returns></returns>
     // helpers
     [HttpGet]
     public IActionResult GetCountries()
     {
-        try{
+        try
+        {
             List<Country>? countries = _userService.GetCountries();
             return PartialView("_countryoptionsPartial", countries);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            return Json(new {success = false, message = e.Message});
+            return Json(new { success = false, message = e.Message });
         }
     }
 
+    /// <summary>
+    /// GetStates method to fetch list of states based on selected country
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>.
     [HttpGet]
     public IActionResult GetStates(int countryId)
     {
-        try{
+        try
+        {
             List<State>? states = _userService.GetStates(countryId);
             return PartialView("_stateoptionPartial", states);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            return Json(new {success = false, message = e.Message});
+            return Json(new { success = false, message = e.Message });
         }
     }
 
+    /// <summary>
+    /// GetCities method to fetch list of cities based on selected state
+    /// </summary>
+    /// <param name="stateId"></param>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult GetCities(int stateId)
     {
@@ -324,17 +404,11 @@ public class HomeController : Controller
             List<City>? cities = _userService.GetCities(stateId);
             return PartialView("_cityoptionPartial", cities);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            return Json(new {success = false, message = e.Message});
+            return Json(new { success = false, message = e.Message });
         }
     }
-
-    // [HttpPost]
-    // public IActionResult RegisterUser()
-    // {
-
-    // }
 
     #endregion
 

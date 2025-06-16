@@ -66,7 +66,7 @@ public class UserService : IUserService
 
             return new ResponseTokenViewModel
             {
-                token = "",
+                token = null,
                 sessionId = null,
                 response = "Invalid user credentials!"
             };
@@ -390,7 +390,73 @@ public class UserService : IUserService
         }
     }
 
+    /// <summary>
+    /// method for registering a new user
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public ResponsesViewModel RegisterUser(RegisterUserViewModel model)
+    {
+        try
+        {
+            // Check if user already exists
+            User? existingUser = _userRepository.GetUserByEmail(model.Email.Trim().ToLower());
+            if (existingUser != null)
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "User with this email already exists"
+                };
+            }
+            
+            Profile profile = new Profile 
+            {
+                PhoneNumber = model.PhoneNumber,
+                Address = model.Address,
+                Pincode = model.Pincode,
+                CountryId = model.CountryId,
+                StateId = model.StateId,
+                CityId = model.CityId,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                CreatedAt = DateTime.Now
+            };
+            _userRepository.AddProfile(profile);
 
+            // Create new user
+            User newUser = new User
+            {
+                UserName = model.UserName,
+                Email = model.Email.Trim().ToLower(),
+                Password = BCrypt.Net.BCrypt.EnhancedHashPassword(model.Password),
+                RoleId = model.RoleId,
+                ProfileId = profile.ProfileId,
+                CreatedAt = DateTime.Now
+            };
+            _userRepository.AddUser(newUser);
+
+            return new ResponsesViewModel()
+            {
+                IsSuccess = true,
+                Message = "User registered successfully"
+            };
+        }
+        catch (Exception e)
+        {
+            return new ResponsesViewModel()
+            {
+                IsSuccess = false,
+                Message = $"Error in RegisterUser: {e.Message}"
+            };
+        }
+    }
+
+    /// <summary>
+    /// method for getting list of countries
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public List<Country>? GetCountries()
     {
         try
@@ -404,6 +470,12 @@ public class UserService : IUserService
     }
 
 
+    /// <summary>
+    /// method for getting states based on country id
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public List<State>? GetStates(int countryId)
     {
         try
@@ -416,6 +488,12 @@ public class UserService : IUserService
         }
     }
 
+    /// <summary>
+    /// method for getting cities based on state id
+    /// </summary>
+    /// <param name="stateId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public List<City>? GetCities(int stateId)
     {
         try
@@ -425,6 +503,25 @@ public class UserService : IUserService
         catch(Exception e)
         {
             throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// method for getting user + profile data using email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns> returns EditRegisteredUserViewModel </returns>
+    public EditRegisteredUserViewModel? GetUserDetailsByEmail(string email)
+    {
+        try
+        {
+            EditRegisteredUserViewModel? model = _userRepository.GetUserDetailsByEmail(email);
+            return model ?? new EditRegisteredUserViewModel();
+        }
+        catch(Exception e)
+        {
+            throw new Exception("error occured while fatching user : " + e.Message);
         }
     }
 }

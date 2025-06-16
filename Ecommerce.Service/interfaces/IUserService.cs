@@ -55,7 +55,37 @@ public interface IUserService
     /// <returns></returns>
     ResponsesViewModel ResetPassword(ForgetPasswordViewModel model);
 
+    /// <summary>
+    /// method for registering a new user
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    ResponsesViewModel RegisterUser(RegisterUserViewModel model);
+
+    /// <summary>
+    /// method for getting countrries
+    /// </summary>
+    /// <returns></returns>
     List<Country>? GetCountries();
+
+    /// <summary>
+    /// method for getting states based on country 
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
     List<State>? GetStates(int countryId);
+
+    /// <summary>
+    /// method for getting cities based on state id
+    /// </summary>
+    /// <param name="stateId"></param>
+    /// <returns></returns>
     List<City>? GetCities(int stateId);
+
+    /// <summary>
+    /// method for getting user + profile data using email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns> returns EditRegisteredUserViewModel </returns>
+    EditRegisteredUserViewModel? GetUserDetailsByEmail(string email);
 }

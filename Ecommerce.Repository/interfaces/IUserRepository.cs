@@ -1,4 +1,5 @@
 using Ecommerce.Repository.Models;
+using Ecommerce.Repository.ViewModels;
 
 namespace Ecommerce.Repository.interfaces;
 
@@ -72,8 +73,43 @@ public interface IUserRepository
     /// <exception cref="Exception"></exception>
     PasswordResetRequest? GetPasswordResetRequestByToken(string token);
 
+    /// <summary>
+    /// function for adding user in db
+    /// </summary>
+    /// <param name="user"></param>
+    void AddUser(User user);
+
+    /// <summary>
+    /// function for adding profile in db
+    /// </summary>
+    /// <param name="profile"></param>
+    void AddProfile(Profile profile);
+
+    /// <summary>
+    /// function fo getting countries
+    /// </summary>
+    /// <returns></returns>
     List<Country>? GetCountries();
+
+    /// <summary>
+    /// function for getting states based on country id
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
     List<State>? GetStates(int countryId);
+
+    /// <summary>
+    /// function for getting cities based on state id
+    /// </summary>
+    /// <param name="stateId"></param>
+    /// <returns></returns>
     List<City>? GetCities(int stateId);
+
+    /// <summary>
+    /// method for getting user + profile data using email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns> returns EditRegisteredUserViewModel </returns>
+    EditRegisteredUserViewModel? GetUserDetailsByEmail(string email);
     
 }

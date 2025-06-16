@@ -17,40 +17,61 @@ public class TokenRefreshMiddleware
     {
         if (context.User.Identity.IsAuthenticated)
         {
-            string? emailClaim = context.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
+            string? emailClaim = context.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value
                 ?? context.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
             string? roleClaim = context.User.FindFirst(ClaimTypes.Role)?.Value;
             string? token = context.Request.Cookies["auth_token"] ?? context.Session.GetString("auth_token");
 
             if (!string.IsNullOrEmpty(token))
             {
-                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-                JwtSecurityToken? jwtToken = handler.ReadJwtToken(token);
-                if (jwtToken.ValidTo < DateTime.Now.AddMinutes(5)) // Refresh if expiring soon
+                try
                 {
-                    ResponseTokenViewModel? response = userService.RefreshToken(emailClaim, roleClaim);
-                    if (response.token != null)
+                    JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                    JwtSecurityToken? jwtToken = handler.ReadJwtToken(token);
+                    if (jwtToken.ValidTo < DateTime.Now.AddMinutes(5)) // Refresh if expiring soon
                     {
-                        if (context.Request.Cookies.ContainsKey("session_id"))
+                        ResponseTokenViewModel? response = userService.RefreshToken(emailClaim, roleClaim);
+                        if (response.token != null)
                         {
-                            CookieOptions cookieOptions = new CookieOptions
+                            if (context.Request.Cookies.ContainsKey("session_id"))
                             {
-                                HttpOnly = true,
-                                Secure = true,
-                                SameSite = SameSiteMode.Strict,
-                                Expires = DateTimeOffset.UtcNow.AddDays(30)
-                            };
-                            context.Response.Cookies.Append("auth_token", response.token, cookieOptions);
-                        }
-                        else
-                        {
-                            context.Session.SetString("auth_token", response.token);
+                                CookieOptions cookieOptions = new CookieOptions
+                                {
+                                    HttpOnly = true,
+                                    Secure = true,
+                                    SameSite = SameSiteMode.Strict,
+                                    Expires = DateTimeOffset.UtcNow.AddDays(30)
+                                };
+                                context.Response.Cookies.Append("auth_token", response.token, cookieOptions);
+                            }
+                            else
+                            {
+                                context.Session.SetString("auth_token", response.token);
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    // Clear session and cookies on token error
+                    context.Session.Clear();
+                    context.Response.Cookies.Delete("auth_token");
+                    context.Response.Cookies.Delete("session_id");
+                    context.Response.Redirect("/Home/Index");
+                    return;
+                }
+            }
+            else
+            {
+                // Clear session and cookies if no token is found
+                context.Session.Clear();
+                context.Response.Cookies.Delete("auth_token");
+                context.Response.Cookies.Delete("session_id");
+                context.Response.Redirect("/Home/Index");
+                return;
             }
         }
+
         await _next(context);
     }
 }
-

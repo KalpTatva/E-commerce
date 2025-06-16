@@ -57,16 +57,24 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            // Trying to get token from cookies first (for "Remember Me")
+            // Try to get token from cookies first (for "Remember Me")
             context.Request.Cookies.TryGetValue("auth_token", out string? token);
-            
-            // if no cookie token
+
+            //  if no cookie token
             if (string.IsNullOrEmpty(token))
             {
                 token = context.HttpContext.Session.GetString("auth_token");
             }
 
+            // If token is still null or empty, explicitly set context.Token to null
             context.Token = token;
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            // Redirect to login page on authentication failure
+            context.Response.Redirect("/Home/Index");
+            context.Response.StatusCode = 401; // Unauthorized
             return Task.CompletedTask;
         }
     };
@@ -92,7 +100,7 @@ app.UseStatusCodePages(async context =>
 {
     if (context.HttpContext.Response.StatusCode == 401)
     {
-        context.HttpContext.Response.Redirect("/Home/Index"); // Redirect to login for unauthenticated
+        context.HttpContext.Response.Redirect("/Home/Error401"); // Redirect to login for unauthenticated
     }
     else if (context.HttpContext.Response.StatusCode == 403)
     {
