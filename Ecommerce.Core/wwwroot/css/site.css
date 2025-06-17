@@ -207,7 +207,16 @@ html {
 }
 
 
-
+.loader3 {
+  width: 28px;
+  height: 28px;
+  border: 5px solid #00000075;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
 
 
 /* keyframes */
