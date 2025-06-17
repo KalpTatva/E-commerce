@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Ecommerce.Repository.Helpers;
 
 public class Enums
@@ -10,14 +12,22 @@ public class Enums
 
     public enum CategoriesEnum
     {
-        Computers = 1,
-	    Laptops = 2,
- 	    Accessories = 3
+ 	    Accessories = 1,
+        Computers = 2,
+	    Laptops = 3
     }
 
     public enum RegisterRoleEnum
     {
         Buyer = 1,
         Seller = 2
+    }
+
+    public enum DiscountEnum
+    {
+        Percentage = 1,
+        
+        [Display(Name = "Fixed Amount")]
+        FixedAmount = 2
     }
 }

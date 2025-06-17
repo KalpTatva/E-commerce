@@ -11,12 +11,33 @@
         Add new product
     </h3>
     <a class="btn btn-primary" id="AddProduct-btn" asp-action="MyProducts" asp-controller="Product">
-        Back to products
+        <i class="bi bi-chevron-left"></i> Back to products
     </a>
 </div>
 
-<div class="w-100 d-flex justify-content-center align-items-center">
-    <div class="bg-white border rounded-3 widthOfForms">
+<div class="w-100 d-flex justify-content-center align-items-start flex-lg-row flex-column p-4">
+    <div class="pe-4 mb-3">
+        <div class="bg-white border rounded p-3">
+            <div class="d-flex justify-content-start align-items-center gap-2">
+                <h4 class="font-monospace text-secondary">Guidelines</h4>
+                <img src="~/images/airplane_10521415.png" alt="" height="20px" width="20px">
+            </div>
+            <hr />
+            <ul class="ps-3">
+                <li>Ensure the product <strong>name</strong> is unique and descriptive.</li>
+                <li>Provide a detailed <strong>description</strong> to help customers understand the product.</li>
+                <li>Add relevant <strong>features</strong> to highlight the product's benefits.</li>
+                <li>Select the appropriate <strong>category</strong> for better organization.</li>
+                <li>Set a competitive <strong>price</strong> based on market research.</li>
+                <li>Specify the available <strong>stock quantity</strong> accurately.</li>
+                <li>Upload <strong>high-quality images</strong> to showcase the product.</li>
+                <li>Choose a suitable <strong>discount type</strong> (e.g., percentage or fixed amount).</li>
+                <li>Set a <strong>discount value</strong> to attract customers while maintaining profitability.</li>
+                <li class="text-danger">Review all details before submitting the form.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="w-100 bg-white border rounded-3 widthOfForms ">
         <div class="p-3">
             <form action="POST" id="AddProductForm">
                 <div class="form-floating has-validation my-2 mb-3 w-100">
@@ -33,11 +54,37 @@
                     <span class="text-danger" asp-validation-for="Description"></span>
                 </div>
 
+                <input type="hidden" id="FeaturesInput" asp-for="FeaturesInput">
+
+                <div class="features-container">
+
+                    <p class="text-secondary">optional</p>
+                    <button type="button" class="btn btn-primary mb-3" id="AddFeatureButton"><i
+                            class="bi bi-plus-lg"></i> Add new features</button>
+
+                </div>
+
                 <div class="form-floating mb-3 w-100">
                     <select class="form-select" asp-for="CategoryId" id="floatingSelect" aria-label="Role"
                         asp-items="Html.GetEnumSelectList<CategoriesEnum>()"></select>
                     <label for="floatingSelect">Category</label>
                     <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+
+                <div class="d-flex flex-row gap-3">
+                    <div class="form-floating mb-3 w-100">
+                        <select class="form-select" asp-for="DiscountType" id="floatingSelect" aria-label="Role"
+                            asp-items="Html.GetEnumSelectList<DiscountEnum>()"></select>
+                        <label for="floatingSelect">Discount Type</label>
+                        <span asp-validation-for="DiscountType" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating has-validation mb-3 w-100">
+                        <input type="text" class="form-control" id="Discount" placeholder="Discount" asp-for="Discount">
+                        <span asp-validation-for="Discount" class="text-danger float-start"></span>
+                        <label for="Discount">Discount</label>
+                    </div>
                 </div>
 
                 <div class="form-floating has-validation my-2 mb-3 w-100">
@@ -52,6 +99,8 @@
                     <label for="Stocks">Stocks</label>
                 </div>
 
+
+
                 <div class="my-2 mb-3 w-100">
                     <input type="file" class="form-control" id="ProductImages" asp-for="imageFile" multiple>
                     <span asp-validation-for="imageFile" class="text-danger float-start"></span>
@@ -64,10 +113,7 @@
                 </div>
             </form>
         </div>
-
-
     </div>
-
 </div>
 
 @section scripts {
@@ -78,5 +124,4 @@
     </script>
     <script src="~/js/toastr_script.js"></script>
     <script src="~/js/addProduct_script.js"></script>
-
 }

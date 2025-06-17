@@ -27,6 +27,12 @@ public partial class Product
 
     public bool? IsDeleted { get; set; }
 
+    public int? DiscountType { get; set; }
+
+    public decimal? Discount { get; set; }
+
+    public virtual ICollection<Feature> Features { get; set; } = new List<Feature>();
+
     public virtual ICollection<Image> Images { get; set; } = new List<Image>();
 
     public virtual ICollection<Offer> Offers { get; set; } = new List<Offer>();

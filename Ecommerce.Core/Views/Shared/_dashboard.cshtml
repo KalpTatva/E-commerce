@@ -28,7 +28,7 @@
                     <li class="my-4"><a asp-action="MyProducts" asp-controller="Product"
                     class="text-white text-decoration-none profile-link">My products</a></li>
                     <li class="my-4"><a 
-                    class="text-white text-decoration-none profile-link">Offers</a></li>
+                    class="text-white text-decoration-none profile-link">Add Offers</a></li>
                 </ul>
             </div>
         </aside>
@@ -61,13 +61,13 @@
 
                                 <a asp-action="EditProfile" asp-controller="Dashboard"
                                     class="text-white me-3 text-decoration-none profile-link">@Model.BaseEmail</a>
-                                <button class="btn btn-danger" id="LogoutButton">Logout</button>
+                                <button class="btn btn-danger me-1" id="LogoutButton">Logout</button>
                             }
                             else
                             {
                                 <a class="btn btn-success" asp-controller="Home" asp-action="Index">Login</a>
                                 <a class="text-white me-3 text-decoration-none profile-link ms-2" asp-controller="Home"
-                                    asp-action="RegisterUser">Sign up</a>
+                                    asp-action="RegisterUser me-1">Sign up</a>
                             }
 
 

@@ -30,9 +30,8 @@
                     <td>@(((CategoriesEnum)product.CategoryId).ToString())</td>
                     <td>@product.CreatedAt</td>
                     <td>
-                        <button class="btn btn-success"><i class="bi bi-pencil-fill"></i></button>
-                        <button class="btn btn-danger"><i class="bi bi-trash-fill"></i></button>
-
+                        <a class="btn btn-success" asp-route-productId="@product.ProductId" asp-controller="Product" asp-action="EditProduct"><i class="bi bi-pencil-fill"></i></a>
+                        <button class="btn btn-danger product-delete-btn" data-product-id="@product.ProductId"><i class="bi bi-trash-fill"></i></button>
                     </td>
                 </tr>
             }

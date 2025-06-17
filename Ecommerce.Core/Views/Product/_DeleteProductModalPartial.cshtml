@@ -1,0 +1,22 @@
+<!-- delete modal for product-->
+<div class="modal fade" id="ProductDeleteModal" tabindex="-1" aria-labelledby="ProductDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ProductDeleteLabel">Delete Product</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex justify-content-center flex-column align-items-center">
+                <img src="~/images/toppng.com-warning-icon-2400x2400.png" height="80px" width="80px">
+                <div class=""> Are you sure you want to delete product?</div>
+            </div>
+            <div class="modal-footer">
+                <form action="PUT" id="productDeleteForm">
+                    <input type="text" id="deleteProductId" name="ProductId" value="">
+                    <button class="btn btn-primary" type="submit" >Yse</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

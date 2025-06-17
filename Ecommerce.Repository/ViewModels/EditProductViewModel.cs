@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Ecommerce.Repository.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Ecommerce.Repository.ViewModels;
 
-public class AddProductViewModel : BaseViewModel
+public class EditProductViewModel : BaseViewModel
 {
     public int ProductId { get; set; }
 
@@ -26,10 +27,15 @@ public class AddProductViewModel : BaseViewModel
     public int Stocks { get; set; }
     public int SellerId { get; set; }
 
-    [Required(ErrorMessage = "image is required")]
+    
+    public List<Feature>? Features {get;set;}
+
+    public List<Image>? Images {get;set;}  
+
     public List<IFormFile>? imageFile { get; set; }
 
     public string? FeaturesInput { get; set; }
+    public string? ImageDeleteInput { get; set; }
 
     [Required(ErrorMessage = "select discount type")]
     public int? DiscountType { get; set; }

@@ -19,6 +19,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Country> Countries { get; set; }
 
+    public virtual DbSet<Feature> Features { get; set; }
+
     public virtual DbSet<Image> Images { get; set; }
 
     public virtual DbSet<Offer> Offers { get; set; }
@@ -68,6 +70,37 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.Country1)
                 .HasColumnType("character varying")
                 .HasColumnName("country");
+        });
+
+        modelBuilder.Entity<Feature>(entity =>
+        {
+            entity.HasKey(e => e.FeatureId).HasName("features_pkey");
+
+            entity.ToTable("features");
+
+            entity.Property(e => e.FeatureId).HasColumnName("feature_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("delete_at");
+            entity.Property(e => e.Description)
+                .HasColumnType("character varying")
+                .HasColumnName("description");
+            entity.Property(e => e.EditedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("edited_at");
+            entity.Property(e => e.FeatureName)
+                .HasColumnType("character varying")
+                .HasColumnName("feature_name");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Features)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("features_product_id_fkey");
         });
 
         modelBuilder.Entity<Image>(entity =>
@@ -161,6 +194,10 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.Description)
                 .HasColumnType("character varying")
                 .HasColumnName("description");
+            entity.Property(e => e.Discount).HasColumnName("discount");
+            entity.Property(e => e.DiscountType)
+                .HasDefaultValue(1)
+                .HasColumnName("discount_type");
             entity.Property(e => e.EditedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("edited_at");

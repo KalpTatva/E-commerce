@@ -43,7 +43,8 @@ public class HomeController : Controller
                 {
                     TempData["ErrorMessage"] = "Session expired. Please log in again.";
                     // Clear invalid session data
-                    HttpContext.Session.Clear();
+
+                    SessionUtils.ClearSession(HttpContext);
                     CookieUtils.ClearCookies(Response, "session_id");
                     CookieUtils.ClearCookies(Response, "auth_token");
                     return View();
@@ -64,7 +65,7 @@ public class HomeController : Controller
             // If no valid token or user is not authenticated, return login view
             if (string.IsNullOrEmpty(authToken) || User?.Identity?.IsAuthenticated != true)
             {
-                HttpContext.Session.Clear();
+                SessionUtils.ClearSession(HttpContext);
                 CookieUtils.ClearCookies(Response, "auth_token");
                 return View();
             }
@@ -82,7 +83,7 @@ public class HomeController : Controller
             else
             {
                 TempData["ErrorMessage"] = "Invalid user role. Please contact support.";
-                HttpContext.Session.Clear();
+                SessionUtils.ClearSession(HttpContext);
                 CookieUtils.ClearCookies(Response, "session_id");
                 CookieUtils.ClearCookies(Response, "auth_token");
                 return View();
@@ -91,7 +92,7 @@ public class HomeController : Controller
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = "An unexpected error occurred. Please try again later.";
-            HttpContext.Session.Clear();
+            SessionUtils.ClearSession(HttpContext);
             CookieUtils.ClearCookies(Response, "session_id");
             CookieUtils.ClearCookies(Response, "auth_token");
             return View();
@@ -130,7 +131,7 @@ public class HomeController : Controller
                 else
                 {
                     // Storing JWT in session only for non-persistent login
-                    HttpContext.Session.SetString("auth_token", response.token);
+                    SessionUtils.SetSession(HttpContext,"auth_token", response.token);
                 }
 
                 return RedirectToAction("Index", "Home");
@@ -167,7 +168,7 @@ public class HomeController : Controller
             }
 
             // Clear session and cookies
-            HttpContext.Session.Clear();
+            SessionUtils.ClearSession(HttpContext);
             CookieUtils.ClearCookies(Response, "session_id");
             CookieUtils.ClearCookies(Response, "auth_token");
 

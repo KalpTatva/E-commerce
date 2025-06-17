@@ -1,10 +1,9 @@
 $(document).ready(function () {
-
-    $(document).on('submit','#AddProductForm',function(e){
+    $(document).on("submit", "#AddProductForm", function (e) {
         e.preventDefault();
         $.ajax({
-            url: '/Product/AddProduct',
-            type: 'POST',
+            url: "/Product/AddProduct",
+            type: "POST",
             data: new FormData(this),
             processData: false,
             contentType: false,
@@ -12,26 +11,25 @@ $(document).ready(function () {
                 if (response.success) {
                     toastr.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Product/MyProducts';
+                        window.location.href = "/Product/MyProducts";
                     }, 1500);
                 } else {
                     toastr.error(response.message);
                 }
             },
             error: function (xhr, status, error) {
-                toastr.error('An error occurred while adding the product.');
-            }
+                toastr.error("An error occurred while adding the product.");
+            },
         });
-    })
+    });
 
     // mthod for image showcasing
-    $('#ProductImages').on('change', function (event) {
-        
+    $("#ProductImages").on("change", function (event) {
         const files = event.target.files;
-        const previewContainer = $('.image-preview-container');
-        
-        $('#ProductImages').after(previewContainer);
-        
+        const previewContainer = $(".image-preview-container");
+
+        $("#ProductImages").after(previewContainer);
+
         const existingImages = new Set();
 
         Array.from(files).forEach((file) => {
@@ -41,16 +39,22 @@ $(document).ready(function () {
             }
             existingImages.add(file.name);
         });
-        
+
         Array.from(files).forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = function (e) {
-                const imgWrapper = $('<div class="img-wrapper d-inline-block position-relative m-2"></div>');
-                const img = $('<img class="img-thumbnail" style="width: 100px; height: 100px;">');
-                img.attr('src', e.target.result);
+                const imgWrapper = $(
+                    '<div class="img-wrapper d-inline-block position-relative m-2"></div>'
+                );
+                const img = $(
+                    '<img class="img-thumbnail" style="width: 100px; height: 100px;">'
+                );
+                img.attr("src", e.target.result);
 
-                const removeBtn = $('<button class="btn btn-danger btn-sm position-absolute top-0 end-0">X</button>');
-                removeBtn.on('click', function () {
+                const removeBtn = $(
+                    '<button class="btn btn-danger btn-sm position-absolute top-0 end-0">X</button>'
+                );
+                removeBtn.on("click", function () {
                     imgWrapper.remove();
                 });
 
@@ -59,5 +63,45 @@ $(document).ready(function () {
             };
             reader.readAsDataURL(file);
         });
+    });
+
+
+    // js for adding new features 
+    $("#AddFeatureButton").on("click", function () {
+        const featureItem = `
+        <div class="feature-item my-3 gap-3 d-flex justify-content-between">
+            <div class="form-floating w-100">
+                <input type="text" class="form-control feature-name" id="FeatureName" placeholder="Feature Name">
+                <label for="FeatureName">Feature Name</label>
+            </div>
+            <div class="form-floating w-100">
+                <input type="text" class="form-control feature-description" id="FeatureDescription" placeholder="Feature Description">
+                <label for="FeatureDescription">Feature Description</label>
+            </div>
+            <button type="button" class="btn btn-danger remove-feature-button"><i class="bi bi-x-lg"></i></button>
+        </div>`;
+        $(".features-container").append(featureItem);
+    });
+
+    // jq for removing feature
+    $(document).on("click", ".remove-feature-button", function () {
+        $(this).closest(".feature-item").remove();
+    });
+
+    // jq for adding values of features before submission
+    $("#AddProductForm").on("submit", function () {
+        const features = [];
+        $(".feature-item").each(function () {
+            const featureName = $(this).find(".feature-name").val();
+            const featureDescription = $(this).find(".feature-description").val();
+            if (featureName && featureDescription) {
+                features.push({
+                    FeatureName: featureName,
+                    Description: featureDescription,
+                });
+            }
+        });
+        $("#FeaturesInput").val(JSON.stringify(features));
+        console.log(features);
     });
 });

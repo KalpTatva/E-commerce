@@ -126,5 +126,7 @@ public interface IUserRepository
     /// <param name="profile"></param>
     /// <exception cref="Exception"></exception>
     void UpdateProfile(Profile profile);
+
+
     
 }
