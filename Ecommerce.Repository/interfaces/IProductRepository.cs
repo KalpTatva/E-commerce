@@ -88,4 +88,60 @@ public interface IProductRepository
     /// <param name="features"></param>
     /// <exception cref="Exception"></exception>
     void updateFeaturesRange(List<Feature> features);
+
+    /// <summary>
+    /// method for get all product with search filters
+    /// </summary>
+    /// <param name="search"></param>
+    /// <param name="category"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null);
+    
+    /// <summary>
+    /// method for getting product details by product id
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    Task<productDetailsByproductIdViewModel?> GetProductDetailsByProductId(int productId);
+
+    /// <summary>
+    /// method for fetch favourites by user and product id
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="ProductId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    Favourite? GetFavouriteByIds(int UserId,int ProductId);
+
+    /// <summary>
+    /// method for dropping favourite tupple from db
+    /// </summary>
+    /// <param name="favourite"></param>
+    /// <exception cref="Exception"></exception>
+    void dropFavourite(Favourite favourite);
+
+    /// <summary>
+    /// method for add tupple in favourite
+    /// </summary>
+    /// <param name="favourite"></param>
+    /// <exception cref="Exception"></exception>
+    void AddFavourite(Favourite favourite);
+
+    /// <summary>
+    /// method for get favourite tupples from db by user id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>    
+    List<int> GetFavouriteByUserId(int userId);
+
+    /// <summary>
+    /// method for getting products which are user's favourite
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    Task<List<ProductsDeatailsViewModel>?> GetFavouriteProductsByUserId(int userId);
 }

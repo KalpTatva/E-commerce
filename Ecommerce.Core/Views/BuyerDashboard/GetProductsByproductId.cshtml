@@ -1,0 +1,150 @@
+@using Ecommerce.Repository.Models
+@using static Ecommerce.Repository.Helpers.Enums
+@model Ecommerce.Repository.ViewModels.productDetailsByproductIdViewModel
+@{
+    Layout = "~/Views/Shared/_dashboard.cshtml";
+}
+@{
+    decimal price = 0;
+    decimal discount = 0;
+    if (Model.DiscountType == (int)DiscountEnum.FixedAmount)
+    {
+        price = Model.Price - Model.Discount ?? 0;
+        discount = Model.Discount ?? 0;
+    }
+    else if (Model.DiscountType == (int)DiscountEnum.Percentage)
+    {
+        price = Model.Price - ((Model.Price * Model.Discount ?? 0) / 100);
+        discount = (Model.Price * Model.Discount ?? 0) / 100;
+    }
+    else
+    {
+        price = Model.Price;
+        discount = 0;
+    }
+}
+
+<div class="container border bg-white rounded-3 d-flex m-5">
+    @if (Model != null)
+    {
+        <span class="productImageClass p-4 w-50">
+            <div>
+                @if (Model.Images != null && Model.Images.Any())
+                {
+                    <div id="owl-demo" class="owl-carousel owl-theme">
+                        @foreach (Image i in Model.Images)
+                        {
+                            <img src="@Url.Content(i.ImageUrl)" alt="@i.ImageId" />
+                        }
+                    </div>
+                }
+            </div>
+
+        </span>
+        <span class="ProductbodyClass position-relative p-4 d-flex flex-column w-50">
+
+            
+
+            <p class="h3 mb-3">@Model.ProductName</p>
+
+            <div class="mb-2">
+                <span class="text-danger fs-4">
+                    -@(
+                    Model.DiscountType == (int)DiscountEnum.FixedAmount
+                    ? string.Format("{0:C}", Model.Discount)
+                    : string.Format("{0}%", Model.Discount)
+                                )
+                </span>
+                <span class="fs-1">@price.ToString("C")</span>
+                <span class="text-muted text-decoration-line-through fs-5">(@Model.Price.ToString("C"))</span>
+
+            </div>
+
+            <div class="d-flex mb-2 w-100 gap-4">
+                <div class="d-flex flex-column ">
+                    <span class="text-success mb-2">Discount of</span>
+                    <p class="fs-4 mb-2">
+                        @discount.ToString("c")
+                    </p>
+                </div>
+                
+                <div class="d-flex flex-column">
+                    <span class="text-success mb-2">Category</span>
+                    <span class="fs-5 mb-2">
+                        @(((CategoriesEnum)Model.CategoryId).ToString())
+                    </span>
+                </div>
+                 <div class="d-flex justify-content-center align-items-center">
+                    <div id="addTofavourite" data-product-id="@Model.ProductId" data-is-favourite="@Model.IsFavourite">
+                        @if(Model.IsFavourite == true)
+                        {
+                            <span><i class="bi bi-heart-fill icons-css text-danger fs-3"></i></span>
+                        }
+                        else 
+                        {
+                            <span><i class="bi bi-heart icons-css text-danger fs-3"></i></span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+           
+
+            <span class="text-success mb-2">Features</span>
+            <div class="w-100 mb-2">
+                <table class="table w100 table border text-center">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Features != null && Model.Features.Any())
+                            {
+                                @foreach (Feature feature in Model.Features)
+                                {
+                                    <tr>
+                                        <td>@feature.FeatureName</td>
+                                        <td>@feature.Description</td>
+
+                                    </tr>
+                                }
+                            }
+                    </tbody>
+                </table>
+            </div>
+
+            @if(Model.UserEmail!=null)
+            {
+                <div class="d-flex w-100 gap-2 mb-2">
+                    <button class="btn btn-warning rounded-pill w-50">Add to cart</button>
+                    <button class="btn btn-success w-50 rounded-pill">Buy now</button>
+                </div>
+            }
+
+            <span class="text-success mb-2">About</span>
+            <div>
+                @Model.Description
+            </div>
+        </span>
+    }
+    else
+    {
+        <span class="d-flex justify-content-center align-items-center">
+            <span class="display-6">Product not found</span>
+        </span>
+    }
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    window.successMessage = '@TempData["SuccessMessage"]';
+    window.errorMessage = '@TempData["ErrorMessage"]';
+
+    
+</script>
+<script src="~/js/toastr_script.js"></script>
+<script src="~/js/GetProductsByproductId_script.js"></script>

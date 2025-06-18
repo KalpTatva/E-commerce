@@ -47,5 +47,44 @@ public interface IProductService
     /// <returns></returns>
     ResponsesViewModel UpdateProductDetails(EditProductViewModel model, List<Feature>? features, List<int>? DeletedImageIdList);
 
+    /// <summary>
+    /// method for getting all products details
+    /// </summary>
+    /// <param name="search"></param>
+    /// <param name="category"></param>
+    /// <returns></returns>
+    Task<ProductsViewModel> GetProducts(string? search = null, int? category = null);
+    
+    /// <summary>
+    /// method for getting product by product id and email 
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    Task<productDetailsByproductIdViewModel?> GetProductById(int productId, string email);
+    
+    /// <summary>
+    /// method for getting user wise favourite products details
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    Task<ProductsViewModel> GetFavouriteProducts(string email);
+    
+    /// <summary>
+    /// method for updating state of favourite button
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    ResponsesViewModel UpdateFavourite(int productId,string? email = null);
+    
+    /// <summary>
+    /// mehtod for getting details of favourite products list by user emails
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    List<int> GetFavouritesByEmail(string email);
+
    
 }

@@ -19,6 +19,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Country> Countries { get; set; }
 
+    public virtual DbSet<Favourite> Favourites { get; set; }
+
     public virtual DbSet<Feature> Features { get; set; }
 
     public virtual DbSet<Image> Images { get; set; }
@@ -70,6 +72,31 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.Country1)
                 .HasColumnType("character varying")
                 .HasColumnName("country");
+        });
+
+        modelBuilder.Entity<Favourite>(entity =>
+        {
+            entity.HasKey(e => e.FavouriteId).HasName("favourites_pkey");
+
+            entity.ToTable("favourites");
+
+            entity.Property(e => e.FavouriteId).HasColumnName("favourite_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Favourites)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("favourites_product_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Favourites)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("favourites_user_id_fkey");
         });
 
         modelBuilder.Entity<Feature>(entity =>

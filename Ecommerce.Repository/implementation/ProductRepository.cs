@@ -1,6 +1,7 @@
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Repository.implementation;
 
@@ -272,4 +273,190 @@ public class ProductRepository : IProductRepository
             throw new Exception(e.Message);
         }
     }
+
+
+    /// <summary>
+    /// method for get all product with search filters
+    /// </summary>
+    /// <param name="search"></param>
+    /// <param name="category"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null)
+    {
+        try
+        {
+            List<ProductsDeatailsViewModel>? query = await (from product in _context.Products
+                                where product.IsDeleted == false &&
+                                      (string.IsNullOrEmpty(search) || product.ProductName.Contains(search)) &&
+                                      (!category.HasValue || product.CategoryId == category)
+                                select new ProductsDeatailsViewModel
+                                {
+                                    ProductId = product.ProductId,
+                                    ProductName = product.ProductName,
+                                    Description = product.Description,
+                                    Price = product.Price,
+                                    Stocks = product.Stocks,
+                                    DiscountType = product.DiscountType,
+                                    Discount = product.Discount,
+                                    CategoryId = product.CategoryId,
+                                    SellerId = product.SellerId,
+                                    Features = _context.Features.Where(f => f.ProductId == product.ProductId).ToList(),
+                                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault()
+                                }).ToListAsync();
+            return query;
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for getting product details by product id
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<productDetailsByproductIdViewModel?> GetProductDetailsByProductId(int productId)
+    {
+        try
+        {
+            productDetailsByproductIdViewModel? query = await (from product in _context.Products
+                                where product.IsDeleted == false && product.ProductId == productId
+                                select new productDetailsByproductIdViewModel
+                                {
+                                    ProductId = product.ProductId,
+                                    ProductName = product.ProductName,
+                                    Description = product.Description,
+                                    Price = product.Price,
+                                    Stocks = product.Stocks,
+                                    DiscountType = product.DiscountType,
+                                    Discount = product.Discount,
+                                    CategoryId = product.CategoryId,
+                                    SellerId = product.SellerId,
+                                    Features = _context.Features.Where(f => f.ProductId == product.ProductId).ToList(),
+                                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).ToList()
+                                }).FirstOrDefaultAsync();
+            return query;
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// method for getting products which are user's favourite
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<List<ProductsDeatailsViewModel>?> GetFavouriteProductsByUserId(int userId)
+    {
+        try
+        {
+            List<ProductsDeatailsViewModel>? query = await (
+                                from product in _context.Products
+                                join f in _context.Favourites on product.ProductId equals f.ProductId
+                                where product.IsDeleted == false && f.UserId == userId
+                                select new ProductsDeatailsViewModel
+                                {
+                                    ProductId = product.ProductId,
+                                    ProductName = product.ProductName,
+                                    Description = product.Description,
+                                    Price = product.Price,
+                                    Stocks = product.Stocks,
+                                    DiscountType = product.DiscountType,
+                                    Discount = product.Discount,
+                                    CategoryId = product.CategoryId,
+                                    SellerId = product.SellerId,
+                                    Features = _context.Features.Where(f => f.ProductId == product.ProductId).ToList(),
+                                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault()
+                                }).ToListAsync();
+            return query;
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for fetch favourites by user and product id
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="ProductId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public Favourite? GetFavouriteByIds(int UserId,int ProductId)
+    {
+        try
+        {
+            return _context.Favourites.FirstOrDefault(f => f.UserId == UserId && f.ProductId == ProductId);
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for dropping favourite tupple from db
+    /// </summary>
+    /// <param name="favourite"></param>
+    /// <exception cref="Exception"></exception>
+    public void dropFavourite(Favourite favourite)
+    {
+        try
+        {
+            _context.Favourites.Remove(favourite);
+            _context.SaveChanges();
+
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+    
+    /// <summary>
+    /// method for add tupple in favourite
+    /// </summary>
+    /// <param name="favourite"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddFavourite(Favourite favourite)
+    {
+        try
+        {
+            _context.Favourites.Add(favourite);
+            _context.SaveChanges();
+
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for get favourite tupples from db by user id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public List<int> GetFavouriteByUserId(int userId)
+    {
+        try
+        {
+            return _context.Favourites.Where(f => f.UserId == userId).Select(x => x.ProductId).ToList();
+
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+ 
 }

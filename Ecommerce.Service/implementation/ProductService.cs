@@ -5,6 +5,7 @@ using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Ecommerce.Service.implementation;
 
@@ -24,6 +25,8 @@ public class ProductService : IProductService
         _userRepository = userRepository; 
     }
     
+
+    #region Seller's service
     /// <summary>
     /// method service for adding product
     /// </summary>
@@ -342,4 +345,185 @@ public class ProductService : IProductService
             };
         }
     }
+
+    #endregion
+    #region Buyer's service
+    
+
+    /// <summary>
+    /// method for getting all products details
+    /// </summary>
+    /// <param name="search"></param>
+    /// <param name="category"></param>
+    /// <returns></returns>
+    public async Task<ProductsViewModel> GetProducts(string? search = null, int? category = null)
+    {
+        try
+        {
+            ProductsViewModel productsViewModel = new ();
+
+            List<ProductsDeatailsViewModel>? products = await _productRepository.GetAllProducts(search,category);
+
+            if(products != null && products.Any() )
+            {
+
+                productsViewModel.productsDetails = products;
+            }
+
+            return productsViewModel;
+        }
+        catch
+        {
+            // will showcase no items found on page
+            return new ProductsViewModel();
+        }
+    }
+
+    /// <summary>
+    /// method for getting user wise favourite products details
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public async Task<ProductsViewModel> GetFavouriteProducts(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if(user==null)
+            {
+                // will showcase no items found on page
+                return new ProductsViewModel();
+            }
+            ProductsViewModel productsViewModel = new ();
+            List<ProductsDeatailsViewModel>? products = await _productRepository.GetFavouriteProductsByUserId(user.UserId);
+            if(products != null && products.Any() )
+            {
+
+                productsViewModel.productsDetails = products;
+            }
+
+            return productsViewModel;
+        }
+        catch
+        {
+            // will showcase no items found on page
+            return new ProductsViewModel();
+        }
+    }
+    
+
+    /// <summary>
+    /// method for getting product by product id and email 
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public async Task<productDetailsByproductIdViewModel?> GetProductById(int productId, string email)
+    {
+        try
+        {
+            productDetailsByproductIdViewModel? result = await _productRepository.GetProductDetailsByProductId(productId);
+            User? user = _userRepository.GetUserByEmail(email);
+            if(result!=null && user!=null)
+            {
+                Favourite? favourite = _productRepository.GetFavouriteByIds(user.UserId,result.ProductId);
+                if(favourite!= null)
+                {
+                    result.IsFavourite = true;
+                }
+                else{
+                    result.IsFavourite = false;
+                }
+            }
+            
+            return result;
+        }
+        catch
+        {
+            // will showcase no items found on page
+            return new productDetailsByproductIdViewModel();
+        }
+    }
+    
+    /// <summary>
+    /// method for updating state of favourite button
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public ResponsesViewModel UpdateFavourite(int productId,string? email = null)
+    {
+        try
+        {
+            if(email!=null)
+            {
+                User? user = _userRepository.GetUserByEmail(email);
+                if(user == null)
+                {
+                    return new ResponsesViewModel{
+                        IsSuccess=false,
+                        Message="Invalid user details for updating favourites"
+                    };
+                }
+                Favourite? favourite = _productRepository.GetFavouriteByIds(user.UserId,productId);
+                if(favourite != null && favourite.ProductId > 0)
+                {
+                    _productRepository.dropFavourite(favourite);
+                }else
+                {
+                    Favourite favourite1 = new(){
+                        ProductId = productId,
+                        UserId = user.UserId
+                    };
+                    _productRepository.AddFavourite(favourite1);
+                }
+                return new ResponsesViewModel{
+                    IsSuccess=true,
+                    Message="Change made successfully"
+                };
+            }
+            return new ResponsesViewModel{
+                IsSuccess=false,
+                Message="Invalid user details for updating favourites"
+            };
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// mehtod for getting details of favourite products list by user emails
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public List<int> GetFavouritesByEmail(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if(user==null)
+            {
+                return new List<int>();
+            }
+            return _productRepository.GetFavouriteByUserId(user.UserId);
+        }
+        catch
+        {
+            return new List<int>();
+        }
+    }
+    
+    #endregion
+
+
+
+
+
+
+
+
+
 }

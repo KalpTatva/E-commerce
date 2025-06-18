@@ -25,5 +25,7 @@ public partial class User
 
     public int? DeletedById { get; set; }
 
+    public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
+
     public virtual Profile Profile { get; set; } = null!;
 }

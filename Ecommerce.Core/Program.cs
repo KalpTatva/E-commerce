@@ -127,6 +127,6 @@ app.UseMiddleware<TokenRefreshMiddleware>(); // Place after authentication middl
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=UserDashboard}/{id?}");
+    pattern: "{controller=BuyerDashboard}/{action=Index}/{id?}");
 
 app.Run();

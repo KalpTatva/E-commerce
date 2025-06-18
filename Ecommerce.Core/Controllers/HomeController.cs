@@ -70,26 +70,25 @@ public class HomeController : Controller
                 return View();
             }
 
-            // Redirect based on role
             string? role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (role == RoleEnum.Admin.ToString())
+            // Redirect based on role
+            switch (role)
             {
-                return RedirectToAction("Index", "Dashboard");
-            }
-            else if (role == RoleEnum.Buyer.ToString() || role == RoleEnum.Seller.ToString())
-            {
-                return RedirectToAction("UserDashboard", "Dashboard");
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Invalid user role. Please contact support.";
-                SessionUtils.ClearSession(HttpContext);
-                CookieUtils.ClearCookies(Response, "session_id");
-                CookieUtils.ClearCookies(Response, "auth_token");
-                return View();
+                case nameof(RoleEnum.Admin):
+                    return RedirectToAction("Index", "Dashboard");
+                case nameof(RoleEnum.Seller):
+                    return RedirectToAction("UserDashboard", "Dashboard");
+                case nameof(RoleEnum.Buyer):
+                    return RedirectToAction("Index", "BuyerDashboard");
+                default:
+                    TempData["ErrorMessage"] = "Invalid user role. Please contact support.";
+                    SessionUtils.ClearSession(HttpContext);
+                    CookieUtils.ClearCookies(Response, "session_id");
+                    CookieUtils.ClearCookies(Response, "auth_token");
+                    return View();
             }
         }
-        catch (Exception ex)
+        catch
         {
             TempData["ErrorMessage"] = "An unexpected error occurred. Please try again later.";
             SessionUtils.ClearSession(HttpContext);
@@ -173,7 +172,7 @@ public class HomeController : Controller
             CookieUtils.ClearCookies(Response, "auth_token");
 
             TempData["SuccessMessage"] = "Logged out successfully!";
-            return RedirectToAction("UserDashboard", "Dashboard"); // Redirect to login page
+            return RedirectToAction("Index", "BuyerDashboard"); 
         }
         catch
         {
