@@ -22,7 +22,7 @@ public class ProductController : Controller
     /// <summary>
     /// seller's products view
     /// </summary>
-    /// <returns></returns>
+    /// <returns>View(baseViewModel)</returns>
     [Authorize(Roles="Seller")]
     public IActionResult MyProducts()
     {
@@ -42,7 +42,7 @@ public class ProductController : Controller
     /// <summary>
     /// seller's view for add product (get method)
     /// </summary>
-    /// <returns></returns>
+    /// <returns>View(baseViewModel)</returns>
     [Authorize(Roles ="Seller")]
     public IActionResult AddProduct(){
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
@@ -60,7 +60,7 @@ public class ProductController : Controller
     /// post method dedicated for seller to add new porduct
     /// </summary>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns>Json</returns>
     [Authorize(Roles ="Seller")]
     [HttpPost]
     public IActionResult AddProduct(AddProductViewModel model)
@@ -96,7 +96,7 @@ public class ProductController : Controller
     /// <summary>
     /// get method for sellers which shows the list of products which seller added
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Json</returns>
     [Authorize(Roles ="Seller")]
     [HttpGet]
     public IActionResult GetSellerSpecificProducts()
@@ -126,7 +126,7 @@ public class ProductController : Controller
     /// controller for handling put request of soft deleting product by id
     /// </summary>
     /// <param name="ProductId"></param>
-    /// <returns></returns>
+    /// <returns>Json</returns>
     [Authorize(Roles ="Seller")]
     [HttpPut]
     public IActionResult DeleteProduct(int ProductId)
@@ -150,7 +150,7 @@ public class ProductController : Controller
     /// <summary>
     /// edit product view for seller
     /// </summary>
-    /// <returns></returns>
+    /// <returns>View(model)</returns>
     [Authorize(Roles ="Seller")]
     [HttpGet]
     public IActionResult EditProduct(int productId)
@@ -169,6 +169,11 @@ public class ProductController : Controller
         return View(model);
     }
 
+    /// <summary>
+    /// method for edit product
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>View(model)</returns>
     [Authorize(Roles ="Seller")]
     [HttpPost]
     public IActionResult EditProduct(EditProductViewModel model)
