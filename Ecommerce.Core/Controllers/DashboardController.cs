@@ -26,8 +26,10 @@ public class DashboardController : Controller
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
                 ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
         BaseViewModel baseViewModel = new () {
-            BaseEmail = email
+            BaseEmail = email,
+            BaseRole = role
         };        
         return View(baseViewModel);
     }
@@ -37,9 +39,10 @@ public class DashboardController : Controller
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
                 ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
         EditRegisteredUserViewModel? model = _userService.GetUserDetailsByEmail(email);    
         model.BaseEmail = email;
+        model.BaseRole = role;
         return View(model);
     }
 

@@ -272,6 +272,11 @@ html {
 .productImageClass{
   width: 600px;
 }
+
+.imageClass{
+  width: 60%;
+  background-size:contain;
+}
  /* Prevent owl-carousel from being a flex item */
  .d-flex .owl-carousel {
   flex: 0 0 100%;

@@ -28,8 +28,12 @@ public class ProductController : Controller
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
                 ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        
         BaseViewModel baseViewModel = new () {
-            BaseEmail = email
+            BaseEmail = email,
+            BaseRole = role
         }; 
         return View(baseViewModel);
     }
@@ -43,8 +47,10 @@ public class ProductController : Controller
     public IActionResult AddProduct(){
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
                 ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+         string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
         AddProductViewModel baseViewModel = new () {
-            BaseEmail = email
+            BaseEmail = email,
+            BaseRole = role
         }; 
         return View(baseViewModel);
     }
@@ -63,7 +69,7 @@ public class ProductController : Controller
         {
             string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
                 ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-
+            
             if (ModelState.IsValid)
             {
                 List<Feature>? features = string.IsNullOrEmpty(model.FeaturesInput) 
@@ -151,6 +157,7 @@ public class ProductController : Controller
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
                 ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
         EditProductViewModel? model = _productService.GetProductDetailsById(productId);
         if(model == null)
         {
@@ -158,6 +165,7 @@ public class ProductController : Controller
             return View();
         }
         model.BaseEmail = email;
+        model.BaseRole = role;
         return View(model);
     }
 

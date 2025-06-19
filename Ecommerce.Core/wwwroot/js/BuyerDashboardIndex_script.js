@@ -1,16 +1,21 @@
 $(".loader3").hide();
 
 $(document).ready(function () {
-    let categoryInput = null;
+    let categoryInput= null;
     let searchInput = null;
 
     // function for getting product on page
     function FetchProducts(categoryInput, searchInput) {
         $(".loader3").show();
-
+        categoryInput = new URLSearchParams(window.location.search).get('categoryId');
+        console.log(categoryInput, "input is");
         $.ajax({
             url: '/BuyerDashboard/GetProducts',
             type: 'GET',
+            data: {
+                search : searchInput,
+                category : categoryInput
+            },
             success: function (response) {
                 $(".loader3").hide();
                 $("#ProductsContainer").html(response);
@@ -20,6 +25,14 @@ $(document).ready(function () {
             }
         })
     }
+
+
+    $(document).on('input','#searchInput',function(){
+        searchInput = $(this).val();
+        FetchProducts(categoryInput, searchInput);
+
+    })
+
 
 
     // for redirection to the selected product
@@ -58,5 +71,27 @@ $(document).ready(function () {
         });
     });
 
-    FetchProducts(null, null);
+
+    $(document).on('click', '.AddToCart', function (e) {
+        e.preventDefault();
+        var productId = $(this).data("product-id");
+        $.ajax({
+            url: '/BuyerDashboard/AddToCart',
+            type: 'POST',
+            data: { productId: productId },
+            success: function (response) {
+                if (response.success) {
+                    window.location.href = '/BuyerDashboard/Cart';
+                }
+                else {
+                    toastr.error(response.message, "Error", { timeOut: 4000 });
+                }
+            },
+            error: function () {
+                toastr.error('An error occurred while updating cart', "Error", { timeOut: 4000 });
+            }
+        })
+    })
+
+    FetchProducts(categoryInput, searchInput);
 });

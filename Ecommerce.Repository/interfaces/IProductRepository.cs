@@ -144,4 +144,30 @@ public interface IProductRepository
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     Task<List<ProductsDeatailsViewModel>?> GetFavouriteProductsByUserId(int userId);
+
+    /// <summary>
+    /// method for add in cart
+    /// </summary>
+    /// <param name="cart"></param>
+    /// <exception cref="Exception"></exception>
+    void AddToCart(Cart cart);
+
+    /// <summary>
+    /// method which gets cart data based on user
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    List<productAtCartViewModel> GetproductAtCart(int userId);
+
+    /// <summary>
+    /// method for updating cart's quantity only
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <param name="quantity"></param>
+    /// <exception cref="Exception"></exception>
+    void UpdateCartById(int cartId,int quantity);
+
+    
+    void DeleteCartById(int cartId);
+
 }

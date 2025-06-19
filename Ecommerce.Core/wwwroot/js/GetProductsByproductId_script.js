@@ -42,4 +42,29 @@ $(document).ready(function () {
         });
     });
 
+
+
+    $(document).on('click','#AddToCart',function(e){
+        e.preventDefault();
+        var productId = $(this).data("product-id");
+        $.ajax({
+            url: '/BuyerDashboard/AddToCart',
+            type: 'POST',
+            data: { productId: productId },
+            success: function (response) {
+                if(response.success)
+                {
+                    window.location.href = '/BuyerDashboard/Cart';
+                }
+                else
+                {
+                    toastr.error(response.message, "Error", { timeOut: 4000 });
+                }
+            },
+            error: function () {
+                toastr.error('An error occurred while updating cart', "Error", { timeOut: 4000 });
+            }
+        })
+    })
+
 });

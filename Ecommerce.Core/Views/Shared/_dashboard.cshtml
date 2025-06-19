@@ -35,15 +35,34 @@
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">
                                     <a
-                                        class="nav-link text-white profile-link">@((CategoriesEnum.Computers).ToString())</a>
+                                        class="nav-link text-white profile-link Category-Link" 
+                                        asp-controller="BuyerDashboard"
+                                        asp-action="Index"
+                                        asp-route-categoryId = "@((int)CategoriesEnum.Computers)"
+                                    >
+                                        @((CategoriesEnum.Computers).ToString())
+                                    </a>
                                 </li>
                                 <li class="nav-item">
                                     <a
-                                        class="nav-link text-white profile-link">@((CategoriesEnum.Laptops).ToString())</a>
+                                        class="nav-link text-white profile-link Category-Link" 
+                                        asp-controller="BuyerDashboard"
+                                        asp-action="Index"
+                                        asp-route-categoryId = "@((int)CategoriesEnum.Laptops)"
+
+                                    >
+                                        @((CategoriesEnum.Laptops).ToString())
+                                    </a>
                                 </li>
                                 <li class="nav-item">
                                     <a
-                                        class="nav-link text-white profile-link">@((CategoriesEnum.Accessories).ToString())</a>
+                                        class="nav-link text-white profile-link Category-Link" 
+                                        asp-controller="BuyerDashboard"
+                                        asp-action="Index"
+                                        asp-route-categoryId = "@((int)CategoriesEnum.Accessories)"
+                                    >
+                                        @((CategoriesEnum.Accessories).ToString())
+                                    </a>
                                 </li>
 
                             </ul>
@@ -62,7 +81,8 @@
                                     <span class="message">Favourites</span>
                                 </a>
 
-                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative">
+                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
+                                    asp-action="Cart" asp-controller="BuyerDashboard">
                                     <i class="bi bi-basket-fill icons-css"></i>
                                     <span class="messageCart">Cart</span>
                                 </a>

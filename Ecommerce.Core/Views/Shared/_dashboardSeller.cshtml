@@ -22,14 +22,19 @@
                 <a class="navbar-brand font-green ">E-commerce</a>
             </div>
             <div class="brand-content">
+
                 <ul class="list-unstyled">
                     <li class="my-4"><a asp-action="EditProfile" asp-controller="Dashboard"
-                    class="text-white text-decoration-none profile-link">My profile</a></li>
-                    <li class="my-4"><a asp-action="MyProducts" asp-controller="Product"
-                    class="text-white text-decoration-none profile-link">My products</a></li>
-                    <li class="my-4"><a 
-                    class="text-white text-decoration-none profile-link">Add Offers</a></li>
+                            class="text-white text-decoration-none profile-link">My profile</a></li>
+                    @if (Model.BaseRole == RoleEnum.Seller.ToString())
+                    {
+                        <li class="my-4"><a asp-action="MyProducts" asp-controller="Product"
+                            class="text-white text-decoration-none profile-link">My products</a></li>
+                        <li class="my-4"><a class="text-white text-decoration-none profile-link">Add Offers</a></li>
+                    }
                 </ul>
+
+
             </div>
         </aside>
         <div class="w-100 h-100">
@@ -43,24 +48,61 @@
                             <span class="navbar-toggler-icon"></span>
                         </button>
                         <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                            <ul class="navbar-nav flex-grow-1">
-                                <li class="nav-item">
-                                    <a class="nav-link text-white">@((CategoriesEnum.Computers).ToString())</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-white">@((CategoriesEnum.Laptops).ToString())</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-white">@((CategoriesEnum.Accessories).ToString())</a>
-                                </li>
+                            @if (Model.BaseRole != RoleEnum.Seller.ToString())
+                            {
+                                <ul class="navbar-nav flex-grow-1">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white profile-link Category-Link"
+                                            asp-controller="BuyerDashboard" asp-action="Index"
+                                            asp-route-categoryId="@((int)CategoriesEnum.Computers)">
+                                            @((CategoriesEnum.Computers).ToString())
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white profile-link Category-Link"
+                                            asp-controller="BuyerDashboard" asp-action="Index"
+                                            asp-route-categoryId="@((int)CategoriesEnum.Laptops)">
+                                            @((CategoriesEnum.Laptops).ToString())
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white profile-link Category-Link"
+                                            asp-controller="BuyerDashboard" asp-action="Index"
+                                            asp-route-categoryId="@((int)CategoriesEnum.Accessories)">
+                                            @((CategoriesEnum.Accessories).ToString())
+                                        </a>
+                                    </li>
 
-                            </ul>
-
+                                </ul>
+                            }
                             @if (Model.BaseEmail != null)
                             {
 
+                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative">
+                                    <i class="bi bi-bell-fill icons-css"></i>
+                                    <span class="messageCart">bell</span>
+                                </a>
+
+                                <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
+                                    asp-action="Favourite" asp-controller="BuyerDashboard">
+                                    <i class="bi bi-heart-fill icons-css"></i>
+                                    <span class="message">Favourites</span>
+                                </a>
+
+                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
+                                    asp-action="Cart" asp-controller="BuyerDashboard">
+                                    <i class="bi bi-basket-fill icons-css"></i>
+                                    <span class="messageCart">Cart</span>
+                                </a>
+
+
                                 <a asp-action="EditProfile" asp-controller="Dashboard"
-                                    class="text-white me-3 text-decoration-none profile-link">@Model.BaseEmail</a>
+                                    class="text-white me-3 text-decoration-none ">
+                                    <span class="profile-link d-none d-lg-flex">@Model.BaseEmail</span>
+
+                                    <i class="bi bi-person-circle icons-css mt-1 profile-link d-flex d-lg-none"></i>
+                                </a>
+
                                 <button class="btn btn-danger me-1" id="LogoutButton">Logout</button>
                             }
                             else

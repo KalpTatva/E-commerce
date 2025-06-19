@@ -86,5 +86,37 @@ public interface IProductService
     /// <returns></returns>
     List<int> GetFavouritesByEmail(string email);
 
-   
+
+    /// <summary>
+    /// method for adding product into cart
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="productId"></param>
+    /// <returns>responsesviewmodel</returns>
+    ResponsesViewModel AddToCart(string email, int productId);
+
+    /// <summary>
+    /// method which calculate major properties of cart and returns cart items of user
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>CartViewModel</returns>
+    CartViewModel GetCartDetails(string email);
+
+
+    /// <summary>
+    /// method for updating cart product's quantity values and displaying updated totals 
+    /// </summary>
+    /// <param name="quantity"></param>
+    /// <param name="cartId"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    CartUpdatesViewModel UpdateQuantityAtCart(int quantity, int cartId, string email);
+
+    /// <summary>
+    /// method for delete product from cart (soft delete)
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <returns></returns>
+    ResponsesViewModel DeleteCartFromList(int cartId);
 }

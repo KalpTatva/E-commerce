@@ -288,7 +288,7 @@ public class ProductRepository : IProductRepository
         {
             List<ProductsDeatailsViewModel>? query = await (from product in _context.Products
                                 where product.IsDeleted == false &&
-                                      (string.IsNullOrEmpty(search) || product.ProductName.Contains(search)) &&
+                                      (string.IsNullOrEmpty(search) || product.ProductName.ToLower().Trim().Contains(search)) &&
                                       (!category.HasValue || product.CategoryId == category)
                                 select new ProductsDeatailsViewModel
                                 {
@@ -458,5 +458,109 @@ public class ProductRepository : IProductRepository
             throw new Exception(e.Message);
         }
     }
- 
+    
+
+    /// <summary>
+    /// method for add in cart
+    /// </summary>
+    /// <param name="cart"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddToCart(Cart cart)
+    {
+        try
+        {
+            _context.Carts.Add(cart);
+            _context.SaveChanges();
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// method which gets cart data based on user
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public List<productAtCartViewModel> GetproductAtCart(int userId)
+    {
+        try
+        {
+            List<productAtCartViewModel>? query = (
+                from product in _context.Products
+                join cart in _context.Carts on product.ProductId equals cart.ProductId
+                where product.IsDeleted == false && cart.IsDeleted == false &&  cart.UserId == userId
+                select new productAtCartViewModel
+                {
+                    CartId = cart.CartId,
+                    ProductId = product.ProductId,
+                    ProductName = product.ProductName,
+                    Price = product.Price,
+                    Stocks = product.Stocks,
+                    Quantity = cart.Quantity,
+                    DiscountType = product.DiscountType,
+                    Discount = product.Discount,
+                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault()
+                }).ToList();
+            
+            return query;
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// method for updating cart's quantity only
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <param name="quantity"></param>
+    /// <exception cref="Exception"></exception>
+    public void UpdateCartById(int cartId,int quantity)
+    {
+        try
+        {
+            Cart? cart = _context.Carts.Where(c => c.CartId == cartId).FirstOrDefault();
+            if(cart!=null)
+            {
+                cart.Quantity = quantity;
+                _context.Carts.Update(cart);
+                _context.SaveChanges();
+            }
+        
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// soft delete method for updating delete boolean = true
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <exception cref="Exception"></exception>
+    public void DeleteCartById(int cartId)
+    {
+        try
+        {
+            Cart? cart = _context.Carts.Where(c => c.CartId == cartId).FirstOrDefault();
+            if(cart!=null)
+            {
+                cart.IsDeleted = true;
+                cart.DeletedAt = DateTime.Now;
+                _context.Carts.Update(cart);
+                _context.SaveChanges();
+            }
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
 }

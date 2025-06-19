@@ -6,6 +6,7 @@ using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static Ecommerce.Repository.Helpers.Enums;
 
 namespace Ecommerce.Service.implementation;
 
@@ -361,6 +362,10 @@ public class ProductService : IProductService
         try
         {
             ProductsViewModel productsViewModel = new ();
+            if(search!=null)
+            {
+                search = search.ToLower().Trim();
+            }
 
             List<ProductsDeatailsViewModel>? products = await _productRepository.GetAllProducts(search,category);
 
@@ -515,6 +520,182 @@ public class ProductService : IProductService
             return new List<int>();
         }
     }
+    
+
+    /// <summary>
+    /// method for adding product into cart
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="productId"></param>
+    /// <returns>responsesviewmodel</returns>
+    public ResponsesViewModel AddToCart(string email, int productId)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if(user==null)
+            {
+                return new ResponsesViewModel{
+                    IsSuccess = false,
+                    Message = "user not found! please login first"
+                };
+            }
+
+            Cart cart = new () {
+                UserId = user.UserId,
+                ProductId = productId
+            };
+
+            _productRepository.AddToCart(cart);
+
+            return new ResponsesViewModel{
+                IsSuccess = true,
+                Message = "product added into your cart!"
+            };
+        }
+        catch(Exception e)
+        {
+            return new ResponsesViewModel{
+                IsSuccess = false,
+                Message = e.Message
+            };
+        }
+    }
+    
+    
+    
+    /// <summary>
+    /// method which calculate major properties of cart and returns cart items of user
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>CartViewModel</returns>
+    public CartViewModel GetCartDetails(string email)
+    {
+        try
+        {
+            CartViewModel model = new ();
+            User? user = _userRepository.GetUserByEmail(email);
+            if(user == null)
+            {
+                return new CartViewModel();
+            }
+
+            List<productAtCartViewModel>? result = _productRepository.GetproductAtCart(user.UserId);
+            
+            if(result!=null && result.Any())
+            {
+                decimal TotalPrice = 0;
+                decimal TotalDiscount = 0;
+                int TotalQuantity = 0;
+
+                foreach(productAtCartViewModel product in result)
+                {
+                    TotalDiscount += product.DiscountType == (int)(DiscountEnum.FixedAmount) ? 
+                                     (product.Discount ?? 0 * product.Quantity) : 
+                                     ((product.Price * product.Discount ?? 0)/100) * product.Quantity ;
+                    TotalQuantity += product.Quantity;
+                    TotalPrice += product.Price * product.Quantity;
+                }
+
+                model.ProductsAtCart = result;
+                model.TotalPrice = TotalPrice - TotalDiscount;
+                model.TotalDiscount = TotalDiscount;
+                model.TotalQuantity = TotalQuantity;
+            }
+
+
+            return model;
+        }
+        catch
+        {
+            return new CartViewModel();
+        }
+    }
+
+
+    /// <summary>
+    /// method for updating cart product's quantity values and displaying updated totals 
+    /// </summary>
+    /// <param name="quantity"></param>
+    /// <param name="cartId"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public CartUpdatesViewModel UpdateQuantityAtCart(int quantity, int cartId, string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if(user == null)
+            {
+                return new CartUpdatesViewModel();
+            }
+
+            // update cart quantity by cartId
+            _productRepository.UpdateCartById(cartId, quantity);
+
+
+            // update values on frontend 
+            List<productAtCartViewModel>? result = _productRepository.GetproductAtCart(user.UserId);
+            
+            CartUpdatesViewModel model = new ();
+            
+            if(result!=null && result.Any())
+            {
+                decimal TotalPrice = 0;
+                decimal TotalDiscount = 0;
+                int TotalQuantity = 0;
+
+                foreach(productAtCartViewModel product in result)
+                {
+                    TotalDiscount += product.DiscountType == (int)(DiscountEnum.FixedAmount) ? 
+                                     (product.Discount ?? 0 * product.Quantity) : 
+                                     ((product.Price * product.Discount ?? 0)/100) * product.Quantity ;
+                    TotalQuantity += product.Quantity;
+                    TotalPrice += product.Price * product.Quantity;
+                }
+
+                model.TotalPrice = TotalPrice - TotalDiscount;
+                model.TotalDiscount = TotalDiscount;
+                model.TotalQuantity = TotalQuantity;
+            }
+            model.IsSuccess = true;
+            return model;
+
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// method for delete product from cart (soft delete)
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <returns></returns>
+    public ResponsesViewModel DeleteCartFromList(int cartId)
+    {
+        try
+        {
+            _productRepository.DeleteCartById(cartId);
+            return new ResponsesViewModel(){
+                IsSuccess = true,
+                Message = "cart updated successfully"
+            };
+        }
+        catch (Exception e)
+        {
+            return new ResponsesViewModel(){
+                IsSuccess = false,
+                Message = e.Message
+            };
+        }
+    }
+    
+    
+    
     
     #endregion
 

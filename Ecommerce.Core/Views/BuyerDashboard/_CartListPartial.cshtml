@@ -1,0 +1,116 @@
+@model Ecommerce.Repository.ViewModels.CartViewModel
+@using Ecommerce.Repository.ViewModels
+@using static Ecommerce.Repository.Helpers.Enums
+
+@if (Model != null && Model.ProductsAtCart != null && Model.ProductsAtCart.Any())
+{
+    <div class="w-100 d-flex  ">
+        <div class="w-50 d-flex justify-content-center align-items-center">
+            <span class="fs-3">
+                Total Of Cart Products
+            </span>
+        </div>
+        <div class="w-50 d-flex flex-column justify-content-center">
+            <div>
+                <span class="fs-4"> Total : </span>
+                <span class="fs-4 fw-normal" id="TotalPrice" data-totalprice="@Model.TotalPrice">
+                    @Model.TotalPrice.ToString("C")
+                </span>
+            </div>
+            <div>
+                <span class="fs-4"> Discount : </span>
+                <span class="fs-4 fw-normal" id="TotalDiscount" data-totaldiscount="@Model.TotalDiscount">
+                    @Model.TotalDiscount.ToString("C")
+                </span>
+            </div>
+            <div>
+                <span class="fs-4"> Quantity : </span>
+                <span class="fs-4 fw-normal " id="TotalQuantity" data-totalquantity="@Model.TotalQuantity">
+                    @Model.TotalQuantity
+                </span>
+            </div>
+            <button class="btn btn-danger w-50 mt-3 buy-all-btn"> Buy All </button>
+        </div>
+
+    </div>
+
+    foreach (productAtCartViewModel product in Model.ProductsAtCart)
+    {
+        <div class="d-flex w-100">
+            <div class="productImageClass d-flex justify-content-center align-items-center  w-50 ">
+                <img class="imageClass" src="@Url.Content(product.Images?.ImageUrl)" alt="">
+            </div>
+            <div class="CartBody d-flex flex-column justify-content-center align-items-start  w-50">
+                <span class="fs-3 fw-normal ">
+                    @product.ProductName
+                </span>
+                <div class="mt-2">
+                    @{
+                        decimal price = 0;
+                        decimal discount = 0;
+                        if (product.DiscountType == (int)DiscountEnum.FixedAmount)
+                        {
+                            price = product.Price - product.Discount ?? 0;
+                            discount = product.Discount ?? 0;
+                        }
+                        else if (product.DiscountType == (int)DiscountEnum.Percentage)
+                        {
+                            price = product.Price - ((product.Price * product.Discount ?? 0) / 100);
+                            discount = (product.Price * product.Discount ?? 0) / 100;
+                        }
+                        else
+                        {
+                            price = product.Price;
+                            discount = 0;
+                        }
+                    }
+                    <span class="display-6 fw-normal">@price.ToString("C")</span>
+                    <span class="text-muted text-decoration-line-through">(@product.Price.ToString("C"))</span>
+                    <br />
+                    <span class="text-danger">
+                        - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == product.DiscountType ? "(Fixed)" : "(%)")
+                    </span>
+                </div>
+
+                <div class="mt-3 d-flex gap-4 justify-content-center align-items-center">
+                    <span class="fs-6 text-success ">
+                        Quantity
+                    </span>
+                    <span class="d-flex gap-3 ">
+                        <button 
+                            class="btn btn-warning Quantity-minus"  
+                            data-quantity="@product.Quantity"
+                            data-cart-id="@product.CartId"
+                        >
+                            <i class="bi bi-dash "></i>
+                        </button>
+                        <span class="text-secondary fs-5 quantity-text">@product.Quantity</span>
+                        <button 
+                            class="btn btn-warning Quantity-plus" 
+                            data-quantity="@product.Quantity"
+                            data-cart-id="@product.CartId"
+                        >
+                            <i class="bi bi-plus-lg" ></i>
+                        </button>
+                    </span>
+                </div>
+                <div class="d-flex w-50 gap-2">
+                    <button class=" mt-3 BuyProduct btn btn-success w-50" 
+                            data-cart-id="@product.CartId">
+                        Buy now
+                    </button>
+                    <button class=" mt-3 RemoveProductFromCart btn btn-secondary w-50" data-cart-id="@product.CartId">
+                        Remove from cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+}
+else
+{
+    <div class="w-100 d-flex justify-content-center align-items-center">
+        <span class="display-6"> Your cart is empty</span>
+    </div>
+}
