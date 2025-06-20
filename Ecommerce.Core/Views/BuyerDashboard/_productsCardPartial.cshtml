@@ -92,7 +92,13 @@
 
                 <div class="mt-2 gap-2 d-flex justify-content-end w-100">
                     <button class="btn btn-warning rounded-pill AddToCart " data-product-id="@p.ProductId">Add to cart</button>
-                    <button class="btn btn-success rounded-pill" data-product-id="@p.ProductId">Buy now</button>
+                    <button 
+                        class="btn btn-success rounded-pill BuySingleProduct" 
+                        data-product-id="@p.ProductId"
+                        data-price="@price"
+                        data-discount="@discount"
+                        data-quantity="1"
+                    >Buy now</button>
                 </div>
 
             </div>

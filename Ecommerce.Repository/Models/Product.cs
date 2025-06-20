@@ -40,4 +40,6 @@ public partial class Product
     public virtual ICollection<Image> Images { get; set; } = new List<Image>();
 
     public virtual ICollection<Offer> Offers { get; set; } = new List<Offer>();
+
+    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 }

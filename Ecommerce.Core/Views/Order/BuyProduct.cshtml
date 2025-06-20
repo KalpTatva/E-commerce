@@ -32,8 +32,7 @@
             <p class="fs-5 fw-normal text-nowrap">Total Price: @Model.objSession?.totalPrice.ToString("C")</p>
             <p class="fs-5 fw-normal text-nowrap">Total Discount: @Model.objSession?.totalDiscount.ToString("C")</p>
             <p class="fs-5 fw-normal text-nowrap">Total Quantity: @Model.objSession?.totalQuantity.ToString("C")</p>
-            
-            <form action="POST" id="OrderDetailsForm">
+            <form action="POST" id="SingleOrderDetailsForm">
                 <input type="hidden" name="UserId" value="@Model.UserId">
                 <input type="hidden" name="SessionId" value="@Model.SessionId">
                 <button type="submit" class="btn btn-danger w-100">
@@ -134,12 +133,12 @@
                     }
                 })
             });
+        });
 
-
-            $(document).on('submit','#OrderDetailsForm',function(e){
+        $(document).on('submit','#SingleOrderDetailsForm',function(e){
                 e.preventDefault();
                 $.ajax({
-                    url: '/Order/PlaceOrder',
+                    url: '/Order/PlaceOrderFoSingleProduct',
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function (response) {
@@ -154,9 +153,6 @@
                     }
                 })
             });
-
-        });
-
     </script>
     <script src="~/js/toastr_script.js"></script>
 }

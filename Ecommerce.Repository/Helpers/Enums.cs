@@ -30,4 +30,13 @@ public class Enums
         [Display(Name = "Fixed Amount")]
         FixedAmount = 2
     }
+
+
+    public enum OrderStatusEnum
+    {
+        Pending = 1,
+        Shipped = 2,
+        canceled = 3
+        
+    }
 }

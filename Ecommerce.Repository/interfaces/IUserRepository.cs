@@ -127,6 +127,28 @@ public interface IUserRepository
     /// <exception cref="Exception"></exception>
     void UpdateProfile(Profile profile);
 
+    /// <summary>
+    /// method for get user's country name
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    string? GetCityNameById(int CityId);
 
+    /// <summary>
+    /// method for get user's state name
+    /// </summary>
+    /// <param name="stateId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    string? GetStateNameById(int stateId);
+
+    /// <summary>
+    /// method for get user's city name
+    /// </summary>
+    /// <param name="CityId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    string? GetCountryNameById(int countryId);
     
 }

@@ -469,7 +469,7 @@ public class UserService : IUserService
         }
     }
 
-
+    
     /// <summary>
     /// method for getting states based on country id
     /// </summary>

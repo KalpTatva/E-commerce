@@ -170,4 +170,6 @@ public interface IProductRepository
     
     void DeleteCartById(int cartId);
 
+    void DeleteCartByIdsRange(List<int> cartIds);
+
 }

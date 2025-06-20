@@ -29,6 +29,10 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Offer> Offers { get; set; }
 
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderProduct> OrderProducts { get; set; }
+
     public virtual DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
@@ -221,6 +225,75 @@ public partial class EcommerceContext : DbContext
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("offers_product_id_fkey");
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("orders_pkey");
+
+            entity.ToTable("orders");
+
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
+            entity.Property(e => e.Amount).HasColumnName("amount");
+            entity.Property(e => e.BuyerId).HasColumnName("buyer_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DeletedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("deleted_at");
+            entity.Property(e => e.EditedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("edited_at");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
+            entity.Property(e => e.Status)
+                .HasDefaultValue(1)
+                .HasColumnName("status");
+            entity.Property(e => e.TotalDiscount).HasColumnName("total_discount");
+            entity.Property(e => e.TotalQuantity).HasColumnName("total_quantity");
+
+            entity.HasOne(d => d.Buyer).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.BuyerId)
+                .HasConstraintName("orders_buyer_id_fkey");
+        });
+
+        modelBuilder.Entity<OrderProduct>(entity =>
+        {
+            entity.HasKey(e => e.OrderProductId).HasName("order_products_pkey");
+
+            entity.ToTable("order_products");
+
+            entity.Property(e => e.OrderProductId).HasColumnName("order_product_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DeletedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("deleted_at");
+            entity.Property(e => e.EditedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("edited_at");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
+            entity.Property(e => e.PriceWithDiscount).HasColumnName("price_with_discount");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderProducts)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("order_products_order_id_fkey");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderProducts)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("order_products_product_id_fkey");
         });
 
         modelBuilder.Entity<PasswordResetRequest>(entity =>

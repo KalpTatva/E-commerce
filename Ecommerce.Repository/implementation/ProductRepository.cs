@@ -563,4 +563,31 @@ public class ProductRepository : IProductRepository
         }
     }
 
+    /// <summary>
+    /// soft delete implementation for cart items 
+    /// </summary>
+    /// <param name="cartIds"></param>
+    /// <exception cref="Exception"></exception>
+    public void DeleteCartByIdsRange(List<int> cartIds)
+    {
+        try
+        {
+            List<Cart>? carts = _context.Carts.Where(c => cartIds.Contains(c.CartId)).ToList();
+            if(carts!=null)
+            {
+                foreach(Cart cart in carts)
+                {
+                    cart.IsDeleted = true;
+                    cart.DeletedAt = DateTime.Now;
+                }
+                _context.Carts.UpdateRange(carts);
+                _context.SaveChanges();
+            }
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
 }

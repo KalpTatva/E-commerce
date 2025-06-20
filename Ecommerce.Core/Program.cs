@@ -23,10 +23,12 @@ builder.Services.AddDbContext<EcommerceContext>(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>(); 
 builder.Services.AddScoped<IProductService, ProductService>(); 
+builder.Services.AddScoped<IOrderService, OrderService>(); 
 
 // repositories injection
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
 builder.Services.AddScoped(typeof(IProductRepository), typeof(ProductRepository));
+builder.Services.AddScoped(typeof(IOrderRepository), typeof(OrderRepository));
 
 // Add session services
 builder.Services.AddDistributedMemoryCache();

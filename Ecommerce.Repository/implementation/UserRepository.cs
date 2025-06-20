@@ -353,6 +353,62 @@ public class UserRepository : IUserRepository
         }
     }
 
+    /// <summary>
+    /// method for get user's country name
+    /// </summary>
+    /// <param name="countryId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public string? GetCountryNameById(int countryId)
+    {
+        try
+        {
+            return _context.Countries.Where(c => c.CountryId == countryId).Select(c => c.Country1).FirstOrDefault();
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for get user's state name
+    /// </summary>
+    /// <param name="stateId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public string? GetStateNameById(int stateId)
+    {
+        try
+        {
+            return _context.States.Where(c => c.StateId == stateId).Select(c => c.State1).FirstOrDefault();
+
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// method for get user's city name
+    /// </summary>
+    /// <param name="CityId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public string? GetCityNameById(int CityId)
+    {
+        try
+        {
+            return _context.Cities.Where(c => c.CityId == CityId).Select(c => c.City1).FirstOrDefault();
+
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
     
    
 }
