@@ -159,6 +159,8 @@ public class OrderController : Controller
             ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId);
             if(response!=null && response.IsSuccess)
             {
+                // util for delete session data 
+                SessionUtils.RemoveSessionById(HttpContext, SessionId);
                 return Json(new {success=true,message=response.Message});
             }else{
                 return Json(new {success=false,message=response?.Message}); 
@@ -203,6 +205,8 @@ public class OrderController : Controller
             ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId,true);
             if(response!=null && response.IsSuccess)
             {
+                // util for delete session data 
+                SessionUtils.RemoveSessionById(HttpContext, SessionId);
                 return Json(new {success=true,message=response.Message});
             }else{
                 return Json(new {success=false,message=response?.Message}); 

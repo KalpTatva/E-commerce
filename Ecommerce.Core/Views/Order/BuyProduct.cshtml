@@ -133,9 +133,9 @@
                     }
                 })
             });
-        });
 
-        $(document).on('submit','#SingleOrderDetailsForm',function(e){
+
+            $(document).on('submit','#SingleOrderDetailsForm',function(e){
                 e.preventDefault();
                 $.ajax({
                     url: '/Order/PlaceOrderFoSingleProduct',
@@ -153,6 +153,7 @@
                     }
                 })
             });
+        });
     </script>
     <script src="~/js/toastr_script.js"></script>
 }

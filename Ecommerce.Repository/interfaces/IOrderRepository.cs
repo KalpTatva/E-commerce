@@ -10,4 +10,5 @@ public interface IOrderRepository
     Task<List<productAtOrderViewModel>?> GetDetailsForOrdersByProductId(List<int> productId);
     void AddOrder(Order order);
     void AddOrderProductRange(List<OrderProduct> orderProducts);
+    Task<List<MyOrderViewModel>?> GetMyOrderDetails(int userId);
 }

@@ -1,0 +1,91 @@
+@model Ecommerce.Repository.ViewModels.OrderAtMyOrderViewModel
+@using Ecommerce.Repository.ViewModels;
+@using Ecommerce.Repository.Models;
+@using static Ecommerce.Repository.Helpers.Enums
+
+
+@if (Model != null && Model.myOrderViewModels != null && Model.myOrderViewModels.Any())
+{
+    foreach (MyOrderViewModel o in Model.myOrderViewModels)
+    {
+        <div class="w-100  px-5 border rounded-3">
+            <div class="d-flex d-flex justify-content-center w-100 mt-4">
+                <div class="w-50 d-flex flex-column">
+                    <span class="fs-3 fw-normal text-nowrap"> order id : @o.OrderId</span>
+
+                    <div class="border rounded-3  btn w-25
+                        @(o.Status == (int)OrderStatusEnum.Pending ? "btn-secondary" :
+                        o.Status == (int)OrderStatusEnum.Canceled ? "btn-danger" : 
+                        o.Status == (int)OrderStatusEnum.Delivered ? "btn-success" :
+                        "btn-warning"
+                        )">
+
+                        @(o.Status == (int)OrderStatusEnum.Pending ? "Pending" :
+                        o.Status == (int)OrderStatusEnum.Canceled ? "canceled" :
+                        o.Status == (int)OrderStatusEnum.Delivered ? "Delivered" :
+                        "Shipped")
+                    </div>
+
+                </div>
+                <div class="w-50 d-flex mb-4 justify-content-center align-items-start flex-column">
+                    <div>
+                        <span class="fs-4"> Total : </span>
+                        <span class="fs-4 fw-normal" id="TotalPrice">
+                            @o.Amount.ToString("C")
+                        </span>
+                    </div>
+                    <div>
+                        <span class="fs-4"> Discount : </span>
+                        <span class="fs-4 fw-normal text-success" id="TotalDiscount">
+                            @o.TotalDiscount.ToString("C")
+                        </span>
+                    </div>
+                    <div>
+                        <span class="fs-4"> Quantity : </span>
+                        <span class="fs-4 fw-normal " id="TotalQuantity">
+                            @o.TotalQuantity
+                        </span>
+                    </div>
+                    <button class="btn btn-danger w-50 mt-3 CancelOrder" data-order-id="@o.OrderId">Cancel order</button>
+                </div>
+            </div>
+            <div class="mb-4">
+                <table class="table table-bordered border">
+                    <thead>
+                        <tr>
+                            <th>OrderProductId</th>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Create date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (o.OrderedItem != null && o.OrderedItem.Any())
+                        {
+                            @foreach (OrderItemsViewModel op in o.OrderedItem)
+                            {
+                                <tr>
+                                    <td>@op.ProductId</td>
+                                    <td class="fs-4">@op.ProductName</td>
+                                    <td>@op.PriceWithDiscount.ToString("C")</td>
+                                    <td>@op.Quantity</td>
+                                    <td>@op.CreatedAt</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="w-100 d-flex justify-content-center align-items-center">
+        <span class="display-6">
+            No order found
+        </span>
+    </div>
+}

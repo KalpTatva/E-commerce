@@ -36,7 +36,8 @@ public class Enums
     {
         Pending = 1,
         Shipped = 2,
-        canceled = 3
+        Canceled = 3,
+        Delivered = 4
         
     }
 }

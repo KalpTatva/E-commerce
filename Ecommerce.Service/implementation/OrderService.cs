@@ -4,6 +4,7 @@ using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using static Ecommerce.Repository.Helpers.Enums;
 
 namespace Ecommerce.Service.implementation;
@@ -119,17 +120,13 @@ public class OrderService : IOrderService
     int UserId, 
     bool isByProductId = false)
     {
-        try
-        {
+        try{
             List<productAtOrderViewModel>? orderList;
 
             // Choose which method to fetch order details
-            if (isByProductId)
-            {
+            if (isByProductId){
                 orderList = await _orderRepository.GetDetailsForOrdersByProductId(objSession.orders ?? new List<int>());
-            }
-            else
-            {
+            }else{
                 orderList = await _orderRepository.GetDetailsForOrders(objSession.orders ?? new List<int>());
             }
 
@@ -198,4 +195,27 @@ public class OrderService : IOrderService
             };
         }
     }
+
+
+    public async Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            List<MyOrderViewModel>? myOrderViewModel = new ();
+            if(user != null)
+            {
+                myOrderViewModel = await _orderRepository.GetMyOrderDetails(user.UserId); 
+            }
+
+            return myOrderViewModel ?? new List<MyOrderViewModel>();
+        }
+        catch
+        {
+            return new List<MyOrderViewModel>();
+        }
+    }
+
+
+
 }

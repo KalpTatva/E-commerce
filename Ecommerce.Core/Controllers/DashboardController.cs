@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using AspNetCoreGeneratedDocument;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -11,9 +13,11 @@ namespace Ecommerce.Core.Controllers;
 public class DashboardController : Controller
 {
     private readonly IUserService _userService;
-    public DashboardController( IUserService userService)
+    private readonly IOrderService _orderService;
+    public DashboardController( IUserService userService, IOrderService orderService)
     {
         _userService = userService;
+        _orderService = orderService;
     }
 
     public IActionResult Index()
@@ -86,5 +90,24 @@ public class DashboardController : Controller
             BaseRole = role
         };        
         return View(baseViewModel);
+    }
+
+    [Authorize(Roles = "Buyer")]
+    [HttpGet]
+    public async Task<IActionResult> GetMyOrders()
+    {
+        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
+                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value; 
+
+        List<MyOrderViewModel>? model = await _orderService.GetMyOrderHistoryByEmail(email ?? ""); 
+        OrderAtMyOrderViewModel result = new ();
+        result.BaseEmail = email;
+        result.BaseRole = role;
+        if(model!=null)
+        {
+            result.myOrderViewModels = model;
+        }
+        return PartialView("_MyOrdersPartial", result);
     }
 }

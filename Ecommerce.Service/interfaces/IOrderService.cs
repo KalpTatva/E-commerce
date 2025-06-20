@@ -9,4 +9,6 @@ public interface IOrderService
     Task<OrderViewModel> GetDetailsForSingleOrder(ObjectSessionViewModel obj, string email);
 
     Task<ResponsesViewModel?> PlaceOrder(ObjectSessionViewModel objSession, int UserId, bool isByProductId = false);
+
+    Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email);
 }
