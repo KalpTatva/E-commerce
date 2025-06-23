@@ -29,7 +29,12 @@ public class OrderService : IOrderService
         _orderRepository = orderRepository;
     }
 
-
+    /// <summary>
+    /// Method to get order details for a given session object and user email
+    /// </summary>
+    /// <param name="obj">ObjectSessionViewModel containing order details</param>
+    /// <param name="email">User's email address</param>
+    /// <returns>OrderViewModel containing order details</returns>
     public async Task<OrderViewModel> GetDetailsForOrder(ObjectSessionViewModel obj, string email)
     {
         try
@@ -72,7 +77,12 @@ public class OrderService : IOrderService
         }
     }
 
-
+    /// <summary>
+    /// Method to get order details for a single order based on the session object and user email
+    /// </summary>
+    /// <param name="obj">ObjectSessionViewModel containing order details</param>
+    /// <param name="email">User's email address</param>
+    /// <returns>OrderViewModel containing order details</returns>
     public async Task<OrderViewModel> GetDetailsForSingleOrder(ObjectSessionViewModel obj, string email)
     {
         try
@@ -115,6 +125,14 @@ public class OrderService : IOrderService
         }
     }
 
+    /// <summary>
+    /// Method to place an order based on the session object and user ID.
+    /// This method retrieves order details, creates a new order, adds order products,
+    /// updates product quantities, and marks cart items as deleted.
+    /// </summary>
+    /// <param name="objSession">ObjectSessionViewModel containing order details</param>
+    /// <param name="UserId">ID of the user placing the order</param>
+    /// <param name="isByProductId">Flag to indicate if the order is by product ID</param>
     public async Task<ResponsesViewModel?> PlaceOrder(
     ObjectSessionViewModel objSession, 
     int UserId, 
@@ -170,6 +188,17 @@ public class OrderService : IOrderService
                 }
                 _orderRepository.AddOrderProductRange(orderProducts);
 
+                // update product's quantity in product table
+                foreach (productAtOrderViewModel model in orderList)
+                {
+                    Product? product = _productRepository.GetProductById(model.ProductId);
+                    if (product != null)
+                    {
+                        product.Stocks -= model.Quantity;
+                        _productRepository.UpdateProduct(product);
+                    }
+                }
+
                 // Mark cart items as deleted
                 _productRepository.DeleteCartByIdsRange(objSession.orders ?? new List<int>());
 
@@ -197,6 +226,13 @@ public class OrderService : IOrderService
     }
 
 
+    /// <summary>
+    /// Method to retrieve the order history for a user based on their email address.
+    /// This method fetches the user by email, retrieves their order details,
+    /// and returns a list of MyOrderViewModel containing the order history.
+    /// </summary>
+    /// <param name="email">User's email address</param>
+    /// <returns>List of MyOrderViewModel containing order history</returns>
     public async Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email)
     {
         try
@@ -216,6 +252,99 @@ public class OrderService : IOrderService
         }
     }
 
+    /// <summary>
+    /// Method to retrieve the seller's orders based on their email address.
+    /// This method fetches the user by email, retrieves their seller orders,
+    /// and returns a list of SellerOrderViewModel containing the seller's order details.
+    /// </summary>
+    /// <param name="email">Seller's email address</param>
+    /// <returns>List of SellerOrderViewModel containing seller's order details</returns>
+    public List<SellerOrderViewModel> GetSellerOrders(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if(user == null)
+            {
+                throw new Exception("User not found");
+            }
+            List<SellerOrderViewModel>? sellerOrders = _orderRepository.GetSellerOrders(user.UserId);
+            return sellerOrders ?? new List<SellerOrderViewModel>();
+        }
+        catch
+        {
+            return new List<SellerOrderViewModel>();
+        }
+    }
 
+    /// <summary>
+    /// Method to update the status of an order based on the provided order ID and status.
+    /// This method retrieves the order by ID, updates its status,
+    /// and if the status is "cancelled", it restores the product stock.
+    /// </summary>
+    /// <param name="orderId">ID of the order to be updated</param>
+    /// <param name="status">New status for the order (e.g., "pending", "shipped", "delivered", "cancelled")</param>
+    /// <returns>ResponsesViewModel indicating success or failure of the operation</returns>
+    public ResponsesViewModel UpdateOrderStatus(int orderId, string status)
+    {
+        try
+        {
+            OrderProduct? order = _orderRepository.GetOrderById(orderId);
+            if (order == null)
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "Order not found"
+                };
+            }
+            
+            string Message = "";
+
+            switch (status.ToLower())
+            {
+                case "pending":
+                    order.Status = (int)OrderStatusEnum.Pending;
+                    Message = "Order status updated to pending";
+                    break;
+                case "shipped":
+                    order.Status = (int)OrderStatusEnum.Shipped;
+                    Message = "Order status updated to shipped";
+                    break;
+                case "delivered":
+                    order.Status = (int)OrderStatusEnum.Delivered;
+                    Message = "Order status updated to delivered";
+                    break;
+                case "cancelled":
+                    order.Status = (int)OrderStatusEnum.Cancelled;
+                    Message = "Order status updated to cancelled";
+                    // If order is cancelled, we can also update the product stock
+                    Product? product = _productRepository.GetProductById(order.ProductId);
+                    if (product != null)
+                    {
+                        product.Stocks += order.Quantity; // Restoring stock
+                        _productRepository.UpdateProduct(product);
+                    }
+                    break;
+                default:
+                    throw new Exception("Invalid status");
+            }
+            
+            _orderRepository.UpdateOrderProducts(order);
+            return new ResponsesViewModel()
+            {
+                IsSuccess = true,
+                Message = Message
+            };
+        }
+        catch (Exception e)
+        {
+            return  new ResponsesViewModel()
+            {
+                IsSuccess = false,
+                Message = e.Message
+            };
+        }
+    }
 
 }

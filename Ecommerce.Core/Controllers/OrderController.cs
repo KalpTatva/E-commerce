@@ -20,7 +20,11 @@ public class OrderController : Controller
         _orderService = orderService;
     }
 
-
+    /// <summary>
+    /// method for set session for order
+    /// </summary>
+    /// <param name="objectCart"></param>
+    /// <returns>Json with success or error message</returns>
     [Authorize(Roles = "Buyer")]
     [HttpPost]
     public IActionResult SetSessionForOrder(string objectCart)
@@ -78,8 +82,13 @@ public class OrderController : Controller
         {
             return Json(new {success=false,message=e.Message});
         }
-    }
+    }   
 
+
+    /// <summary>
+    /// Method to view order details
+    /// /// </summary>
+    /// <returns>View with order details</returns>
     [Authorize(Roles = "Buyer")]
     [HttpGet]
     public async Task<IActionResult> Index(string sessionId)
@@ -126,6 +135,12 @@ public class OrderController : Controller
         }
     }
 
+
+
+    /// <summary>
+    /// Method to place an order
+    /// </summary>
+    /// <param name="UserId"></param>
     [Authorize(Roles = "Buyer")]
     [HttpPost]
     public async Task<IActionResult> PlaceOrder(int UserId, string SessionId)
@@ -172,7 +187,10 @@ public class OrderController : Controller
         }
     }
 
-    
+    /// <summary>
+    /// Method to place an order for a single product
+    /// </summary>
+    /// <param name="UserId"></param>
     [Authorize(Roles = "Buyer")]
     [HttpPost]
     public async Task<IActionResult> PlaceOrderFoSingleProduct(int UserId, string SessionId)
@@ -218,7 +236,10 @@ public class OrderController : Controller
         }
     }
 
-
+    /// <summary>
+    /// Method to view order details for a single product
+    /// </summary>
+    /// <returns>View with order details</returns>
     [Authorize(Roles = "Buyer")]
     [HttpGet]
     public async Task<IActionResult> BuyProduct(string sessionId)
@@ -256,7 +277,6 @@ public class OrderController : Controller
             result.BaseRole = role;
             result.SessionId = sessionId;
             return View(result);
-
         }
         catch(Exception e)
         {
@@ -264,6 +284,40 @@ public class OrderController : Controller
             return RedirectToAction("Index","BuyerDashboard");
         }
     }
+
+
+    /// <summary>
+    /// Method to get order history for a buyer
+    /// </summary>
+    /// <returns>Partial view with order history</returns>
+    [HttpPut]
+    [Authorize]
+    public IActionResult UpdateOrderStatus(int orderId, string status)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(status) || orderId <= 0)
+            {
+                return Json(new { success = false, message = "Invalid order ID or status." });
+            }
+
+            // Call the service to update the order status
+            ResponsesViewModel? isUpdated = _orderService.UpdateOrderStatus(orderId, status);
+            if (isUpdated.IsSuccess)
+            {
+                return Json(new { success = true, message = isUpdated.Message });
+            }
+            else
+            {
+                return Json(new { success = false, message = isUpdated.Message });
+            }
+        }
+        catch (Exception e)
+        {
+            return Json(new { success = false, message = e.Message });
+        }
+    }
+
 
 
 }

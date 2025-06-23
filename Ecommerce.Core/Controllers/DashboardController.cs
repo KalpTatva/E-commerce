@@ -20,6 +20,10 @@ public class DashboardController : Controller
         _orderService = orderService;
     }
 
+    /// <summary>
+    /// Index method for all type of users (not logged in, seller, buyer)
+    /// </summary>
+    /// <returns>View with base view model</returns>
     public IActionResult Index()
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
@@ -32,7 +36,10 @@ public class DashboardController : Controller
         return View(baseViewModel);
     }
 
-   
+    /// <summary>
+    /// Index method for user dashboard
+    /// </summary>
+    /// <returns>View with base view model</returns>
     public IActionResult UserDashboard()
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
@@ -45,7 +52,11 @@ public class DashboardController : Controller
         return View(baseViewModel);
     }
    
-   
+    /// <summary>
+    /// Method to edit user profile
+    /// </summary>
+    /// <returns>View with user details</returns>   
+    [Authorize]
     public IActionResult EditProfile()
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
@@ -60,6 +71,10 @@ public class DashboardController : Controller
         return View(model);
     }
 
+    /// <summary>
+    /// Method to edit user profile details
+    /// </summary>
+    /// <param name="model">Model containing user details</param>
     public IActionResult EditUser(EditRegisteredUserViewModel model)
     {
         try
@@ -79,6 +94,10 @@ public class DashboardController : Controller
     }
 
 
+    /// <summary>
+    /// Method to view user's favourite products
+    /// </summary>
+    /// <returns>View with base view model</returns>
     [Authorize(Roles ="Buyer")]
     public IActionResult MyOrders()
     {
@@ -92,6 +111,10 @@ public class DashboardController : Controller
         return View(baseViewModel);
     }
 
+    /// <summary>
+    /// Method to get user's order history
+    /// </summary>
+    /// <returns>Partial view with user's order history</returns>
     [Authorize(Roles = "Buyer")]
     [HttpGet]
     public async Task<IActionResult> GetMyOrders()
@@ -110,4 +133,42 @@ public class DashboardController : Controller
         }
         return PartialView("_MyOrdersPartial", result);
     }
+
+    /// <summary>
+    /// Method to view seller's order list
+    /// </summary>
+    [Authorize(Roles = "Seller")]
+    public IActionResult SellerOrderList()
+    {
+        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
+                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        BaseViewModel baseViewModel = new () {
+            BaseEmail = email,
+            BaseRole = role
+        };        
+        return View(baseViewModel);
+    }
+
+    /// <summary>
+    /// Method to get seller's orders
+    /// </summary>
+    [Authorize(Roles = "Seller")]
+    [HttpGet]
+    public IActionResult GetSellerOrders()
+    {   
+        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
+            ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+        List<SellerOrderViewModel>? model = _orderService.GetSellerOrders(email ?? "");
+        SellerOrderListViewModel sellerOrderListViewModel = new SellerOrderListViewModel
+        {
+            BaseEmail = email,
+            BaseRole = role,
+            SellerOrders = model
+        };
+        return PartialView("_SellerOrderList", sellerOrderListViewModel);   
+    }
+
 }

@@ -132,7 +132,7 @@ public class BuyerDashboardController : Controller
     /// <summary>
     /// cart's view method
     /// </summary>
-    /// <returns></returns>
+    /// <returns>View with base view model</returns>
     public IActionResult Cart()
     {
         string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
@@ -148,7 +148,7 @@ public class BuyerDashboardController : Controller
     /// buyer's method for getting cart data
     /// </summary>
     /// <param name="productId"></param>
-    /// <returns></returns>
+    /// <returns>json</returns>
     [Authorize(Roles ="Buyer")]
     [HttpPost]
     public IActionResult AddToCart(int productId)
@@ -175,7 +175,7 @@ public class BuyerDashboardController : Controller
     /// <summary>
     /// Buyer's method for get cart details
     /// </summary>
-    /// <returns></returns>
+    /// <returns>partial view with model</returns>
     [Authorize(Roles ="Buyer")]
     [HttpGet]
     public IActionResult GetCart()
@@ -187,6 +187,12 @@ public class BuyerDashboardController : Controller
     }
 
 
+    /// <summary>
+    /// Buyer's method for updating cart values
+    /// </summary>
+    /// <param name="quantity"></param>
+    /// <param name="cartId"></param>
+    /// returns>Json</returns>
     [Authorize(Roles ="Buyer")]
     [HttpPut]
     public IActionResult UpdateValuesOfCart(int quantity,int cartId)
@@ -215,6 +221,11 @@ public class BuyerDashboardController : Controller
     }
 
 
+    /// <summary>
+    /// Buyer's method for deleting cart from list
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// returns>PartialView</returns>
     [Authorize(Roles ="Buyer")]
     [HttpPut]
     public IActionResult UpdateCartList(int cartId)

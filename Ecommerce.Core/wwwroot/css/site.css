@@ -39,6 +39,12 @@ html {
 .bg-lightblue{background-color: #9db1c59f;}
 
 
+/* table helpers */
+.address-class{
+  width: 200px;
+  word-wrap: break-word;
+}
+
 
 /* password eye */
 

@@ -9,22 +9,11 @@
     foreach (MyOrderViewModel o in Model.myOrderViewModels)
     {
         <div class="w-100  px-5 border rounded-3">
-            <div class="d-flex d-flex justify-content-center w-100 mt-4">
+            <div class="d-flex mx-3 d-flex justify-content-center w-100 mt-4">
                 <div class="w-50 d-flex flex-column">
                     <span class="fs-3 fw-normal text-nowrap"> order id : @o.OrderId</span>
 
-                    <div class="border rounded-3  btn w-25
-                        @(o.Status == (int)OrderStatusEnum.Pending ? "btn-secondary" :
-                        o.Status == (int)OrderStatusEnum.Canceled ? "btn-danger" : 
-                        o.Status == (int)OrderStatusEnum.Delivered ? "btn-success" :
-                        "btn-warning"
-                        )">
 
-                        @(o.Status == (int)OrderStatusEnum.Pending ? "Pending" :
-                        o.Status == (int)OrderStatusEnum.Canceled ? "canceled" :
-                        o.Status == (int)OrderStatusEnum.Delivered ? "Delivered" :
-                        "Shipped")
-                    </div>
 
                 </div>
                 <div class="w-50 d-flex mb-4 justify-content-center align-items-start flex-column">
@@ -46,7 +35,6 @@
                             @o.TotalQuantity
                         </span>
                     </div>
-                    <button class="btn btn-danger w-50 mt-3 CancelOrder" data-order-id="@o.OrderId">Cancel order</button>
                 </div>
             </div>
             <div class="mb-4">
@@ -58,10 +46,13 @@
                             <th>Price</th>
                             <th>Quantity</th>
                             <th>Create date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+
                         </tr>
                     </thead>
                     <tbody>
-                    @if (o.OrderedItem != null && o.OrderedItem.Any())
+                        @if (o.OrderedItem != null && o.OrderedItem.Any())
                         {
                             @foreach (OrderItemsViewModel op in o.OrderedItem)
                             {
@@ -71,7 +62,34 @@
                                     <td>@op.PriceWithDiscount.ToString("C")</td>
                                     <td>@op.Quantity</td>
                                     <td>@op.CreatedAt</td>
+                                    <td class="">
+                                        @if (op.Status == (int)OrderStatusEnum.Pending)
+                                        {
+                                            <span class="badge p-2 bg-primary">Pending</span>
+                                        }
+                                        else if (op.Status == (int)OrderStatusEnum.Cancelled)
+                                        {
+                                            <span class="badge p-2 bg-danger">Canceled</span>
+                                        }
+                                        else if (op.Status == (int)OrderStatusEnum.Delivered)
+                                        {
+                                            <span class="badge p-2 bg-success">Delivered</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge p-2 bg-warning">Shipped</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if(op.Status != (int)OrderStatusEnum.Shipped && op.Status != (int)OrderStatusEnum.Delivered && op.Status != (int)OrderStatusEnum.Cancelled)            
+                                        {   
+                                        <button class="btn btn-danger CancelOrderBtn" data-order-id="@op.OrderProductId"
+                                            data-product-id="@op.ProductId">Cancel Order</button>
+                                        }
+                                    </td>
                                 </tr>
+
+
                             }
                         }
                     </tbody>

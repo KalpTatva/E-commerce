@@ -26,7 +26,7 @@ public class HomeController : Controller
     /// <summary>
     /// index method for redirection based on cookie and sessions, returns login view
     /// </summary>
-    /// <returns></returns>
+    /// <returns>View</returns>
     public IActionResult Index()
     {
         try
@@ -75,7 +75,7 @@ public class HomeController : Controller
             switch (role)
             {
                 case nameof(RoleEnum.Admin):
-                    return RedirectToAction("Index", "Dashboard");
+                    return RedirectToAction("Index", "BuyerDashboard");
                 case nameof(RoleEnum.Seller):
                     return RedirectToAction("UserDashboard", "Dashboard");
                 case nameof(RoleEnum.Buyer):
@@ -103,7 +103,7 @@ public class HomeController : Controller
     /// post method for login 
     /// </summary>
     /// <param name="model">LoginViewModel</param>
-    /// <returns></returns>
+    /// <returns>View</returns>
     [HttpPost]
     public IActionResult Index(LoginViewModel model)
     {
@@ -149,7 +149,7 @@ public class HomeController : Controller
     /// <summary>
     /// logout method for clearing cookies and session and redirect to home
     /// </summary>
-    /// <returns></returns>
+    /// <returns>redirect to buyer dashboard</returns>
     public IActionResult Logout()
     {
         try
@@ -198,7 +198,7 @@ public class HomeController : Controller
     /// forgot password post method, which generates reset password link 
     /// </summary>
     /// <param name="model">EmailViewModel</param>
-    /// <returns></returns>
+    /// <returns>View</returns>
     [HttpPost]
     public async Task<IActionResult> ForgotPassword(EmailViewModel model)
     {
@@ -235,7 +235,7 @@ public class HomeController : Controller
     /// Reset password get method which ensures validity of reset password link
     /// </summary>
     /// <param name="token"></param>
-    /// <returns></returns>
+    /// <returns>redirect to forget password</returns>
     [HttpGet]
     public ActionResult ResetPassword(string token)
     {
@@ -271,7 +271,7 @@ public class HomeController : Controller
     /// Reset password post method for reseting new password
     /// </summary>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns>Resset password view</returns>
     [HttpPost]
     public IActionResult ResetPassword(ForgetPasswordViewModel model)
     {
@@ -311,7 +311,7 @@ public class HomeController : Controller
     /// <summary>
     /// register user get method
     /// </summary>
-    /// <returns></returns>
+    /// <returns>View</returns>
     public IActionResult RegisterUser()
     {
         return View();
@@ -321,7 +321,7 @@ public class HomeController : Controller
     /// register user post method, which registers a new user
     /// </summary>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns>View</returns>
     [HttpPost]
     public IActionResult RegisterUser(RegisterUserViewModel model)
     {
@@ -356,7 +356,7 @@ public class HomeController : Controller
     /// <summary>
     /// GetCountries method to fetch list of countries for registration
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Json</returns>
     // helpers
     [HttpGet]
     public IActionResult GetCountries()
@@ -376,7 +376,7 @@ public class HomeController : Controller
     /// GetStates method to fetch list of states based on selected country
     /// </summary>
     /// <param name="countryId"></param>
-    /// <returns></returns>.
+    /// <returns>Json</returns>.
     [HttpGet]
     public IActionResult GetStates(int countryId)
     {
@@ -395,7 +395,7 @@ public class HomeController : Controller
     /// GetCities method to fetch list of cities based on selected state
     /// </summary>
     /// <param name="stateId"></param>
-    /// <returns></returns>
+    /// <returns>Json</returns>
     [HttpGet]
     public IActionResult GetCities(int stateId)
     {

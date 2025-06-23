@@ -284,6 +284,9 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.PriceWithDiscount).HasColumnName("price_with_discount");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.Status)
+                .HasDefaultValue(1)
+                .HasColumnName("status");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderProducts)
                 .HasForeignKey(d => d.OrderId)

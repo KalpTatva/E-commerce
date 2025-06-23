@@ -590,4 +590,21 @@ public class ProductRepository : IProductRepository
         }
     }
 
+    /// <summary>
+    /// method for updating product details
+    /// </summary>
+    /// <param name="product"></param>
+    public void UpdateProduct(Product product)
+    {
+        try
+        {
+            _context.Products.Update(product);
+            _context.SaveChanges();
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
 }

@@ -167,9 +167,24 @@ public interface IProductRepository
     /// <exception cref="Exception"></exception>
     void UpdateCartById(int cartId,int quantity);
 
-    
+    /// <summary>
+    /// soft delete method for updating delete boolean = true
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <exception cref="Exception"></exception>
     void DeleteCartById(int cartId);
 
+    /// <summary>
+    /// soft delete implementation for cart items 
+    /// </summary>
+    /// <param name="cartIds"></param>
+    /// <exception cref="Exception"></exception>
     void DeleteCartByIdsRange(List<int> cartIds);
 
+    /// <summary>
+    /// method for updating product details
+    /// </summary>
+    /// <param name="product"></param>
+    void UpdateProduct(Product product);
+    
 }

@@ -16,6 +16,14 @@ public class OrderRepository : IOrderRepository
     }
 
 
+    /// <summary>
+    /// Get details for orders based on cart IDs.
+    /// This method retrieves product details for the specified cart IDs, 
+    /// including product name, price, stocks, discount type, discount amount, quantity, and associated images.
+    /// </summary>
+    /// <param name="cartIds"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<List<productAtOrderViewModel>?> GetDetailsForOrders(List<int> cartIds)
     {
         try
@@ -44,6 +52,15 @@ public class OrderRepository : IOrderRepository
         }
     }
 
+    /// <summary>
+    /// Get details for orders based on product IDs.
+    /// This method retrieves product details for the specified product IDs,
+    /// including product name, price, stocks, discount type, discount amount, 
+    /// quantity, and associated images.
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<List<productAtOrderViewModel>?> GetDetailsForOrdersByProductId(List<int> productId)
     {
         try
@@ -71,7 +88,13 @@ public class OrderRepository : IOrderRepository
         }
     }
 
-
+    /// <summary>
+    /// Method to add an order to the database.
+    /// This method adds a new order to the Orders table and 
+    /// saves changes to the database.
+    /// </summary>
+    /// <param name="order"></param>
+    /// <exception cref="Exception"></exception>
     public void AddOrder(Order order)
     {
         try
@@ -79,59 +102,43 @@ public class OrderRepository : IOrderRepository
             _context.Orders.Add(order);
             _context.SaveChanges();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new Exception(e.Message);
         }
     }
 
+    /// <summary>
+    /// Method to add a range of order products to the database.
+    /// This method adds multiple order products to the OrderProducts table and
+    /// saves changes to the database.
+    /// </summary>
+    /// <param name="orderProducts"></param>
+    /// <exception cref="Exception"></exception>
     public void AddOrderProductRange(List<OrderProduct> orderProducts)
     {
-         try
+        try
         {
             _context.OrderProducts.AddRange(orderProducts);
             _context.SaveChanges();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new Exception(e.Message);
         }
     }
 
+    /// <summary>
+    /// Method to get the order details for a specific user.
+    /// This method retrieves a list of orders placed by the user, including order items and their details.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns>It returns a list of MyOrderViewModel objects containing order and item details.</returns>
+    /// <exception cref="Exception"></exception>
     public async Task<List<MyOrderViewModel>?> GetMyOrderDetails(int userId)
     {
         try
         {
-            // List<MyOrderViewModel>? query = await (
-            //     from order in _context.Orders
-            //     where order.BuyerId == userId
-            //     select new MyOrderViewModel
-            //     {
-            //         OrderId = order.OrderId,
-            //         BuyerId = order.BuyerId,
-            //         Amount = order.Amount,
-            //         Status = order.Status,
-            //         CreatedAt = order.CreatedAt,
-            //         TotalDiscount = order.TotalDiscount,
-            //         TotalQuantity = order.TotalQuantity,
-            //         OrderedItem = (
-            //             from orderProduct in _context.OrderProducts
-            //             join product in _context.Products on orderProduct.ProductId equals product.ProductId
-            //             where orderProduct.OrderId == order.OrderId
-            //             select new OrderItemsViewModel
-            //             {
-            //                 OrderProductId = orderProduct.OrderProductId,
-            //                 OrderId = orderProduct.OrderId,
-            //                 ProductName = product.ProductName,
-            //                 ProductId = orderProduct.ProductId,
-            //                 Quantity = orderProduct.Quantity,
-            //                 PriceWithDiscount = orderProduct.PriceWithDiscount,
-            //                 CreatedAt = orderProduct.CreatedAt
-            //             }
-            //         ).ToList()
-            //     }
-            // ).ToListAsync();
-
             List<MyOrderViewModel> query = await _context.Orders
             .Where(order => order.BuyerId == userId)
             .Select(order => new MyOrderViewModel
@@ -154,6 +161,7 @@ public class OrderRepository : IOrderRepository
                             OrderId = op.OrderId,
                             ProductName = product.ProductName,
                             ProductId = op.ProductId,
+                            Status = op.Status,
                             Quantity = op.Quantity,
                             PriceWithDiscount = op.PriceWithDiscount,
                             CreatedAt = op.CreatedAt
@@ -163,6 +171,108 @@ public class OrderRepository : IOrderRepository
             .ToListAsync();
 
             return query;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// Method to get the seller's orders.
+    /// This method retrieves a list of orders placed for products sold by the seller, including order details and buyer information.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns>It returns a list of SellerOrderViewModel objects containing order and buyer details.</returns>
+    /// <exception cref="Exception"></exception>
+    public List<SellerOrderViewModel> GetSellerOrders(int userId)
+    {
+        try
+        {
+            List<SellerOrderViewModel> query = _context.OrderProducts
+                .Where(op => op.Product.SellerId == userId)
+                .OrderByDescending(op => op.OrderProductId)
+                .Join(_context.Orders,
+                    op => op.OrderId,
+                    order => order.OrderId,
+                    (op, order) => new SellerOrderViewModel
+                    {
+                        OrderId = op.OrderProductId,
+                        ProductName = op.Product.ProductName,
+                        Quantity = op.Quantity,
+                        Stocks = op.Product.Stocks,
+                        Price = op.PriceWithDiscount,
+                        BuyerEmail = order.Buyer.Email,
+                        OrderDate = order.CreatedAt ?? DateTime.Now,
+                        OrderStatus = op.Status,
+                        BuyerName =
+                            _context.Users
+                                .Where(u => u.UserId == order.BuyerId)
+                                .Join(_context.Profiles,
+                                    u => u.ProfileId,
+                                    ud => ud.ProfileId,
+                                    (u, ud) => ud)
+                                .Select(u => u.FirstName + " " + u.LastName)
+                                .FirstOrDefault(),
+                        Address =
+                            _context.Users
+                                .Where(u => u.UserId == order.BuyerId)
+                                .Join(_context.Profiles,
+                                    u => u.ProfileId,
+                                    ud => ud.ProfileId,
+                                    (u, ud) => ud.Address + ", " +
+                                              ud.City.City1 + ", " +
+                                              ud.State.State1 + ", " +
+                                              ud.Country.Country1 + ", " +
+                                              ud.Pincode)
+                                .FirstOrDefault()
+
+                    })
+                .ToList();
+
+            return query;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    /// <summary>
+    /// Method to get an order by its ID.
+    /// This method retrieves a specific order from the OrderProducts table based on the provided order ID.
+    /// </summary>
+    /// <param name="orderId"></param>
+    /// <returns>It returns an OrderProduct object if found, otherwise null.</returns>
+    public OrderProduct? GetOrderById(int orderId)
+    {
+        try
+        {
+            OrderProduct? order = 
+                _context.OrderProducts
+                .FirstOrDefault(op => op.OrderProductId == orderId && op.IsDeleted == false);
+            return order;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to update an existing order product.
+    /// This method updates the details of an order product in the OrderProducts table
+    /// and saves the changes to the database.
+    /// </summary>
+    /// <param name="order"></param>
+    public void UpdateOrderProducts(OrderProduct order)
+    {
+        try
+        {
+            _context.OrderProducts.Update(order);
+            _context.SaveChanges();
         }
         catch (Exception e)
         {

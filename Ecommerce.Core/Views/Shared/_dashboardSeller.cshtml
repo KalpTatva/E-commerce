@@ -29,11 +29,14 @@
                     @if (Model.BaseRole == RoleEnum.Seller.ToString())
                     {
                         <li class="my-4"><a asp-action="MyProducts" asp-controller="Product"
-                            class="text-white text-decoration-none profile-link">My products</a></li>
-                        <li class="my-4"><a class="text-white text-decoration-none profile-link">Add Offers</a></li>
-                    }else{
+                                class="text-white text-decoration-none profile-link">My products</a></li>
+                        <li class="my-4"><a asp-action="SellerOrderList" asp-controller="Dashboard"
+                                class="text-white text-decoration-none profile-link">Orders List</a></li>
+                    }
+                    else
+                    {
                         <li class="my-4"><a asp-action="MyOrders" asp-controller="Dashboard"
-                            class="text-white text-decoration-none profile-link">My Orders</a></li>
+                                class="text-white text-decoration-none profile-link">My Orders</a></li>
                     }
                 </ul>
 
@@ -80,33 +83,39 @@
                             }
                             @if (Model.BaseEmail != null)
                             {
+                                <div class="d-flex align-items-center justify-content-end w-100">
+                                    @if (Model.BaseRole != RoleEnum.Seller.ToString())
+                                    {
 
-                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative">
-                                    <i class="bi bi-bell-fill icons-css"></i>
-                                    <span class="messageCart">bell</span>
-                                </a>
+                                        <a
+                                            class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative">
+                                            <i class="bi bi-bell-fill icons-css"></i>
+                                            <span class="messageCart">bell</span>
+                                        </a>
 
-                                <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
-                                    asp-action="Favourite" asp-controller="BuyerDashboard">
-                                    <i class="bi bi-heart-fill icons-css"></i>
-                                    <span class="message">Favourites</span>
-                                </a>
+                                        <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
+                                            asp-action="Favourite" asp-controller="BuyerDashboard">
+                                            <i class="bi bi-heart-fill icons-css"></i>
+                                            <span class="message">Favourites</span>
+                                        </a>
 
-                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
-                                    asp-action="Cart" asp-controller="BuyerDashboard">
-                                    <i class="bi bi-basket-fill icons-css"></i>
-                                    <span class="messageCart">Cart</span>
-                                </a>
+                                        <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
+                                            asp-action="Cart" asp-controller="BuyerDashboard">
+                                            <i class="bi bi-basket-fill icons-css"></i>
+                                            <span class="messageCart">Cart</span>
+                                        </a>
+                                    }
 
 
-                                <a asp-action="EditProfile" asp-controller="Dashboard"
-                                    class="text-white me-3 text-decoration-none ">
-                                    <span class="profile-link d-none d-lg-flex">@Model.BaseEmail</span>
+                                    <a asp-action="EditProfile" asp-controller="Dashboard"
+                                        class="text-white me-3 text-decoration-none ">
+                                        <span class="profile-link d-none d-lg-flex">@Model.BaseEmail</span>
 
-                                    <i class="bi bi-person-circle icons-css mt-1 profile-link d-flex d-lg-none"></i>
-                                </a>
+                                        <i class="bi bi-person-circle icons-css mt-1 profile-link d-flex d-lg-none"></i>
+                                    </a>
 
-                                <button class="btn btn-danger me-1" id="LogoutButton">Logout</button>
+                                    <button class="btn btn-danger me-1" id="LogoutButton">Logout</button>
+                                </div>
                             }
                             else
                             {

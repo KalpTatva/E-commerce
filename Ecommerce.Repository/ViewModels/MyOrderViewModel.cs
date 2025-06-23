@@ -21,6 +21,8 @@ public class MyOrderViewModel
 
     public decimal TotalDiscount { get; set; }
 
+
+
     public List<OrderItemsViewModel>? OrderedItem {get;set;} 
 }
 
@@ -35,6 +37,7 @@ public class OrderItemsViewModel
     public int ProductId { get; set; }
 
     public int Quantity { get; set; }
+    public int Status { get; set; }
 
     public decimal PriceWithDiscount { get; set; }
 

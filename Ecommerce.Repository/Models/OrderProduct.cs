@@ -23,6 +23,8 @@ public partial class OrderProduct
 
     public bool? IsDeleted { get; set; }
 
+    public int Status { get; set; }
+
     public virtual Order Order { get; set; } = null!;
 
     public virtual Product Product { get; set; } = null!;

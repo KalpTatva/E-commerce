@@ -19,8 +19,8 @@ public class Enums
 
     public enum RegisterRoleEnum
     {
-        Buyer = 1,
-        Seller = 2
+        Buyer = 2,
+        Seller = 3
     }
 
     public enum DiscountEnum
@@ -36,7 +36,7 @@ public class Enums
     {
         Pending = 1,
         Shipped = 2,
-        Canceled = 3,
+        Cancelled = 3,
         Delivered = 4
         
     }
