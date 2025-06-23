@@ -11,7 +11,7 @@ public partial class Offer
 
     public int OfferType { get; set; }
 
-    public decimal DiscountRate { get; set; }
+    public decimal? DiscountRate { get; set; }
 
     public string Title { get; set; } = null!;
 

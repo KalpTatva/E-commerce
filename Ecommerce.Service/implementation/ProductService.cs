@@ -751,7 +751,7 @@ public class ProductService : IProductService
     /// <summary>
     /// method to check product stock by cart ids
     /// </summary>
-    /// <param name="cartIds"></param>
+    /// <param name="email"></param>
     /// <returns></returns>
     public ResponsesViewModel CheckProductStockByCartId(string email)
     {

@@ -205,14 +205,18 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.Description)
                 .HasColumnType("character varying")
                 .HasColumnName("description");
-            entity.Property(e => e.DiscountRate).HasColumnName("discount_rate");
+            entity.Property(e => e.DiscountRate)
+                .HasDefaultValueSql("0")
+                .HasColumnName("discount_rate");
             entity.Property(e => e.EditedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("edited_at");
             entity.Property(e => e.EndDate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("end_date");
-            entity.Property(e => e.OfferType).HasColumnName("offer_type");
+            entity.Property(e => e.OfferType)
+                .HasDefaultValue(1)
+                .HasColumnName("offer_type");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
             entity.Property(e => e.StartDate)
                 .HasColumnType("timestamp without time zone")
