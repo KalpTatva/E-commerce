@@ -1,0 +1,10 @@
+@model List<Ecommerce.Repository.Models.Country>
+@using Ecommerce.Repository.Models
+
+@if(Model != null && Model.Any())
+{
+    @foreach(Country country in Model)
+    {
+        <option value="@country.CountryId">@country.Country1</option>
+    }
+}   

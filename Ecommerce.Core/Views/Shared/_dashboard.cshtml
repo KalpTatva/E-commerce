@@ -1,0 +1,135 @@
+@using static Ecommerce.Repository.Helpers.Enums
+@model Ecommerce.Repository.ViewModels.BaseViewModel
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ecommerce.Core</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Ecommerce.Core.styles.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <!--  Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"/>
+</head>
+
+<body>
+
+    <div class="bg-lightblue d-flex height">
+        <div class="w-100 h-100">
+            <header>
+                <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark border-bottom box-shadow">
+                    <div class="container-fluid">
+                        <a class="navbar-brand font-green " asp-controller="BuyerDashboard" asp-action="Index">E-commerce</a>
+                        <button class="navbar-toggler text-white bg-white" type="button" data-bs-toggle="collapse"
+                            data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link text-white profile-link Category-Link" 
+                                        asp-controller="BuyerDashboard"
+                                        asp-action="Index"
+                                        asp-route-categoryId = "@((int)CategoriesEnum.Computers)"
+                                    >
+                                        @((CategoriesEnum.Computers).ToString())
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link text-white profile-link Category-Link" 
+                                        asp-controller="BuyerDashboard"
+                                        asp-action="Index"
+                                        asp-route-categoryId = "@((int)CategoriesEnum.Laptops)"
+
+                                    >
+                                        @((CategoriesEnum.Laptops).ToString())
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link text-white profile-link Category-Link" 
+                                        asp-controller="BuyerDashboard"
+                                        asp-action="Index"
+                                        asp-route-categoryId = "@((int)CategoriesEnum.Accessories)"
+                                    >
+                                        @((CategoriesEnum.Accessories).ToString())
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                            @if (Model.BaseEmail != null)
+                            {
+
+                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative">
+                                    <i class="bi bi-bell-fill icons-css"></i>
+                                    <span class="messageCart">bell</span>
+                                </a>
+
+                                <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
+                                    asp-action="Favourite" asp-controller="BuyerDashboard">
+                                    <i class="bi bi-heart-fill icons-css"></i>
+                                    <span class="message">Favourites</span>
+                                </a>
+
+                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
+                                    asp-action="Cart" asp-controller="BuyerDashboard">
+                                    <i class="bi bi-basket-fill icons-css"></i>
+                                    <span class="messageCart">Cart</span>
+                                </a>
+
+
+                                <a asp-action="EditProfile" asp-controller="Dashboard"
+                                    class="text-white me-3 text-decoration-none ">
+                                    <span class="profile-link d-none d-lg-flex">@Model.BaseEmail</span>
+
+                                    <i class="bi bi-person-circle icons-css mt-1 profile-link d-flex d-lg-none"></i>
+                                </a>
+
+                                <button class="btn btn-danger me-1" id="LogoutButton">Logout</button>
+                            }
+                            else
+                            {
+                                <a class="btn btn-success" asp-controller="Home" asp-action="Index">Login</a>
+                                <a class="text-white me-3 text-decoration-none profile-link ms-2 me-1" asp-controller="Home"
+                                    asp-action="RegisterUser">Sign up</a>
+                            }
+
+
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            <main class="w-100 d-flex flex-column justify-content-center align-items-center">
+                @RenderBody()
+            </main>
+
+        </div>
+    </div>
+
+    <partial name="_LogoutModalPartial" />
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+
+     <!-- Owl Carousel JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

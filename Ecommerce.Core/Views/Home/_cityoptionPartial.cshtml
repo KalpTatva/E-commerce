@@ -1,0 +1,10 @@
+@model List<Ecommerce.Repository.Models.City>
+@using Ecommerce.Repository.Models
+
+@if(Model != null && Model.Any())
+{
+    @foreach(City city in Model)
+    {
+        <option value="@city.CityId">@city.City1</option>
+    }
+}   

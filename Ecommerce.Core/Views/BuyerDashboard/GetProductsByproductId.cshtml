@@ -1,0 +1,246 @@
+@using Ecommerce.Repository.Models
+@using Ecommerce.Repository.ViewModels
+@using static Ecommerce.Repository.Helpers.Enums
+@model Ecommerce.Repository.ViewModels.productDetailsByproductIdViewModel
+@{
+    Layout = "~/Views/Shared/_dashboard.cshtml";
+}
+@{
+    decimal price = 0;
+    decimal discount = 0;
+    if (Model.DiscountType == (int)DiscountEnum.FixedAmount)
+    {
+        price = Model.Price - Model.Discount ?? 0;
+        discount = Model.Discount ?? 0;
+    }
+    else if (Model.DiscountType == (int)DiscountEnum.Percentage)
+    {
+        price = Model.Price - ((Model.Price * Model.Discount ?? 0) / 100);
+        discount = (Model.Price * Model.Discount ?? 0) / 100;
+    }
+    else
+    {
+        price = Model.Price;
+        discount = 0;
+    }
+}
+
+<div class="container border bg-white rounded-3 d-flex m-5">
+    @if (Model != null)
+    {
+        <span class="productImageClass p-4 w-50">
+            <div>
+                @if (Model.Images != null && Model.Images.Any())
+                {
+                    <div id="owl-demo" class="owl-carousel owl-theme">
+                        @foreach (Image i in Model.Images)
+                        {
+                            <img src="@Url.Content(i.ImageUrl)" alt="@i.ImageId" />
+                        }
+                    </div>
+                }
+            </div>
+
+        </span>
+        <span class="ProductbodyClass position-relative p-4 d-flex flex-column w-50">
+            <p class="h3 mb-3">@Model.ProductName</p>
+            <div class="mb-2">
+                <span class="text-danger fs-4">
+                    -@(
+                    Model.DiscountType == (int)DiscountEnum.FixedAmount
+                    ? string.Format("{0:C}", Model.Discount)
+                    : string.Format("{0}%", Model.Discount)
+                                )
+            </span>
+            <span class="fs-1">@price.ToString("C")</span>
+            <span class="text-muted text-decoration-line-through fs-5">(@Model.Price.ToString("C"))</span>
+
+        </div>
+
+        <div class="d-flex mb-2 w-100 gap-4">
+            <div class="d-flex flex-column ">
+                <span class="text-success fs-5 mb-2">Discount of</span>
+                <p class="fs-4 mb-2">
+                    @discount.ToString("c")
+                </p>
+            </div>
+
+            <div class="d-flex flex-column">
+                <span class="text-success fs-5 mb-2">Category</span>
+                <span class="fs-5 mb-2">
+                    @(((CategoriesEnum)Model.CategoryId).ToString())
+                </span>
+            </div>
+            <div class="d-flex justify-content-center align-items-center">
+                <div id="addTofavourite" data-product-id="@Model.ProductId" data-is-favourite="@Model.IsFavourite">
+                    @if (Model.IsFavourite == true)
+                        {
+                            <span><i class="bi bi-heart-fill icons-css text-danger fs-3"></i></span>
+                        }
+                        else
+                        {
+                            <span><i class="bi bi-heart icons-css text-danger fs-3"></i></span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+
+
+            <span class="text-success fs-5 mb-2">Features</span>
+            <div class="w-100 mb-2">
+                <table class="table w100 table border text-center">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Features != null && Model.Features.Any())
+                        {
+                            @foreach (Feature feature in Model.Features)
+                            {
+                                <tr>
+                                    <td>@feature.FeatureName</td>
+                                    <td>@feature.Description</td>
+
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            
+            <span class="d-flex justify-content-start gap-2 align-items-center mb-2">
+                <span class="text-success fs-5">In stocks </span>
+                <span class="fs-5">@Model.Stocks quantity</span>
+            </span>
+
+            @if (Model.UserEmail != null && Model.Stocks > 0)
+            {
+                <div class="d-flex w-100 gap-2 mb-2">
+                    <button id="AddToCart" class="btn btn-warning rounded-pill w-50" data-product-id="@Model.ProductId">Add to cart</button>
+                    <button class="btn btn-success w-50 rounded-pill BuySingleProduct"
+                    data-product-id="@Model.ProductId"
+                    data-price="@price"
+                    data-discount="@discount"
+                    data-quantity="1" 
+                    >
+                    Buy now</button>
+                </div>
+            }
+            else {
+                if(Model.UserEmail == null)
+                {
+                    <span class="text-secondary fs-5">Please login to buy this product</span>
+                }
+                else
+                {
+                    <span class="text-danger fs-5">Out of stock</span>
+                }
+            }
+
+
+            <span class="d-flex flex-column mb-2 gap-2">
+
+                <span class="text-success fs-5">Reviews </span>
+                <span>
+                    @if (Model.Reviews != null && Model.Reviews.Any())
+                    {
+                        <span class="text-secondary fs-5 mb-3">
+                            Average Rating:
+                            @if (Model.AverageRatings > 0)
+                            {
+                                int fullStars = (int)Model.AverageRatings;
+                                decimal fractionalStar = Model.AverageRatings - fullStars;
+
+                                for (int i = 0; i < fullStars; i++)
+                                {
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                }
+
+                                if (fractionalStar >= 0.5m)
+                                {
+                                    <i class="bi bi-star-half text-warning"></i>
+                                }
+
+                                for (int i = fullStars + (fractionalStar >= 0.5m ? 1 : 0); i < 5; i++)
+                                {
+                                    <i class="bi bi-star text-muted"></i>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">No rating</span>
+                            }
+                             (@Model.Reviews.Count()) reviews 
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-secondary fs-5">No reviews yet</span>
+                    }
+                </span>
+                <span>
+                     @if (Model.Reviews != null && Model.Reviews.Any())
+                    {
+                        @foreach(ReviewsViewModel review in Model.Reviews)
+                        {
+                            <div class="d-flex flex-column border p-2 mb-2">
+                                <span class="text-secondary fs-5">@review.Comments</span>
+                                <span class="text-secondary fs-6">By: @review.UserEmail</span>
+
+                                <span class="text-secondary fs-6">Rating:
+                                    
+                                    @if (Model.Reviews != null && review.Ratings > 0)
+                                    {
+                                        for (decimal i = 1; i <= review.Ratings; i++)
+                                        {
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        }
+                                        for (decimal i = review.Ratings + 1; i <= 5; i++)
+                                        {
+                                            <i class="bi bi-star text-muted"></i>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No rating</span>
+                                    }
+                                    
+                                </span>
+                            </div>
+                        }
+                    }
+                </span>
+
+
+            </span>
+
+            <span class="text-success fs-5 mb-2">About</span>
+            <div>
+                @Model.Description
+            </div>
+        </span>
+    }
+    else
+    {
+        <span class="d-flex justify-content-center align-items-center">
+            <span class="display-6">Product not found</span>
+        </span>
+    }
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    window.successMessage = '@TempData["SuccessMessage"]';
+    window.errorMessage = '@TempData["ErrorMessage"]';
+
+
+</script>
+<script src="~/js/toastr_script.js"></script>
+<script src="~/js/GetProductsByproductId_script.js"></script>
