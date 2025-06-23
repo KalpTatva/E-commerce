@@ -40,4 +40,13 @@ public class Enums
         Delivered = 4
         
     }
+
+    public enum OfferTypeEnum{
+        Percentage = 1,
+
+        [Display(Name = "Fixed Price")]
+        FixedPrice = 2,
+
+        BOGO = 3
+    }
 }

@@ -172,4 +172,17 @@ public class DashboardController : Controller
         return PartialView("_SellerOrderList", sellerOrderListViewModel);   
     }
 
+    [Authorize(Roles = "Seller")]
+    public IActionResult AddOffer()
+    {
+        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
+                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        OfferViewModel baseViewModel = new () {
+            BaseEmail = email,
+            BaseRole = role
+        };        
+        return View(baseViewModel);
+    }
+
 }
