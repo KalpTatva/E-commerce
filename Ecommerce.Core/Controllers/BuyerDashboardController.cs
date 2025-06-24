@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Ecommerce.Core.Utils;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
@@ -24,8 +25,7 @@ public class BuyerDashboardController : Controller
     /// <returns></returns>
     public IActionResult Index()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
         BaseViewModel baseViewModel = new () {
             BaseEmail = email
         }; 
@@ -42,9 +42,8 @@ public class BuyerDashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetProducts(string? search = null, int? category = null)
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email =  BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
         ProductsViewModel model = await _productService.GetProducts(search, category);
         List<int> favourites = _productService.GetFavouritesByEmail(email ?? "");
         model.BaseEmail = email;
@@ -61,8 +60,7 @@ public class BuyerDashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetFavouriteProducts()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
     
         ProductsViewModel model = await _productService.GetFavouriteProducts(email ?? "");
         List<int> favourites = _productService.GetFavouritesByEmail(email ?? "");
@@ -78,8 +76,7 @@ public class BuyerDashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetProductsByproductId(int productId)
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
 
         productDetailsByproductIdViewModel? model  = await _productService.GetProductById(productId,email ?? "");
         model.BaseEmail = email;
@@ -98,8 +95,7 @@ public class BuyerDashboardController : Controller
     public IActionResult UpdateFavourite(int productId)
     {
         try{
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
 
             ResponsesViewModel res = _productService.UpdateFavourite(productId, email);
             if(res.IsSuccess)
@@ -121,8 +117,7 @@ public class BuyerDashboardController : Controller
     [Authorize(Roles = "Buyer")]
     public IActionResult Favourite()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
         BaseViewModel baseViewModel = new () {
             BaseEmail = email
         }; 
@@ -137,8 +132,7 @@ public class BuyerDashboardController : Controller
     /// <returns>View with base view model</returns>
     public IActionResult Cart()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
         BaseViewModel baseViewModel = new () {
             BaseEmail = email
         }; 
@@ -157,8 +151,7 @@ public class BuyerDashboardController : Controller
     {   
         try
         {
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
 
             ResponsesViewModel res = _productService.AddToCart(email ?? "", productId);
             if(res.IsSuccess)
@@ -182,8 +175,7 @@ public class BuyerDashboardController : Controller
     [HttpGet]
     public IActionResult GetCart()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-            ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
         CartViewModel model = _productService.GetCartDetails(email??"");
         return PartialView("_CartListPartial",model);
     }
@@ -201,8 +193,7 @@ public class BuyerDashboardController : Controller
     {
         try
         {
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-            ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
             CartUpdatesViewModel res = _productService.UpdateQuantityAtCart(quantity, cartId,email ?? "");
             if(res.IsSuccess == true)
             {
@@ -232,8 +223,7 @@ public class BuyerDashboardController : Controller
     [HttpPut]
     public IActionResult UpdateCartList(int cartId)
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-            ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
         
         ResponsesViewModel res = _productService.DeleteCartFromList(cartId);
         if(res.IsSuccess == false)

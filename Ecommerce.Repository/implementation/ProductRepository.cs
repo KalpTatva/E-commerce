@@ -136,7 +136,7 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            return _context.Features.Where(x => x.ProductId == productId).ToList();
+            return _context.Features.Where(x => x.ProductId == productId).OrderByDescending(x => x.FeatureId).ToList();
         }
         catch(Exception e)
         {
@@ -154,22 +154,28 @@ public class ProductRepository : IProductRepository
         try
         {
             EditProductViewModel model = new ();
-            Product? product = _context.Products.FirstOrDefault(x => x.ProductId == productId && x.IsDeleted==false);
-            List<Feature>? features = _context.Features.Where(x => x.ProductId == productId).ToList();
-            List<Image>? images = _context.Images.Where(x => x.ProductId == productId).ToList();
-            if(product!=null)
+            var query = (from product in _context.Products
+                         where product.ProductId == productId && product.IsDeleted == false
+                         select new
+                         {
+                             Product = product,
+                             Features = _context.Features.Where(f => f.ProductId == product.ProductId).ToList(),
+                             Images = _context.Images.Where(i => i.ProductId == product.ProductId).ToList()
+                         }).FirstOrDefault();
+
+            if (query != null)
             {
-                model.ProductId = product.ProductId;
-                model.ProductName = product.ProductName;
-                model.Description = product.Description;
-                model.CategoryId = product.CategoryId;
-                model.Price = product.Price;
-                model.Stocks = product.Stocks;
-                model.SellerId = product.SellerId;
-                model.DiscountType = product.DiscountType;
-                model.Discount = product.Discount;
-                model.Features = features ?? new List<Feature>();
-                model.Images = images ?? new List<Image>();
+                model.ProductId = query.Product.ProductId;
+                model.ProductName = query.Product.ProductName;
+                model.Description = query.Product.Description;
+                model.CategoryId = query.Product.CategoryId;
+                model.Price = query.Product.Price;
+                model.Stocks = query.Product.Stocks;
+                model.SellerId = query.Product.SellerId;
+                model.DiscountType = query.Product.DiscountType;
+                model.Discount = query.Product.Discount;
+                model.Features = query.Features ?? new List<Feature>();
+                model.Images = query.Images ?? new List<Image>();
 
                 return model;
             }
@@ -287,9 +293,10 @@ public class ProductRepository : IProductRepository
         try
         {
             List<ProductsDeatailsViewModel>? query = await (from product in _context.Products
-                                where product.IsDeleted == false &&
-                                      (string.IsNullOrEmpty(search) || product.ProductName.ToLower().Trim().Contains(search)) &&
-                                      (!category.HasValue || product.CategoryId == category)
+                                    where product.IsDeleted == false &&
+                                    (string.IsNullOrEmpty(search) || product.ProductName.ToLower().Trim().Contains(search)) &&
+                                    (!category.HasValue || product.CategoryId == category)
+                                    orderby product.ProductId descending
                                 select new ProductsDeatailsViewModel
                                 {
                                     ProductId = product.ProductId,
@@ -305,7 +312,16 @@ public class ProductRepository : IProductRepository
                                     Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
                                     AverageRatings = _context.Reviews
                                         .Where(r => r.ProductId == product.ProductId)
-                                        .Average(r => r.Ratings) ?? 0
+                                        .Average(r => r.Ratings) ?? 0,
+                                    OfferAvailable = _context.Offers.Any(o => o.ProductId == product.ProductId && 
+                                                                              o.StartDate.Date <= DateTime.Now.Date && 
+                                                                              o.EndDate.Date > DateTime.Now.Date),
+                                    offer = _context.Offers
+                                        .Where(o => o.ProductId == product.ProductId && 
+                                                    o.StartDate.Date <= DateTime.Now.Date && 
+                                                    o.EndDate.Date > DateTime.Now.Date)
+                                        .FirstOrDefault()
+                                
                                 }).ToListAsync();
             return query;
         }
@@ -327,6 +343,7 @@ public class ProductRepository : IProductRepository
         {
             productDetailsByproductIdViewModel? query = await (from product in _context.Products
                                 where product.IsDeleted == false && product.ProductId == productId
+                                orderby product.ProductId descending
                                 select new productDetailsByproductIdViewModel
                                 {
                                     ProductId = product.ProductId,
@@ -340,6 +357,7 @@ public class ProductRepository : IProductRepository
                                     SellerId = product.SellerId,
                                     Reviews = _context.Reviews
                                                 .Where(r => r.ProductId == product.ProductId)
+                                                .OrderByDescending(r => r.ReviewId)
                                                 .Join(_context.Users, 
                                                        r => r.BuyerId, 
                                                        u => u.UserId, 
@@ -355,7 +373,13 @@ public class ProductRepository : IProductRepository
                                                 }).ToList()
                                     ,
                                     Features = _context.Features.Where(f => f.ProductId == product.ProductId).ToList(),
-                                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).ToList()
+                                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).ToList(),
+                                    offer = _context.Offers
+                                        .Where(o => o.ProductId == product.ProductId && 
+                                                    o.StartDate.Date <= DateTime.Now.Date && 
+                                                    o.EndDate.Date > DateTime.Now.Date)
+                                        .FirstOrDefault(),
+                                
                                 }).FirstOrDefaultAsync();
             return query;
         }
@@ -395,7 +419,10 @@ public class ProductRepository : IProductRepository
                                     Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
                                     AverageRatings = _context.Reviews
                                         .Where(r => r.ProductId == product.ProductId)
-                                        .Average(r => r.Ratings) ?? 0
+                                        .Average(r => r.Ratings) ?? 0,
+                                    OfferAvailable = _context.Offers.Any(o => o.ProductId == product.ProductId && 
+                                            o.StartDate.Date <= DateTime.Now.Date && 
+                                            o.EndDate.Date > DateTime.Now.Date)
                                 }).ToListAsync();
             return query;
         }
@@ -514,6 +541,7 @@ public class ProductRepository : IProductRepository
                 from product in _context.Products
                 join cart in _context.Carts on product.ProductId equals cart.ProductId
                 where product.IsDeleted == false && cart.IsDeleted == false &&  cart.UserId == userId
+                orderby cart.CartId descending
                 select new productAtCartViewModel
                 {
                     CartId = cart.CartId,
@@ -524,7 +552,12 @@ public class ProductRepository : IProductRepository
                     Quantity = cart.Quantity,
                     DiscountType = product.DiscountType,
                     Discount = product.Discount,
-                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault()
+                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
+                    Offer = _context.Offers
+                        .Where(o => o.ProductId == product.ProductId && 
+                                    o.StartDate.Date <= DateTime.Now.Date && 
+                                    o.EndDate.Date > DateTime.Now.Date)
+                        .FirstOrDefault()
                 }).ToList();
             
             return query;
@@ -666,4 +699,49 @@ public class ProductRepository : IProductRepository
         }
     }
 
+
+    /// <summary>
+    /// method for getting products for offer by user id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public List<ProductNameViewModel> GetProductsForOffer(int userId)
+    {
+        try
+        {
+            List<ProductNameViewModel> products = _context.Products
+                .Where(p => p.SellerId == userId && p.IsDeleted == false)
+                .OrderByDescending(p => p.ProductId)
+                .Select(p => new ProductNameViewModel
+                {
+                    id = p.ProductId,
+                    name = p.ProductName
+                }).ToList();
+            return products;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }   
+    }
+
+
+    /// <summary>
+    /// method for getting offer by product id
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public Offer? GetOfferByProductId(int productId)
+    {
+        try
+        {
+            return _context.Offers.FirstOrDefault(o => o.ProductId == productId && o.StartDate.Date <= DateTime.Now.Date && o.EndDate.Date > DateTime.Now.Date);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
 }

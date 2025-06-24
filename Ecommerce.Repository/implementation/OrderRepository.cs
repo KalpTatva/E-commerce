@@ -32,6 +32,7 @@ public class OrderRepository : IOrderRepository
                 from product in _context.Products
                 join cart in _context.Carts on product.ProductId equals cart.ProductId
                 where cartIds.Contains(cart.CartId) && product.IsDeleted == false
+                orderby product.ProductId descending
                 select new productAtOrderViewModel
                 {
                     ProductId = product.ProductId,
@@ -41,7 +42,13 @@ public class OrderRepository : IOrderRepository
                     DiscountType = product.DiscountType,
                     Discount = product.Discount,
                     Quantity = cart.Quantity,
-                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault()
+                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
+                    Offer = _context.Offers
+                        .Where(o => o.ProductId == product.ProductId &&
+                                    o.StartDate.Date <= DateTime.Now.Date && 
+                                    o.EndDate.Date > DateTime.Now.Date)
+                        .OrderByDescending(o => o.OfferId)
+                        .FirstOrDefault()
                 }).ToListAsync();
 
             return query;
@@ -68,6 +75,7 @@ public class OrderRepository : IOrderRepository
             List<productAtOrderViewModel>? query = await (
                 from product in _context.Products
                 where product.IsDeleted == false && product.ProductId == productId.First()
+                orderby product.ProductId descending
                 select new productAtOrderViewModel
                 {
                     ProductId = product.ProductId,
@@ -77,7 +85,13 @@ public class OrderRepository : IOrderRepository
                     DiscountType = product.DiscountType,
                     Discount = product.Discount,
                     Quantity = 1,
-                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault()
+                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
+                    Offer = _context.Offers
+                        .Where(o => o.ProductId == product.ProductId &&
+                                    o.StartDate.Date <= DateTime.Now.Date && 
+                                    o.EndDate.Date > DateTime.Now.Date)
+                        .OrderByDescending(o => o.OfferId)
+                        .FirstOrDefault()
                 }).ToListAsync();
 
             return query;
@@ -141,6 +155,7 @@ public class OrderRepository : IOrderRepository
         {
             List<MyOrderViewModel> query = await _context.Orders
             .Where(order => order.BuyerId == userId)
+            .OrderByDescending(order => order.OrderId)
             .Select(order => new MyOrderViewModel
             {
                 OrderId = order.OrderId,
@@ -152,6 +167,7 @@ public class OrderRepository : IOrderRepository
                 TotalQuantity = order.TotalQuantity,
                 OrderedItem = _context.OrderProducts
                     .Where(op => op.OrderId == order.OrderId)
+                    .OrderByDescending(op => op.OrderProductId)
                     .Join(_context.Products,
                         op => op.ProductId,
                         product => product.ProductId,
@@ -280,4 +296,77 @@ public class OrderRepository : IOrderRepository
         }
     }
 
+
+    /// <summary>
+    /// Method to add an offer to the database.
+    /// This method adds a new offer to the Offers table and saves changes to the database.
+    /// </summary>
+    public void AddOffer(Offer offer)
+    {
+        try
+        {
+            _context.Offers.Add(offer);
+            _context.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to add a notification to the database.
+    /// </summary>
+    /// <param name="notification"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddNotification(Notification notification)
+    {
+        try
+        {
+            _context.Notifications.Add(notification);
+            _context.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to add a range of user notification mappings to the database.
+    /// </summary>
+    /// <param name="userNotificationMappings"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddUserNotificationMappingRange(List<UserNotificationMapping> userNotificationMappings)
+    {
+        try
+        {
+            _context.UserNotificationMappings.AddRange(userNotificationMappings);
+            _context.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to get the count of notifications for a user based on their user ID.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public int GetNotificationCount(int userId)
+    {
+        try
+        {
+            int count = _context.UserNotificationMappings
+                .Count(unm => unm.UserId == userId && unm.ReadAll == false);
+            return count;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
 }

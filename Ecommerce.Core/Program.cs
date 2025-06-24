@@ -1,4 +1,5 @@
 using System.Text;
+using Ecommerce.Core.Hub;
 using Ecommerce.Repository.implementation;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR(); 
 
 // db connection string
 builder.Services.AddDbContext<EcommerceContext>(options =>
@@ -117,11 +119,11 @@ app.UseStatusCodePages(async context =>
     await Task.CompletedTask;
 });
 
-app.UseSession(); // Ensure session middleware is executed before authentication
-app.UseAuthentication(); // Ensure authentication middleware is executed after session
+app.UseSession(); 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<TokenRefreshMiddleware>(); // Place after authentication middleware
+app.UseMiddleware<TokenRefreshMiddleware>();
 
 
 
@@ -130,5 +132,8 @@ app.UseMiddleware<TokenRefreshMiddleware>(); // Place after authentication middl
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=BuyerDashboard}/{action=Index}/{id?}");
+
+// map for hub
+app.MapHub<NotificationHub>("/NotificationHub");
 
 app.Run();

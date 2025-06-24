@@ -27,6 +27,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Image> Images { get; set; }
 
+    public virtual DbSet<Notification> Notifications { get; set; }
+
     public virtual DbSet<Offer> Offers { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
@@ -44,6 +46,8 @@ public partial class EcommerceContext : DbContext
     public virtual DbSet<State> States { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserNotificationMapping> UserNotificationMappings { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -189,6 +193,31 @@ public partial class EcommerceContext : DbContext
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("image_product_id_fkey");
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId).HasName("notification_pkey");
+
+            entity.ToTable("notification");
+
+            entity.Property(e => e.NotificationId).HasColumnName("notification_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EditedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("edited_at");
+            entity.Property(e => e.Notification1)
+                .HasColumnType("character varying")
+                .HasColumnName("notification");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("notification_product_id_fkey");
         });
 
         modelBuilder.Entity<Offer>(entity =>
@@ -496,6 +525,37 @@ public partial class EcommerceContext : DbContext
                 .HasForeignKey(d => d.ProfileId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("users_profile_id_fkey");
+        });
+
+        modelBuilder.Entity<UserNotificationMapping>(entity =>
+        {
+            entity.HasKey(e => e.MappingId).HasName("user_notification_mapping_pkey");
+
+            entity.ToTable("user_notification_mapping");
+
+            entity.Property(e => e.MappingId).HasColumnName("mapping_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EditedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("edited_at");
+            entity.Property(e => e.NotificationId).HasColumnName("notification_id");
+            entity.Property(e => e.ReadAll)
+                .HasDefaultValue(false)
+                .HasColumnName("read_all");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.Notification).WithMany(p => p.UserNotificationMappings)
+                .HasForeignKey(d => d.NotificationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("user_notification_mapping_notification_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserNotificationMappings)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("user_notification_mapping_user_id_fkey");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
@@ -347,6 +348,29 @@ public class ProductService : IProductService
         }
     }
 
+    /// <summary>
+    /// method for getting all products for offer by email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>List<ProductNameViewModel></returns>
+    /// <exception cref="Exception"></exception>
+    public List<ProductNameViewModel> GetProductsForOffer(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if(user == null)
+            {
+                return new List<ProductNameViewModel>();
+            }
+            return _productRepository.GetProductsForOffer(user.UserId);
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
     #endregion
     #region Buyer's service
     
@@ -368,10 +392,10 @@ public class ProductService : IProductService
             }
 
             List<ProductsDeatailsViewModel>? products = await _productRepository.GetAllProducts(search,category);
-
+            
+            
             if(products != null && products.Any() )
             {
-
                 productsViewModel.productsDetails = products;
             }
 
@@ -601,18 +625,53 @@ public class ProductService : IProductService
                 decimal TotalPrice = 0;
                 decimal TotalDiscount = 0;
                 int TotalQuantity = 0;
+                decimal currentDiscount = 0;
+                int currentQuantity = 0;
+                decimal currentPrice = 0;
 
                 foreach(productAtCartViewModel product in result)
                 {
-                    TotalDiscount += product.DiscountType == (int)DiscountEnum.FixedAmount ? 
+
+                    // default discount
+                    currentDiscount = product.DiscountType == (int)DiscountEnum.FixedAmount ? 
                                     ((product.Discount ?? 0) * product.Quantity) : 
                                     ((product.Price * (product.Discount ?? 0) * product.Quantity) / 100);
-                    TotalQuantity += product.Quantity;
-                    TotalPrice += product.Price * product.Quantity;
+                    
+                    // price with given discount 
+                    currentPrice = (product.Price * product.Quantity) - currentDiscount;
+                    
+                    // quantity with given product
+                    currentQuantity = product.Quantity;
+                    
+                    // checking for available offers
+                    if(product.Offer != null && product.Offer.OfferId > 0)
+                    {
+                        // add offer discount to total discount
+                        switch (product.Offer.OfferType)
+                        {
+                            case (int)OfferTypeEnum.Percentage:
+                                currentPrice = currentPrice - ((currentPrice * (product.Offer.DiscountRate ?? 0) * currentQuantity) / 100);
+                                currentDiscount = currentDiscount + ((currentPrice * (product.Offer.DiscountRate ?? 0) * currentQuantity) / 100);
+                                break;
+                            case (int)OfferTypeEnum.FixedPrice:
+                                currentPrice = currentPrice - ((product.Offer.DiscountRate ?? 0) * currentQuantity); 
+                                currentDiscount = currentDiscount + ((product.Offer.DiscountRate ?? 0) * currentQuantity);
+                                break;
+                            case (int)OfferTypeEnum.BOGO:
+                                currentQuantity = 2 * currentQuantity;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    TotalDiscount += currentDiscount;
+                    TotalQuantity += currentQuantity;
+                    TotalPrice += currentPrice;
                 }
 
                 model.ProductsAtCart = result;
-                model.TotalPrice = TotalPrice - TotalDiscount;
+                model.TotalPrice = TotalPrice;
                 model.TotalDiscount = TotalDiscount;
                 model.TotalQuantity = TotalQuantity;
             }
@@ -659,17 +718,50 @@ public class ProductService : IProductService
                 decimal TotalPrice = 0;
                 decimal TotalDiscount = 0;
                 int TotalQuantity = 0;
-
+                decimal currentDiscount = 0;
+                int currentQuantity = 0;
+                decimal currentPrice = 0;
                 foreach(productAtCartViewModel product in result)
-                {      
-                    TotalDiscount += product.DiscountType == (int)DiscountEnum.FixedAmount ? 
+                {
+                    // default discount
+                    currentDiscount = product.DiscountType == (int)DiscountEnum.FixedAmount ? 
                                     ((product.Discount ?? 0) * product.Quantity) : 
                                     ((product.Price * (product.Discount ?? 0) * product.Quantity) / 100);
-                    TotalQuantity += product.Quantity;
-                    TotalPrice += product.Price * product.Quantity;
+                    
+                    // price with given discount 
+                    currentPrice = (product.Price * product.Quantity) - currentDiscount;
+                    
+                    // quantity with given product
+                    currentQuantity = product.Quantity;
+                    
+                    // checking for available offers
+                    if(product.Offer != null && product.Offer.OfferId > 0)
+                    {
+                        // add offer discount to total discount
+                        switch (product.Offer.OfferType)
+                        {
+                            case (int)OfferTypeEnum.Percentage:
+                                currentPrice = currentPrice - ((currentPrice * (product.Offer.DiscountRate ?? 0) * currentQuantity) / 100);
+                                currentDiscount = currentDiscount + ((currentPrice * (product.Offer.DiscountRate ?? 0) * currentQuantity) / 100);
+                                break;
+                            case (int)OfferTypeEnum.FixedPrice:
+                                currentPrice = currentPrice - ((product.Offer.DiscountRate ?? 0) * currentQuantity); 
+                                currentDiscount = currentDiscount + ((product.Offer.DiscountRate ?? 0) * currentQuantity);
+                                break;
+                            case (int)OfferTypeEnum.BOGO:
+                                currentQuantity = 2 * currentQuantity;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    TotalDiscount += currentDiscount;
+                    TotalQuantity += currentQuantity;
+                    TotalPrice += currentPrice;
                 }
 
-                model.TotalPrice = TotalPrice - TotalDiscount;
+                model.TotalPrice = TotalPrice;
                 model.TotalDiscount = TotalDiscount;
                 model.TotalQuantity = TotalQuantity;
             }

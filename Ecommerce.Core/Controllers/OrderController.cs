@@ -31,9 +31,8 @@ public class OrderController : Controller
     {
         try
         {   
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-            
+            string? email = BaseValues.GetEmail(HttpContext);
+    
             // check if objectCart get dserialized or not
             ObjectSessionViewModel? res = string.IsNullOrEmpty(objectCart) 
                 ? new ObjectSessionViewModel() 
@@ -109,9 +108,9 @@ public class OrderController : Controller
     {
         try
         {
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-            string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+    
 
             // check if session is persist or not
             string? res = SessionUtils.GetSession(HttpContext, sessionId);
@@ -161,9 +160,9 @@ public class OrderController : Controller
     {
         try{
 
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                    ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-            string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+    
             
             // check if session is persist or not
             string? res = SessionUtils.GetSession(HttpContext, SessionId);
@@ -210,9 +209,9 @@ public class OrderController : Controller
     public async Task<IActionResult> PlaceOrderFoSingleProduct(int UserId, string SessionId)
     {
         try{
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                    ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-            string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+    
             
             // check if session is persist or not
             string? res = SessionUtils.GetSession(HttpContext, SessionId);
@@ -260,9 +259,9 @@ public class OrderController : Controller
     {
         try
         {
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-            string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+    
 
             // check if session is persist or not
             string? res = SessionUtils.GetSession(HttpContext, sessionId);
@@ -346,8 +345,8 @@ public class OrderController : Controller
         {
             try
             {
-                string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                    ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+                string? email = BaseValues.GetEmail(HttpContext);
+    
                 
                 if (string.IsNullOrEmpty(email))
                 {

@@ -2,10 +2,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AspNetCoreGeneratedDocument;
+using Ecommerce.Core.Hub;
+using Ecommerce.Core.Utils;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static Ecommerce.Repository.Helpers.Enums;
 
 namespace Ecommerce.Core.Controllers;
@@ -14,10 +18,20 @@ public class DashboardController : Controller
 {
     private readonly IUserService _userService;
     private readonly IOrderService _orderService;
-    public DashboardController( IUserService userService, IOrderService orderService)
+    private readonly IProductService _productService;
+    private readonly IHubContext<NotificationHub> _notificationHub;
+    public DashboardController( 
+        IUserService userService, 
+        IOrderService orderService, 
+        IProductService productService,
+        IHubContext<NotificationHub> notificationHub
+        
+    )
     {
         _userService = userService;
         _orderService = orderService;
+        _productService = productService;
+        _notificationHub = notificationHub;
     }
 
     /// <summary>
@@ -26,9 +40,9 @@ public class DashboardController : Controller
     /// <returns>View with base view model</returns>
     public IActionResult Index()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
             BaseRole = role
@@ -42,9 +56,9 @@ public class DashboardController : Controller
     /// <returns>View with base view model</returns>
     public IActionResult UserDashboard()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
             BaseRole = role
@@ -59,9 +73,9 @@ public class DashboardController : Controller
     [Authorize]
     public IActionResult EditProfile()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         EditRegisteredUserViewModel? model = _userService.GetUserDetailsByEmail(email ?? ""); 
         if(model!=null)
         {
@@ -101,9 +115,9 @@ public class DashboardController : Controller
     [Authorize(Roles ="Buyer")]
     public IActionResult MyOrders()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
             BaseRole = role
@@ -119,9 +133,8 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetMyOrders()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value; 
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
 
         List<MyOrderViewModel>? model = await _orderService.GetMyOrderHistoryByEmail(email ?? ""); 
         OrderAtMyOrderViewModel result = new ();
@@ -140,9 +153,9 @@ public class DashboardController : Controller
     [Authorize(Roles = "Seller")]
     public IActionResult SellerOrderList()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
             BaseRole = role
@@ -157,9 +170,8 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetSellerOrders()
     {   
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-            ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
 
         List<SellerOrderViewModel>? model = await _orderService.GetSellerOrders(email ?? "");
 
@@ -172,17 +184,116 @@ public class DashboardController : Controller
         return PartialView("_SellerOrderList", sellerOrderListViewModel);   
     }
 
+
+    /// <summary>
+    /// Method to add an offer for a product
+    /// </summary>
+    /// <returns></returns>
     [Authorize(Roles = "Seller")]
     public IActionResult AddOffer()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         OfferViewModel baseViewModel = new () {
             BaseEmail = email,
             BaseRole = role
         };        
         return View(baseViewModel);
+    }
+
+
+    /// <summary>
+    /// Method to add an offer for a product
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>View</returns>
+    [Authorize(Roles = "Seller")]
+    [HttpPost]
+    public async Task<IActionResult> AddOffer(OfferViewModel model)
+    {
+        try
+        {
+            if(ModelState.IsValid)
+            {
+                ResponsesViewModel responses = _orderService.AddOffer(model);
+                if(responses.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = responses.Message;
+                    string? email = BaseValues.GetEmail(HttpContext);
+                    string? role = BaseValues.GetRole(HttpContext);
+
+                    OfferViewModel baseViewModel = new () {
+                        BaseEmail = email,
+                        BaseRole = role
+                    };   
+
+                    // call hub for notification add
+                    await _notificationHub.Clients.All.SendAsync("ReceiveNotification", $"New offer added by {email} for product {model.ProductId}.");
+
+                    return View(baseViewModel);
+                }
+                TempData["ErrorMessage"] = responses.Message;
+            }
+            else
+            {
+                var errorMessages = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                TempData["ErrorMessage"] = string.Join(", ", errorMessages);
+            }
+            return View(model);
+        }
+        catch (Exception e)
+        {
+            TempData["ErrorMessage"] = e.Message;
+            return View(model);
+        }
+    }
+
+    /// <summary>
+    /// Method to get products list for offer
+    /// </summary>
+    /// <returns>Json</returns>
+    [Authorize(Roles = "Seller")]
+    [HttpGet]
+    public IActionResult GetProducts()
+    {
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+    
+                
+            List<ProductNameViewModel> products = _productService.GetProductsForOffer(email ?? "");
+            if(products == null || products.Count == 0)
+            {
+                return Json(new {success = false, message = "No products found for offer."});
+            }
+            return Json(new {success = true, products = products});
+        }
+        catch(Exception e)
+        {
+            return Json(new {success = false, message = e.Message});
+        }
+    }
+
+
+    [HttpGet]
+    public IActionResult GetNotificationCount()
+    {
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            int count = _orderService.GetNotificationCount(email ?? "");
+            return Json(new { success = true, count = count });
+        }
+        catch (Exception e)
+        {
+            return Json(new { success = false, message = e.Message });
+        }
     }
 
 }

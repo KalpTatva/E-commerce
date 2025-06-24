@@ -61,4 +61,20 @@ public interface IOrderService
     /// <returns>ResponsesViewModel indicating success or failure of the operation</returns>
     ResponsesViewModel UpdateOrderStatus(int orderId, string status);
 
+    /// <summary>
+    /// method for adding new offer to the product
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>responsesviewmodel</returns>
+    ResponsesViewModel AddOffer(OfferViewModel model);
+
+
+    /// <summary>
+    /// Method to get the count of notifications for a user based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>int</returns>
+    /// <exception cref="Exception"></exception>
+    int GetNotificationCount(string email);
+
 }

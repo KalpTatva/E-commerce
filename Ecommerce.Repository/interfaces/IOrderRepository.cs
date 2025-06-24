@@ -79,4 +79,32 @@ public interface IOrderRepository
     /// <param name="order"></param>
     void UpdateOrderProducts(OrderProduct order);
 
+
+    /// <summary>
+    /// Method to add an offer to the database.
+    /// This method adds a new offer to the Offers table and saves changes to the database.
+    /// </summary>
+    void AddOffer(Offer offer);
+
+    /// <summary>
+    /// Method to add a notification to the database.
+    /// </summary>
+    /// <param name="notification"></param>
+    /// <exception cref="Exception"></exception>
+    void AddNotification(Notification notification);
+
+    /// <summary>
+    /// Method to add a range of user notification mappings to the database.
+    /// </summary>
+    /// <param name="userNotificationMappings"></param>
+    /// <exception cref="Exception"></exception>
+    void AddUserNotificationMappingRange(List<UserNotificationMapping> userNotificationMappings);
+
+    /// <summary>
+    /// Method to get the count of notifications for a user based on their user ID.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    int GetNotificationCount(int userId);
 }

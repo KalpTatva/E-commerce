@@ -202,4 +202,21 @@ public interface IProductRepository
     /// <returns>Cart</returns>
     Cart? GetCartByUserIdAndProductId(int userId, int productId);
     
+
+    /// <summary>
+    /// method for getting products for offer by user id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    List<ProductNameViewModel> GetProductsForOffer(int userId);
+
+
+    /// <summary>
+    /// method for getting offer by product id
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    Offer? GetOfferByProductId(int productId);
 }

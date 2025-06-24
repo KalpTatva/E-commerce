@@ -346,6 +346,28 @@ public class UserRepository : IUserRepository
         }
     }
 
-    
+    /// <summary>
+    /// method for getting users by product id from favourite list
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <returns>List<User></returns>
+    public List<User>? GetUsersByProductIdFromFavourite(int productId)
+    {
+        try
+        {
+            return _context.Users.Join(_context.Favourites,
+                                        user => user.UserId,
+                                        favourite => favourite.UserId,
+                                        (user, favourite) => new { user, favourite })
+                                    .Where(uf => uf.favourite.ProductId == productId)
+                                    .Select(uf => uf.user)
+                                    .Distinct()
+                                    .ToList();
+        }
+        catch (Exception e)
+        {
+            throw new Exception("An error occurred while fetching users by product ID.", e);
+        }
+    }
    
 }

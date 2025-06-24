@@ -28,9 +28,13 @@ public class ProductsDeatailsViewModel
 
     public decimal? Discount { get; set; }
 
+    public bool OfferAvailable { get; set; }
+
     public decimal AverageRatings { get; set; }
 
     public List<Feature>? Features {get;set;}
+    public Offer? offer {get;set;}
+
 
     public Image? Images {get;set;} 
 }
@@ -63,6 +67,7 @@ public class productDetailsByproductIdViewModel : BaseViewModel
 
     public List<ReviewsViewModel>? Reviews {get;set;}
 
+    public Offer? offer {get;set;}
     public decimal AverageRatings { get; set; }
 
     public List<Image>? Images {get;set;} 

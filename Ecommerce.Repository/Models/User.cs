@@ -34,4 +34,6 @@ public partial class User
     public virtual Profile Profile { get; set; } = null!;
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+    public virtual ICollection<UserNotificationMapping> UserNotificationMappings { get; set; } = new List<UserNotificationMapping>();
 }

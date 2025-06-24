@@ -138,5 +138,14 @@ public interface IProductService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public ResponsesViewModel CheckProductStockByCartId(string email);
+    ResponsesViewModel CheckProductStockByCartId(string email);
+
+
+    /// <summary>
+    /// method for getting all products for offer by email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>List<ProductNameViewModel></returns>
+    /// <exception cref="Exception"></exception>
+    List<ProductNameViewModel> GetProductsForOffer(string email);
 }

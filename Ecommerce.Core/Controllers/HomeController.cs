@@ -156,6 +156,7 @@ public class HomeController : Controller
     /// forgot password get method, returns view
     /// </summary>
     /// <returns>view</returns>
+    [HttpGet]
     public IActionResult ForgotPassword()
     {
         return View();
@@ -211,7 +212,7 @@ public class HomeController : Controller
             if (string.IsNullOrEmpty(token))
             {
                 TempData["ErrorMessage"] = "Invalid password reset link.";
-                return RedirectToAction("ForgetPassword");
+                return RedirectToAction("ForgotPassword","Home");
             }
             ResponsesViewModel response = _userService.ValidateResetPasswordToken(token);
             if (response.IsSuccess)
@@ -222,7 +223,7 @@ public class HomeController : Controller
             {
                 TempData["ErrorMessage"] = response.Message;
                 TempData.Remove("SuccessMessage");
-                return RedirectToAction("ForgetPassword");
+                return RedirectToAction("ForgotPassword","Home");
             }
 
         }
@@ -230,7 +231,7 @@ public class HomeController : Controller
         {
             _logger.LogError(ex, "An error occurred while validating the reset password token.");
             TempData["ErrorMessage"] = $"Error occurred while processing your request: {ex.Message}";
-            return RedirectToAction("ForgetPassword");
+            return RedirectToAction("ForgotPassword","Home");
         }
     }
 

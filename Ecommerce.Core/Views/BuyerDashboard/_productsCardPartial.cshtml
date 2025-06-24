@@ -7,7 +7,15 @@
 {
     @foreach (ProductsDeatailsViewModel p in Model.productsDetails)
     {
-        <div class="card" data-product-id="@p.ProductId">
+        <div class="card " data-product-id="@p.ProductId">
+
+            @if(p.OfferAvailable)
+            {
+                <div class="offer d-flex justify-content-center align-items-center fs-4 text-white">OFFER</div>
+
+            }
+            
+            
             <div class="card-img" data-product-id="@p.ProductId">
                 <img class="imageInCard" src="@Url.Content(p?.Images?.ImageUrl)" alt="">
             </div>
@@ -40,6 +48,25 @@
                         {
                             price = p.Price;
                             discount = 0;
+                        }
+
+                        decimal discountOffer = 0;
+                        if(p.offer != null && p.offer.ProductId > 0)
+                        {
+                            switch (p.offer.OfferType)
+                            {
+                                case (int)OfferTypeEnum.Percentage:
+                                    discountOffer = (price * (p.offer.DiscountRate ?? 0)) / 100;
+                                    price = price - discountOffer;
+                                    break;
+                                case (int)OfferTypeEnum.FixedPrice:
+                                    discountOffer = (p.offer.DiscountRate ?? 0);
+                                    price = price - discountOffer;
+                                    break;
+                                default:
+                                    discount = 0;
+                                    break;
+                            }
                         }
                     }
                     <span class="display-6 fw-normal">@price.ToString("C")</span>

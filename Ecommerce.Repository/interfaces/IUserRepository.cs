@@ -128,5 +128,13 @@ public interface IUserRepository
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     string? GetCountryNameById(int countryId);
+
+
+    /// <summary>
+    /// method for getting users by product id from favourite list
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <returns>List<User></returns>
+    List<User>? GetUsersByProductIdFromFavourite(int productId);
     
 }

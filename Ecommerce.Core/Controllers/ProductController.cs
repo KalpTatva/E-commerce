@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Ecommerce.Core.Utils;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
@@ -26,10 +27,9 @@ public class ProductController : Controller
     [Authorize(Roles="Seller")]
     public IActionResult MyProducts()
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
@@ -45,9 +45,9 @@ public class ProductController : Controller
     /// <returns>View(baseViewModel)</returns>
     [Authorize(Roles ="Seller")]
     public IActionResult AddProduct(){
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-         string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         AddProductViewModel baseViewModel = new () {
             BaseEmail = email,
             BaseRole = role
@@ -67,9 +67,8 @@ public class ProductController : Controller
     {
         try
         {
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-            
+            string? email = BaseValues.GetEmail(HttpContext);
+      
             if (ModelState.IsValid)
             {
                 List<Feature>? features = string.IsNullOrEmpty(model.FeaturesInput) 
@@ -103,9 +102,8 @@ public class ProductController : Controller
     {
         try
         {
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-
+            string? email = BaseValues.GetEmail(HttpContext);
+        
             List<Product>? products = _productService.GetSellerSpecificProductsByEmail(email ?? "");
             if(products != null)
             {
@@ -155,9 +153,9 @@ public class ProductController : Controller
     [HttpGet]
     public IActionResult EditProduct(int productId)
     {
-        string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
-        string? role = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
         EditProductViewModel? model = _productService.GetProductDetailsById(productId);
         if(model == null)
         {
@@ -180,8 +178,8 @@ public class ProductController : Controller
     {
         try
         {
-            string? email = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value 
-                ?? HttpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
+            string? email = BaseValues.GetEmail(HttpContext);
+        
             if(ModelState.IsValid)
             {
                 // list of features with previous ones so need to check the db

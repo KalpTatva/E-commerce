@@ -14,8 +14,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <!--  Owl Carousel -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"/>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
 </head>
 
 <body>
@@ -25,7 +27,8 @@
             <header>
                 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark border-bottom box-shadow">
                     <div class="container-fluid">
-                        <a class="navbar-brand font-green " asp-controller="BuyerDashboard" asp-action="Index">E-commerce</a>
+                        <a class="navbar-brand font-green " asp-controller="BuyerDashboard"
+                            asp-action="Index">E-commerce</a>
                         <button class="navbar-toggler text-white bg-white" type="button" data-bs-toggle="collapse"
                             data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                             aria-expanded="false" aria-label="Toggle navigation">
@@ -34,33 +37,23 @@
                         <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">
-                                    <a
-                                        class="nav-link text-white profile-link Category-Link" 
-                                        asp-controller="BuyerDashboard"
-                                        asp-action="Index"
-                                        asp-route-categoryId = "@((int)CategoriesEnum.Computers)"
-                                    >
+                                    <a class="nav-link text-white profile-link Category-Link"
+                                        asp-controller="BuyerDashboard" asp-action="Index"
+                                        asp-route-categoryId="@((int)CategoriesEnum.Computers)">
                                         @((CategoriesEnum.Computers).ToString())
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a
-                                        class="nav-link text-white profile-link Category-Link" 
-                                        asp-controller="BuyerDashboard"
-                                        asp-action="Index"
-                                        asp-route-categoryId = "@((int)CategoriesEnum.Laptops)"
-
-                                    >
+                                    <a class="nav-link text-white profile-link Category-Link"
+                                        asp-controller="BuyerDashboard" asp-action="Index"
+                                        asp-route-categoryId="@((int)CategoriesEnum.Laptops)">
                                         @((CategoriesEnum.Laptops).ToString())
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a
-                                        class="nav-link text-white profile-link Category-Link" 
-                                        asp-controller="BuyerDashboard"
-                                        asp-action="Index"
-                                        asp-route-categoryId = "@((int)CategoriesEnum.Accessories)"
-                                    >
+                                    <a class="nav-link text-white profile-link Category-Link"
+                                        asp-controller="BuyerDashboard" asp-action="Index"
+                                        asp-route-categoryId="@((int)CategoriesEnum.Accessories)">
                                         @((CategoriesEnum.Accessories).ToString())
                                     </a>
                                 </li>
@@ -70,10 +63,13 @@
                             @if (Model.BaseEmail != null)
                             {
 
-                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative">
-                                    <i class="bi bi-bell-fill icons-css"></i>
-                                    <span class="messageCart">bell</span>
-                                </a>
+                                <div class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
+                                    id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-bell-fill icons-css position-relative"></i>
+                                    <span id="notificationCount" class="position-absolute notification">
+                                        @(Model.Notifications?.Count ?? 0)
+                                    </span>
+                                </div>
 
                                 <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
                                     asp-action="Favourite" asp-controller="BuyerDashboard">
@@ -124,10 +120,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.15/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
 
-     <!-- Owl Carousel JS -->
+    <!-- Owl Carousel JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

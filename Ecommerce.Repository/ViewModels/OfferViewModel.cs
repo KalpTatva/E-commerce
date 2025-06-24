@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Ecommerce.Repository.CustomValidation;
 
 namespace Ecommerce.Repository.ViewModels;
 
+[DateDifference(ErrorMessage = "Start date should not be after end date.")]
 public class OfferViewModel : BaseViewModel
 {
     public int OfferId { get; set; } 
@@ -25,13 +27,22 @@ public class OfferViewModel : BaseViewModel
 
     [Required(ErrorMessage = "Start date is required.")]
     [DataType(DataType.Date)]
-    public DateTime StartDate { get; set; }
+    public DateTime StartDate { get; set; } = DateTime.Now;
 
     [Required(ErrorMessage = "End date is required.")]
     [DataType(DataType.Date)]
-    public DateTime EndDate { get; set; }
+    public DateTime EndDate { get; set; } = DateTime.Now.AddDays(1);
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? EditedAt { get; set; }
 }
+
+
+public class ProductNameViewModel
+{
+    public int id {get;set;}
+    public string? name {get;set;}
+}
+
+

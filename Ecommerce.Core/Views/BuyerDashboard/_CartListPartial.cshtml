@@ -63,6 +63,34 @@
                             price = product.Price;
                             discount = 0;
                         }
+
+                        decimal discountOffer = 0;
+                        if(product.Offer != null && product.Offer.OfferId > 0)
+                        {
+                            switch (product.Offer.OfferType)
+                            {
+                                case (int)OfferTypeEnum.BOGO:
+                                    <span class="text-success fs-5">Offer: Buy One Get One</span>
+                                    <br/>
+                                    break;
+                                case (int)OfferTypeEnum.Percentage:
+                                    <span class="text-success fs-5">Offer: Percentage Discount @(product.Offer.DiscountRate.HasValue ? product.Offer.DiscountRate.Value.ToString("g") : "N/A") per quantity</span>;
+                                    <br/>
+                                    discountOffer = (price * (product.Offer.DiscountRate ?? 0)) / 100;
+                                    price = price - discountOffer;
+                                    break;
+                                case (int)OfferTypeEnum.FixedPrice:
+                                    <span class="text-success fs-5">Offer: Fixed Discount  @(product.Offer.DiscountRate.HasValue ? product.Offer.DiscountRate.Value.ToString("c") : "N/A") per quantity</span>
+                                    <br/>
+                                    discountOffer = (product.Offer.DiscountRate ?? 0);
+                                    price = price - discountOffer;
+                                    break;
+                                default:
+                                    <span class="text-success fs-5">No Offer Available</span>;
+                                    <br/>
+                                    break;
+                            }
+                        }
                     }
                     <span class="display-6 fw-normal">@price.ToString("C")</span>
                     <span class="text-muted text-decoration-line-through">(@product.Price.ToString("C"))</span>

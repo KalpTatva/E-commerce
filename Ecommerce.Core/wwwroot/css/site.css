@@ -45,6 +45,26 @@ html {
   word-wrap: break-word;
 }
 
+.notification{
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  z-index: 1000;
+  padding: 1px 6px;
+  border-radius: 50%;
+  background-color: red;
+
+}
+
+.customDropdownList
+{
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 15px;
+  background-color: rgb(255, 255, 255);
+  z-index: 100000;
+}
 
 /* password eye */
 
@@ -241,8 +261,20 @@ html {
   right: 10px;
 }
 
-/* cards css */
 
+/* offer */
+.offer{
+  position: absolute;
+  z-index: 1000;
+  top: 20px;
+  right: -110px;
+  width: 300px;
+  height: 40px;
+  transform: rotate(45deg);
+  background-color: #cf0b0bcb;
+}
+
+/* cards css */
 .card{
   background-color: #fff;
   padding: 10px;
@@ -251,6 +283,8 @@ html {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .card:hover{

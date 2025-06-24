@@ -48,7 +48,7 @@ public class productAtOrderViewModel
 
     public decimal? Discount { get; set; }
 
-
+    public Offer? Offer { get; set; }
     public Image? Images {get;set;} 
 
 }

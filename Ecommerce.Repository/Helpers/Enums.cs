@@ -47,6 +47,7 @@ public class Enums
         [Display(Name = "Fixed Price")]
         FixedPrice = 2,
 
+        [Display(Name = "Buy One Get One")]
         BOGO = 3
     }
 }

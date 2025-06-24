@@ -113,7 +113,6 @@ public class OrderService : IOrderService
                 result.CountryName = _userRepository.GetCountryNameById(profile?.CountryId ?? 0);
                 result.CityName = _userRepository.GetCityNameById(profile?.CityId ?? 0);
                 result.StateName = _userRepository.GetStateNameById(profile?.StateId ?? 0);
-
                 return result;
 
             }
@@ -169,13 +168,36 @@ public class OrderService : IOrderService
                     decimal discount = 0;
                     if (model.DiscountType == (int)DiscountEnum.FixedAmount)
                     {
-                        price = model.Price - (model.Discount ?? 0);
-                        discount = model.Discount ?? 0;
+                        discount = (model.Discount ?? 0) * model.Quantity;
+                        price = (model.Price * model.Quantity) - (model.Discount ?? 0);
                     }
                     else if (model.DiscountType == (int)DiscountEnum.Percentage)
                     {
-                        price = model.Price - ((model.Price * (model.Discount ?? 0)) / 100);
-                        discount = (model.Price * (model.Discount ?? 0)) / 100;
+                        discount = (model.Price * (model.Discount ?? 0) * model.Quantity) / 100;
+                        price = (model.Price * model.Quantity) - discount;
+                    }
+
+
+                    // If there's an offer, apply it
+                    if (model.Offer != null && model.Offer.DiscountRate > 0)
+                    {
+
+                        switch (model.Offer.OfferType)
+                        {
+                            case (int)OfferTypeEnum.Percentage:
+                                price -= (price * (model.Offer.DiscountRate??0) * model.Quantity) / 100;
+                                discount += (model.Price * (model.Offer.DiscountRate??0 ) * model.Quantity) / 100;
+                            break;
+                            case (int)OfferTypeEnum.FixedPrice:
+                                price -= (model.Offer.DiscountRate ?? 0) * model.Quantity;
+                                discount += (model.Offer.DiscountRate ?? 0) * model.Quantity;
+                            break;
+                            case (int)OfferTypeEnum.BOGO:
+                                model.Quantity = model.Quantity * 2; // Buy one get one free logic
+                            break;
+                            default:
+                                break;
+                        }
                     }
 
                     orderProducts.Add(new OrderProduct()
@@ -344,6 +366,126 @@ public class OrderService : IOrderService
                 IsSuccess = false,
                 Message = e.Message
             };
+        }
+    }
+
+    /// <summary>
+    /// method for adding new offer to the product
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>responsesviewmodel</returns>
+    public ResponsesViewModel AddOffer(OfferViewModel model)
+    {
+        try
+        {
+            if (model == null)
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "Offer model cannot be null"
+                };
+            }
+
+            Offer? offer1 = _productRepository.GetOfferByProductId(model.ProductId);
+            if (offer1 != null)
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "Offer already exists for this product"
+                };
+            }
+
+            Offer offer = new Offer()
+            {
+                ProductId = model.ProductId,
+                OfferType = model.OfferType,
+                DiscountRate = model.DiscountRate ?? 0,
+                Title = model.Title,
+                Description = model.Description,
+                StartDate = model.StartDate.Date.AddTicks(-1), // Start of the day
+                EndDate = model.EndDate.Date.AddDays(1).AddTicks(-1), // End of the day
+            };
+            
+            // Add the offer to the repository
+            _orderRepository.AddOffer(offer);
+           
+
+
+            // add notification to the users who are interested in this product
+            // that means who have produts in their favorite list
+        
+            // first need to make notification message 
+            Product? product = _productRepository.GetProductById(model.ProductId);
+            string notificationMessage = $"New offer on product {product?.ProductName}: {model.Title} - {model.Description}";
+            
+            // next is to add this message into notification table
+            Notification notification = new Notification()
+            {
+                Notification1 = notificationMessage,
+                ProductId = model.ProductId,
+                CreatedAt = DateTime.Now
+            };
+            _orderRepository.AddNotification(notification);
+
+            // next is to get users who have this product in their favourite list
+            List<User>? users = _userRepository.GetUsersByProductIdFromFavourite(model.ProductId);
+
+            // and add this notification to their usernotificationmapping table
+            List<UserNotificationMapping> userNotificationMapping = new List<UserNotificationMapping>();
+            if (users != null && users.Count > 0)
+            {
+                foreach (User user in users)
+                {
+                    userNotificationMapping.Add(
+                        new UserNotificationMapping()
+                        {
+                            UserId = user.UserId,
+                            NotificationId = notification.NotificationId,
+                        }
+                    );
+                    
+                }
+            }
+            _orderRepository.AddUserNotificationMappingRange(userNotificationMapping);        
+
+            return new ResponsesViewModel()
+            {
+                IsSuccess = true,
+                Message = "Offer added successfully"
+            };
+        }
+        catch (Exception e)
+        {
+            return new ResponsesViewModel()
+            {
+                IsSuccess = false,
+                Message = e.Message
+            };
+        }
+    }
+
+    /// <summary>
+    /// Method to get the count of notifications for a user based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>int</returns>
+    /// <exception cref="Exception"></exception>
+    public int GetNotificationCount(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            return _orderRepository.GetNotificationCount(user.UserId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
         }
     }
 

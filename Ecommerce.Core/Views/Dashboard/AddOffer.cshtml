@@ -10,11 +10,7 @@
     <div class="LoginContent bg-white p-4 border w-100 rounded ">
 
         <div class="w-100 ">
-
-
-
-            <!-- info which can not be changed-->
-            <form action="POST">
+            <form asp-action="AddOffer" asp-controller="Dashboard" id="AddOfferForm">
 
                 <div class="d-flex gap-3 ">
                     <div class="form-floating mb-3 w-100">
@@ -83,8 +79,37 @@
     <script>
         window.successMessage = '@TempData["SuccessMessage"]';
         window.errorMessage = '@TempData["ErrorMessage"]';
+
+        $(document).ready(function () {
+            function fetchProductName() {
+                $.ajax({
+                    url: '/Dashboard/GetProducts',
+                    type: 'GET',
+                    success: function (data) {
+                        console.log(data);
+                        var productSelect = $('#ProductId');
+                        productSelect.empty();
+                        productSelect.append('<option value="">Select Product</option>');
+                        $.each(data.products, function (index, product) {
+                            productSelect.append($('<option>', {
+                                value: product.id,
+                                text: product.name
+                            }));
+                        });
+                    },
+                    error: function () {
+                        toastr.error('Failed to load products.');
+                    }
+                });
+            }
+
+            fetchProductName();
+
+            
+            
+        });
+
     </script>
     <script src="~/js/toastr_script.js"></script>
-    <script src="~/js/addressHelper_script.js"></script>
-    <script src="~/js/editProfile_script.js"></script>
+
 }

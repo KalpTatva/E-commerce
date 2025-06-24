@@ -31,7 +31,7 @@
             <p class="fs-3 text-success fw-bold">Pricing details</p>
             <p class="fs-5 fw-normal text-nowrap">Total Price: @Model.objSession?.totalPrice.ToString("C")</p>
             <p class="fs-5 fw-normal text-nowrap">Total Discount: @Model.objSession?.totalDiscount.ToString("C")</p>
-            <p class="fs-5 fw-normal text-nowrap">Total Quantity: @Model.objSession?.totalQuantity.ToString("C")</p>
+            <p class="fs-5 fw-normal text-nowrap">Total Quantity: @Model.objSession?.totalQuantity</p>
             
             <form action="POST" id="OrderDetailsForm">
                 <input type="hidden" name="UserId" value="@Model.UserId">
@@ -77,12 +77,30 @@
                                 price = product.Price;
                                 discount = 0;
                             }
+                            decimal discountOffer = 0;
+                            if(product.Offer != null && product.Offer.ProductId > 0)
+                            {
+                                switch (product.Offer.OfferType)
+                                {
+                                    case (int)OfferTypeEnum.Percentage:
+                                        discountOffer = (price * (product.Offer.DiscountRate ?? 0)) / 100;
+                                        price = price - discountOffer;
+                                        break;
+                                    case (int)OfferTypeEnum.FixedPrice:
+                                        discountOffer = (product.Offer.DiscountRate ?? 0);
+                                        price = price - discountOffer;
+                                        break;
+                                    default:
+                                        discount = 0;
+                                        break;
+                                }
+                            }
                         }
                         <span class="display-6 fw-normal">@price.ToString("C")</span>
                         <span class="text-muted text-decoration-line-through">(@product.Price.ToString("C"))</span>
                         <br />
                         <span class="text-danger">
-                            - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == product.DiscountType ? "(Fixed)" : "(%)")
+                            - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == product.DiscountType ? "(Fixed)" : "("+product.Discount.ToString() +" %)")
                         </span>
                     </div>
 
