@@ -622,7 +622,7 @@ public class UserService : IUserService
                     <p><strong>Message:</strong> {model.Message}</p>
                     <p>We will get back to you shortly.</p>
                     <p>Best regards,</p>
-                    <p>Your Company Name</p>
+                    <p>Ecommerce</p>
                 </body>
                 </html>";
             await _emailService.SendEmailAsync(

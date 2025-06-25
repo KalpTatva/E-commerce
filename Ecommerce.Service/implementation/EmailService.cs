@@ -1,10 +1,18 @@
 using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.Configuration;
 
 namespace Ecommerce.Service.interfaces.implementation;
 
 public class EmailService : IEmailService
 {
+
+    private readonly IConfiguration _configuration;
+
+    public EmailService(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
     /// <summary>
     /// Method to send email asynchronously
     /// </summary>
@@ -16,16 +24,19 @@ public class EmailService : IEmailService
     {
         try{
             using var mail = new MailMessage();
-            mail.From = new MailAddress("test.dotnet@etatvasoft.com", "Kalp pandya");
+            mail.From = new MailAddress(_configuration["EmailSettings:User"], _configuration["EmailSettings:Issuer"]);
             mail.To.Add(toEmail);
             mail.Subject = subject;
             mail.Body = body;
             mail.IsBodyHtml = true;
 
-            using var smtp = new SmtpClient("mail.etatvasoft.com")
+            using var smtp = new SmtpClient(_configuration["EmailSettings:Host"])
             {
                 Port = 587,
-                Credentials = new NetworkCredential("test.dotnet@etatvasoft.com", "P}N^{z-]7Ilp"),
+                Credentials = new NetworkCredential(
+                    _configuration["EmailSettings:User"],
+                    _configuration["EmailSettings:Password"]
+                ),
                 EnableSsl = true,
             };
 

@@ -13,7 +13,6 @@ public class SessionUtils
         httpContext.Session.SetString(sessionName, payLoad);        
     }
 
-
     /// <summary>
     /// Method for getting session from session data from its session id name
     /// </summary>
