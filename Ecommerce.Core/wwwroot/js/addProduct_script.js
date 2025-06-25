@@ -47,7 +47,7 @@ $(document).ready(function () {
         });
 
         Array.from(files).forEach((file) => {
-            if (!file.type.startsWith("image/")) return; // Skip non-image files
+            if (!file.type.startsWith("image/")) return;  
 
             const reader = new FileReader();
             reader.onload = function (e) {

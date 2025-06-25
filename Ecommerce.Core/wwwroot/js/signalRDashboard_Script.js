@@ -82,7 +82,6 @@ $(document).ready(function () {
 
     // Position popup relative to bell
     function positionPopup() {
-        // Adjust logic below as per your layout
         var bellOffset = $bell.offset();
         var bellHeight = $bell.outerHeight();
         var popupWidth = $popup.outerWidth();
