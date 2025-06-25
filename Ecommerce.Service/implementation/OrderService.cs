@@ -15,18 +15,22 @@ public class OrderService : IOrderService
     private readonly IProductRepository _productRepository;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IUserRepository _userRepository;
+
+    private readonly EcommerceContext _context;
     private readonly IOrderRepository _orderRepository;
 
     public OrderService(
     IProductRepository productRepository, 
     IWebHostEnvironment webHostEnvironment,
     IUserRepository userRepository,
+    EcommerceContext context,
     IOrderRepository orderRepository)
     {
         _productRepository = productRepository;
         _webHostEnvironment = webHostEnvironment;
         _userRepository = userRepository; 
         _orderRepository = orderRepository;
+        _context = context;
     }
 
     /// <summary>
@@ -137,7 +141,10 @@ public class OrderService : IOrderService
     int UserId, 
     bool isByProductId = false)
     {
-        try{
+        try
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             List<productAtOrderViewModel>? orderList;
 
             // Choose which method to fetch order details
@@ -223,6 +230,8 @@ public class OrderService : IOrderService
 
                 // Mark cart items as deleted
                 _productRepository.DeleteCartByIdsRange(objSession.orders ?? new List<int>());
+
+                await transaction.CommitAsync();
 
                 return new ResponsesViewModel()
                 {

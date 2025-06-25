@@ -807,7 +807,15 @@ public class ProductService : IProductService
         }
     }
     
-    
+    /// <summary>
+    /// method for adding review to product by orderProductId
+    /// </summary>
+    /// <param name="orderProductId"></param>
+    /// <param name="rating"></param>
+    /// <param name="productId"></param>
+    /// <param name="reviewText"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
     public ResponsesViewModel AddReview(int orderProductId,decimal rating, int productId, string reviewText,string email)
     {
         try

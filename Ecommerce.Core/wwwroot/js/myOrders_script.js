@@ -89,6 +89,7 @@ $(document).ready(function () {
                 if (response.success) {
                     toastr.success('Review added successfully.');
                     AddReviewModal.hide();
+                    $('#AddReviewForm')[0].reset(); // Reset the form
                     FetchOrders();
                 } else {
                     toastr.error('Failed to add the review.');

@@ -90,6 +90,7 @@ public class DashboardController : Controller
     /// Method to edit user profile details
     /// </summary>
     /// <param name="model">Model containing user details</param>
+    [Authorize]
     public IActionResult EditUser(EditRegisteredUserViewModel model)
     {
         try
@@ -232,7 +233,7 @@ public class DashboardController : Controller
                     // call hub for notification add
                     await _notificationHub.Clients.All.SendAsync("ReceiveNotification", $"New offer added by {email} for product {model.ProductId}.");
 
-                    return View(baseViewModel);
+                    return RedirectToAction("EditProfile", "Dashboard");
                 }
                 TempData["ErrorMessage"] = responses.Message;
             }
@@ -395,8 +396,8 @@ public class DashboardController : Controller
                     BaseEmail = email,
                     BaseRole = role
                 };
-
-                return View(baseViewModel);
+               
+                return RedirectToAction("EditProfile", "Dashboard");
             }
             TempData["ErrorMessage"] = "Invalid input. Please check your details.";
             return View(model);

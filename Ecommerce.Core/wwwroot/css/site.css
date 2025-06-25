@@ -38,6 +38,13 @@ html {
 .font-green{color:#45AD82 !important;}
 .bg-lightblue{background-color: #9db1c59f;}
 
+/* overflow handler */
+.overflow-handler {
+  overflow-x: auto;
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+}
 
 /* table helpers */
 .address-class{
