@@ -1,0 +1,100 @@
+@model Ecommerce.Repository.ViewModels.ContactUsViewModel
+@{
+    Layout = "~/Views/Shared/_dashboardSeller.cshtml";
+}
+<h2 class="mt-3"> Contact Us </h2>
+
+<div class=" p-3 m-3 d-flex justify-content-center align-items-center flex-column">
+    <div class="w-100 p-3 mx-3 bg-white border rounded-3 widthOfForms">
+        <form method="POST" id="contactUsForm" asp-action="ContactUs" asp-controller="Dashboard">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="Name" placeholder="Your Name" asp-for="Name">
+                <label for="Name">Your Name</label>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="Email" placeholder="Your Email" asp-for="SenderEmail">
+                <label for="Email">Your Email</label>
+                <span asp-validation-for="SenderEmail" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="Email" placeholder="Email To" asp-for="ReciverEmail">
+                <label for="Email">Email To</label>
+                <span asp-validation-for="ReciverEmail" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3 w-100">
+                <select class="form-select " asp-for="ProductId" id="ProductId" aria-label="ProductId"
+                    placeholder="select Product">
+                </select>
+                <span asp-validation-for="ProductId" class="text-danger"></span>
+                <label for="ProductId">Select Product</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="Subject" placeholder="Subject" asp-for="Subject">
+                <label for="Subject">Subject</label>
+                <span asp-validation-for="Subject" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea class="form-control" id="Message" placeholder="Your Message" asp-for="Message"
+                    style="height: 100px"></textarea>
+                <label for="Message">Your Message</label>
+                <span asp-validation-for="Message" class="text-danger"></span>
+            </div>
+            <div class="d-flex w-100 justify-content-end">
+                <button type="submit" class="btn btn-primary ">
+                    <span class="sendMessage">Send Message</span>
+                    <span class="loader2 " style="width: 20px; height: 20px;"></span>
+                </button>
+                
+            </div>
+        </form>
+    </div>
+
+@section scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            window.successMessage = '@TempData["SuccessMessage"]';
+            window.errorMessage = '@TempData["ErrorMessage"]';
+            $(".sendMessage").show();
+            $(".loader2").hide();
+            $(document).ready(function () {
+            function fetchProductName() {
+                $.ajax({
+                    url: '/Dashboard/GetProducts',
+                    type: 'GET',
+                    success: function (data) {
+                        console.log(data);
+                        var productSelect = $('#ProductId');
+                        productSelect.empty();
+                        productSelect.append('<option value="">Select Product</option>');
+                        $.each(data.products, function (index, product) {
+                            productSelect.append($('<option>', {
+                                value: product.id,
+                                text: product.name
+                            }));
+                        });
+                    },
+                    error: function () {
+                        toastr.error('Failed to load products.');
+                    }
+                });
+            }
+
+            $(document).on('submit', '#contactUsForm', function () {
+                $(".sendMessage").hide();
+                $(".loader2").show();
+            });
+
+            fetchProductName();
+
+            
+            
+        });
+        </script>
+        <script src="~/js/toastr_script.js"></script>
+}

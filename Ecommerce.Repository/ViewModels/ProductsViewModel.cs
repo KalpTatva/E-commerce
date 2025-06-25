@@ -56,6 +56,7 @@ public class productDetailsByproductIdViewModel : BaseViewModel
     public int Stocks { get; set; }
 
     public int SellerId { get; set; }
+    public string? SellerEmailId {get;set;}
 
     public bool IsFavourite {get;set;}
 

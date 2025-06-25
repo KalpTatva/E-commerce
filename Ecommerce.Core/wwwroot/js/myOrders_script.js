@@ -18,14 +18,28 @@ $(document).ready(function () {
         })
     }
 
+    var CancelOrderModal = new bootstrap.Modal(document.getElementById('CancelOrderModal'), {
+        keyboard: false,
+        backdrop: 'static'
+    });
     $(document).on('click','.CancelOrderBtn', function () {
-        var orderId = $(this).data('order-id');
+
+        var orderProductId = $(this).data('order-id');
+        $('#OrderProductIdInput').val(orderProductId);
+        CancelOrderModal.show();
+        
+    });
+
+    $(document).on('submit', '#CancelOrderForm', function (e) {
+        e.preventDefault();
+        var orderId = $('#OrderProductIdInput').val();
         $.ajax({
             url: '/Order/UpdateOrderStatus',
             type: 'PUT',
             data: { orderId: orderId, status: 'Cancelled'},
             success: function (response) {
                 if(response.success) {
+                    CancelOrderModal.hide();
                     toastr.success('Order status updated to Cancelled.');
                     FetchOrders();
                 } else {
@@ -36,7 +50,7 @@ $(document).ready(function () {
                 toastr.error('An error occurred while cancelling the order.');
             }
         });
-    });
+    })
 
 
     var AddReviewModal = new bootstrap.Modal(document.getElementById('AddReviewModal'), {
@@ -85,6 +99,8 @@ $(document).ready(function () {
             }
         });
     });
+
+
 
     FetchOrders();
 });

@@ -1,3 +1,4 @@
+using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
 using static Ecommerce.Repository.Helpers.Enums;
 
@@ -76,5 +77,20 @@ public interface IOrderService
     /// <returns>int</returns>
     /// <exception cref="Exception"></exception>
     int GetNotificationCount(string email);
+
+    /// <summary>
+    /// Method to retrieve notifications for a user based on their email address.
+    /// This method fetches the user by email and retrieves their notifications.
+    /// </summary>
+    /// <param name="email">User's email address</param>
+    /// <returns>List of Notification containing user's notifications</returns>
+    List<Notification>? GetNotificationsByEmail(string email);
+
+    /// <summary>
+    /// Method to mark all notifications as read for a user based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <exception cref="Exception"></exception>
+    void MarkNotificationAsRead(string email);
 
 }

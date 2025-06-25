@@ -369,4 +369,74 @@ public class OrderRepository : IOrderRepository
             throw new Exception(e.Message);
         }
     }
+
+
+    /// <summary>
+    /// Method to retrieve notifications for a user based on their user ID.
+    /// This method fetches notifications that are unread for the specified user.
+    /// </summary>
+    /// <param name="userId">ID of the user for whom notifications are to be retrieved</param>
+    /// <returns>List of Notification containing user's notifications</returns>
+    public List<Notification>? GetNotificationsByUserId(int userId)
+    {
+        try
+        {
+            List<Notification>? notifications = _context.UserNotificationMappings
+                .Where(unm => unm.UserId == userId && unm.ReadAll == false)
+                .Join(_context.Notifications,
+                    unm => unm.NotificationId,
+                    n => n.NotificationId,
+                    (unm, n) => n)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToList();
+
+            return notifications;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to get the user notification mapping for a specific user.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public List<UserNotificationMapping> GetUserNotificationMapping(int userId)
+    {
+        try
+        {
+            List<UserNotificationMapping> userNotificationMappings = _context.UserNotificationMappings
+                .Where(unm => unm.UserId == userId && unm.ReadAll == false)
+                .ToList();
+
+            return userNotificationMappings;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to update a range of user notification mappings in the database.
+    /// </summary>
+    /// <param name="userNotificationMappings"></param>
+    /// <exception cref="Exception"></exception>
+    public void UpdateNotificationRange(List<UserNotificationMapping> userNotificationMappings)
+    {
+        try
+        {
+            _context.UserNotificationMappings.UpdateRange(userNotificationMappings);
+            _context.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
 }

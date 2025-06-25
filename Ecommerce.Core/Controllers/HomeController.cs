@@ -34,7 +34,7 @@ public class HomeController : Controller
             string? authToken = null;
 
             // Check for auth token in cookies or session
-            string? cookieToken = CookieUtils.GetCokkieData(Request, "auth_token");
+            string? cookieToken = CookieUtils.GetCookie(HttpContext, "auth_token");
             if (HttpContext.Session.TryGetValue("auth_token", out byte[]? sessionToken))
             {
                 authToken = System.Text.Encoding.UTF8.GetString(sessionToken);

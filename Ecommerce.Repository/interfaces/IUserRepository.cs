@@ -136,5 +136,12 @@ public interface IUserRepository
     /// <param name="productId"></param>
     /// <returns>List<User></returns>
     List<User>? GetUsersByProductIdFromFavourite(int productId);
+
+    /// <summary>
+    /// Method to add a contact message to the database.
+    /// </summary>
+    /// <param name="contact"></param>
+    /// <exception cref="Exception"></exception>
+    void AddContact(Contactu contact);
     
 }

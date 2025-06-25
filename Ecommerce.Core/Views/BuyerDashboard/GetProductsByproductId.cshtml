@@ -6,7 +6,8 @@
     Layout = "~/Views/Shared/_dashboard.cshtml";
 }
 @{
-    
+    // calculation of price with default discount and offer
+    // if no discount or offer is applied, the price will be the original price
     decimal price = 0;
     decimal discount = 0;
     if (Model.DiscountType == (int)DiscountEnum.FixedAmount)
@@ -142,7 +143,9 @@
                 </div>
             </div>
 
-
+            <span class="mb-2">
+                <span class="text-success fs-5">Seller's Email: @Model.SellerEmailId</span>
+            </span>
 
             <span class="text-success fs-5 mb-2">Features</span>
             <div class="w-100 mb-2">
@@ -175,6 +178,7 @@
                 <span class="text-success fs-5">In stocks </span>
                 <span class="fs-5">@Model.Stocks quantity</span>
             </span>
+            
 
             @if (Model.UserEmail != null && Model.Stocks > 0)
             {
@@ -247,7 +251,14 @@
                         @foreach(ReviewsViewModel review in Model.Reviews)
                         {
                             <div class="d-flex flex-column border p-2 mb-2">
-                                <span class="text-secondary fs-5">@review.Comments</span>
+                                <span class="text-secondary fs-5">
+                                    <i class="bi bi-chat-left-text-fill me-2"></i>
+                                    @review.Comments
+                                </span>
+                                <span class="text-secondary fs-6">
+                                    <i class="bi bi-clock-fill  me-2"></i>
+                                    @review.CreatedAt.ToString("MMMM dd, yyyy")
+                                </span>
                                 <span class="text-secondary fs-6">By: @review.UserEmail</span>
 
                                 <span class="text-secondary fs-6">Rating:

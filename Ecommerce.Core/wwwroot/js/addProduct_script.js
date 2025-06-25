@@ -33,6 +33,12 @@ $(document).ready(function () {
         const existingImages = new Set();
 
         Array.from(files).forEach((file) => {
+            const validExtensions = ["jpg", "jpeg", "avif","png","svg"];
+            const fileExtension = file.name.split(".").pop().toLowerCase();
+            if (!validExtensions.includes(fileExtension)) {
+                toastr.error(`File "${file.name}" is not a valid image format. Allowed formats: jpg, jpeg, avif, svg, png.`);
+                return;
+            }
             if (existingImages.has(file.name)) {
                 toastr.error(`Image "${file.name}" is already added.`);
                 return;
@@ -40,7 +46,9 @@ $(document).ready(function () {
             existingImages.add(file.name);
         });
 
-        Array.from(files).forEach((file, index) => {
+        Array.from(files).forEach((file) => {
+            if (!file.type.startsWith("image/")) return; // Skip non-image files
+
             const reader = new FileReader();
             reader.onload = function (e) {
                 const imgWrapper = $(

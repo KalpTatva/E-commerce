@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AspNetCoreGeneratedDocument;
 using Ecommerce.Core.Hub;
 using Ecommerce.Core.Utils;
+using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -243,11 +244,24 @@ public class DashboardController : Controller
                     .ToList();
 
                 TempData["ErrorMessage"] = string.Join(", ", errorMessages);
+            
+                string? email = BaseValues.GetEmail(HttpContext);
+                string? role = BaseValues.GetRole(HttpContext);
+                OfferViewModel baseViewModel = new () {
+                    BaseEmail = email,
+                    BaseRole = role
+                }; 
             }
             return View(model);
         }
         catch (Exception e)
-        {
+        {   
+            string? email = BaseValues.GetEmail(HttpContext);
+                    string? role = BaseValues.GetRole(HttpContext);
+            OfferViewModel baseViewModel = new () {
+                BaseEmail = email,
+                BaseRole = role
+            }; 
             TempData["ErrorMessage"] = e.Message;
             return View(model);
         }
@@ -257,7 +271,6 @@ public class DashboardController : Controller
     /// Method to get products list for offer
     /// </summary>
     /// <returns>Json</returns>
-    [Authorize(Roles = "Seller")]
     [HttpGet]
     public IActionResult GetProducts()
     {
@@ -293,6 +306,105 @@ public class DashboardController : Controller
         catch (Exception e)
         {
             return Json(new { success = false, message = e.Message });
+        }
+    }
+
+
+    [HttpGet]
+    public IActionResult GetNotifications()
+    {
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            List<Notification>? notifications = _orderService.GetNotificationsByEmail(email ?? "");
+            if (notifications == null || notifications.Count == 0)
+            {
+                return Json(new { success = false, message = "No notifications found." });
+            }
+            return Json(new { success = true, notifications = notifications });
+        }
+        catch (Exception e)
+        {
+            return Json(new { success = false, message = e.Message });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult MarkAllNotificationsAsRead()
+    {
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            _orderService.MarkNotificationAsRead( email ?? "");
+            return Json(new { success = true, message = "Notification marked as read." });
+        }
+        catch (Exception e)
+        {
+            return Json(new { success = false, message = e.Message });
+        }
+    }
+
+
+    /// <summary>
+    /// Method to display the contact us page
+    /// </summary>
+    /// <returns></returns>
+    public IActionResult ContactUs()
+    {
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+    
+        ContactUsViewModel baseViewModel = new () {
+            BaseEmail = email,
+            BaseRole = role
+        };        
+        return View(baseViewModel);
+    }
+
+    /// <summary>
+    /// Method to handle contact us form submission
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> ContactUs(ContactUsViewModel model)
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                string? email = BaseValues.GetEmail(HttpContext);
+                string? role = BaseValues.GetRole(HttpContext);
+                
+                ResponsesViewModel responses = await _userService.AddContactMessage(model);
+
+                if (!responses.IsSuccess)
+                {
+                    model.BaseEmail = email;
+                    model.BaseRole = role;
+                    TempData["ErrorMessage"] = responses.Message;
+                    return View(model);
+                }
+
+                // Notify all connected clients about the new contact message
+                await _notificationHub.Clients.All.SendAsync("ReceiveNotification", $"New contact message from {model.BaseEmail}: {model.Message}");
+
+                TempData["SuccessMessage"] = "Your message has been sent successfully.";
+                
+                ContactUsViewModel baseViewModel = new () {
+                    BaseEmail = email,
+                    BaseRole = role
+                };
+
+                return View(baseViewModel);
+            }
+            TempData["ErrorMessage"] = "Invalid input. Please check your details.";
+            return View(model);
+        }
+        catch(Exception e)
+        {   
+            TempData["ErrorMessage"] = e.Message;
+            return View(model);
         }
     }
 

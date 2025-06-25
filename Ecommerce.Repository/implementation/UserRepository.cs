@@ -369,5 +369,23 @@ public class UserRepository : IUserRepository
             throw new Exception("An error occurred while fetching users by product ID.", e);
         }
     }
-   
+    
+
+    /// <summary>
+    /// Method to add a contact message to the database.
+    /// </summary>
+    /// <param name="contact"></param>
+    /// <exception cref="Exception"></exception>
+    public void AddContact(Contactu contact)
+    {
+        try
+        {
+            _context.Contactus.Add(contact);
+            _context.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            throw new Exception("An error occurred while adding contact.", e);
+        }
+    }
 }

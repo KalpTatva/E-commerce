@@ -489,4 +489,59 @@ public class OrderService : IOrderService
         }
     }
 
+    /// <summary>
+    /// Method to retrieve notifications for a user based on their email address.
+    /// This method fetches the user by email and retrieves their notifications.
+    /// </summary>
+    /// <param name="email">User's email address</param>
+    /// <returns>List of Notification containing user's notifications</returns>
+    public List<Notification>? GetNotificationsByEmail(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            return _orderRepository.GetNotificationsByUserId(user.UserId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to mark all notifications as read for a user based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <exception cref="Exception"></exception>
+    public void MarkNotificationAsRead(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            List<UserNotificationMapping>? notifications = _orderRepository.GetUserNotificationMapping(user.UserId);
+            if (notifications != null && notifications.Count > 0)
+            {
+                foreach (UserNotificationMapping notification in notifications)
+                {
+                    notification.ReadAll = true;
+                    notification.EditedAt = DateTime.Now;
+                }
+                _orderRepository.UpdateNotificationRange(notifications);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+
 }

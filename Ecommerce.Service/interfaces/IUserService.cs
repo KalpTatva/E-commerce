@@ -82,4 +82,13 @@ public interface IUserService
     /// <param name="model"></param>
     /// <returns>ResponsesViewModel</returns>
     ResponsesViewModel EditUserDetails(EditRegisteredUserViewModel model);
+
+
+    /// <summary>
+    /// Method to add a contact message from the user.
+    /// This method creates a new Contactu object with the provided details,
+    /// adds it to the repository, and sends an email notification to the recipient.
+    /// </summary>
+    /// <param name="model">ContactUsViewModel containing the contact message details</param>
+    Task<ResponsesViewModel> AddContactMessage(ContactUsViewModel model);
 }

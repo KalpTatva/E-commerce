@@ -114,6 +114,7 @@ public class BuyerDashboardController : Controller
     /// mthod for favourite products view
     /// </summary>
     /// <returns>View</returns>
+    /// 
     [Authorize(Roles = "Buyer")]
     public IActionResult Favourite()
     {
@@ -130,6 +131,7 @@ public class BuyerDashboardController : Controller
     /// cart's view method
     /// </summary>
     /// <returns>View with base view model</returns>
+    [Authorize(Roles ="Buyer")]
     public IActionResult Cart()
     {
         string? email = BaseValues.GetEmail(HttpContext);

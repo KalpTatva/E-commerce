@@ -1,9 +1,15 @@
-﻿
-$(document).ready(function () {
+﻿$(document).ready(function () {
     let count = false;
     let count2 = false;
     let count3 = false;
-    
+
+
+    // logout modal
+    var LogoutModal = new bootstrap.Modal(document.getElementById('LogoutModal'), {
+        keyboard: false,
+        backdrop: 'static'
+    });
+
     // function for toggle password visibility
     function togglePassword(eyeOpen, eyeClose, input, countState) {
         countState = !countState;
@@ -34,13 +40,6 @@ $(document).ready(function () {
     $(".openeye2, .closeeye2").on("click", function () {
         count3 = togglePassword(".openeye2", ".closeeye2", "#exampleInputPassword3", count3);
     });
-    
-
-    // logout modal
-    var LogoutModal = new bootstrap.Modal(document.getElementById('LogoutModal'), {
-        keyboard: false,
-        backdrop: 'static'
-    });
 
     // handle logout button click
     $("#LogoutButton").on("click", function (e) {
@@ -48,48 +47,5 @@ $(document).ready(function () {
         LogoutModal.show();
     });
 
-
-    // hub connection 
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/notificationHub")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
     
-    // start connection
-    connection.start()
-        .then(() => console.log("SignalR Connected"))
-        .catch(err => console.error(err.toString()));
-
-    // receive notification
-    connection.on("ReceiveNotification", function (message) {
-        // fetch function for getting notification count
-        FetchNoficationCount();
-        
-    });
-
-    // function to fetch notification count
-    function FetchNoficationCount()
-    {
-        $.ajax({
-            url: "/Dashboard/GetNotificationCount",
-            type: "GET",
-            success: function (data) {
-                if(data.success)
-                {
-                    $("#notificationCount").text(data.count);
-                    if (data.count > 0) {
-                        $("#notificationCount").show();
-                    } else {
-                        $("#notificationCount").hide();
-                    }
-                }
-            },
-            error: function (error) {
-                console.error("Error fetching notification count:", error);
-            }
-        });
-    }
-
-    FetchNoficationCount();
-
 });

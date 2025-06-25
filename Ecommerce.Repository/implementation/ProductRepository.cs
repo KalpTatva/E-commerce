@@ -61,7 +61,7 @@ public class ProductRepository : IProductRepository
     public List<Product>? GetSellerSpecificProducts(int userId){
         try
         {
-            return _context.Products.Where(x => x.SellerId == userId && x.IsDeleted == false ).OrderBy(x => x.ProductId).ToList();
+            return _context.Products.Where(x => x.SellerId == userId && x.IsDeleted == false ).OrderByDescending(x => x.ProductId).ToList();
         }
         catch (Exception e)
         {
@@ -355,6 +355,10 @@ public class ProductRepository : IProductRepository
                                     Discount = product.Discount,
                                     CategoryId = product.CategoryId,
                                     SellerId = product.SellerId,
+                                    SellerEmailId = _context.Users
+                                                .Where(u => u.UserId == product.SellerId)
+                                                .Select(u => u.Email)
+                                                .FirstOrDefault(),
                                     Reviews = _context.Reviews
                                                 .Where(r => r.ProductId == product.ProductId)
                                                 .OrderByDescending(r => r.ReviewId)
@@ -704,7 +708,6 @@ public class ProductRepository : IProductRepository
     /// method for getting products for offer by user id
     /// </summary>
     /// <param name="userId"></param>
-    /// <returns></returns>
     /// <exception cref="Exception"></exception>
     public List<ProductNameViewModel> GetProductsForOffer(int userId)
     {
@@ -712,6 +715,29 @@ public class ProductRepository : IProductRepository
         {
             List<ProductNameViewModel> products = _context.Products
                 .Where(p => p.SellerId == userId && p.IsDeleted == false)
+                .OrderByDescending(p => p.ProductId)
+                .Select(p => new ProductNameViewModel
+                {
+                    id = p.ProductId,
+                    name = p.ProductName
+                }).ToList();
+            return products;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }   
+    }
+
+    /// <summary>
+    /// method for getting all products for offer
+    /// </summary>
+    public List<ProductNameViewModel> GetAllProductsForOffer()
+    {
+        try
+        {
+            List<ProductNameViewModel> products = _context.Products
+                .Where(p => p.IsDeleted == false)
                 .OrderByDescending(p => p.ProductId)
                 .Select(p => new ProductNameViewModel
                 {

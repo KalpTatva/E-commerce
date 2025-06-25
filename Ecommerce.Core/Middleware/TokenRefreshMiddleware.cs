@@ -39,7 +39,7 @@ public class TokenRefreshMiddleware
             
             string? roleClaim = context.User.FindFirst(ClaimTypes.Role)?.Value;
             
-            string? token =  SessionUtils.GetSession(context, "auth_token") ?? CookieUtils.GetCokkieData(context.Request, "auth_token");
+            string? token =  SessionUtils.GetSession(context, "auth_token") ?? CookieUtils.GetCookie(context, "auth_token");
 
             if (!string.IsNullOrEmpty(token))
             {

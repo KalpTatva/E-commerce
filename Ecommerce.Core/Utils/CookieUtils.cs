@@ -2,7 +2,6 @@ namespace Ecommerce.Core.Utils;
 
 public class CookieUtils
 {
-
     /// <summary>
     /// for cheking if cookie exists or not
     /// </summary>
@@ -20,7 +19,6 @@ public class CookieUtils
     /// <param name="response"></param>
     /// <param name="cokkieName"></param>
     /// <param name="payload"></param>
-
     public static void SetJwtCookie(HttpResponse response, string cokkieName, string payload)
     {
         CookieOptions cookieOptions = new CookieOptions
@@ -33,30 +31,51 @@ public class CookieUtils
         response.Cookies.Append(cokkieName, payload, cookieOptions);
     }
 
-
-
-    ///<summary>
+    /// <summary>
     /// Method for clearing cookie
-    ///</summary>
-    ///<param name="httpContext"></param>
-    ///<param name="CokkieName"></param>
-    public static void ClearCookies(HttpResponse response,string CokkieName)
+    /// </summary>
+    /// <param name="httpContext"></param>
+    /// <param name="CokkieName"></param>
+    public static void ClearCookies(HttpResponse response, string CokkieName)
     {
-       response.Cookies.Delete(CokkieName);
+        response.Cookies.Delete(CokkieName);
     }
 
     /// <summary>
-    /// Method for getting cokkie deta
+    /// Method to store user details in cookies
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="CokkieName"></param>
-    /// <returns></returns>
-    public static string? GetCokkieData(HttpRequest request, string CokkieName)
+    /// <param name="httpContext"></param>
+    /// <param name="cookieName"></param>
+    /// <param name="payLoad"></param>
+    public static void SetCookie(HttpContext httpContext, string cookieName, string payLoad, int expirationMinutes = 30)
     {
-        if (request.Cookies.TryGetValue(CokkieName, out var cookieValue))
+        httpContext.Response.Cookies.Append(cookieName, payLoad, new CookieOptions
         {
-            return cookieValue;
-        }
-        return null;
+            HttpOnly = true,
+            IsEssential = true,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes)
+        });
+    }
+
+    /// <summary>
+    /// Method for getting data from cookies
+    /// </summary>
+    /// <param name="httpContext"></param>
+    /// <param name="cookieName"></param>
+    /// <returns></returns>
+    public static string? GetCookie(HttpContext httpContext, string cookieName)
+    {
+        httpContext.Request.Cookies.TryGetValue(cookieName, out string? value);
+        return value;
+    }
+
+    /// <summary>
+    /// Remove cookie by name
+    /// </summary>
+    /// <param name="httpContext"></param>
+    /// <param name="cookieName"></param>
+    public static void RemoveCookie(HttpContext httpContext, string cookieName)
+    {
+        httpContext.Response.Cookies.Delete(cookieName);
     }
 }

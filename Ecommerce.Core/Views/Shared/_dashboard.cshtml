@@ -64,11 +64,22 @@
                             {
 
                                 <div class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
-                                    id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+                                    id="notificationBell" tabindex="0">
                                     <i class="bi bi-bell-fill icons-css position-relative"></i>
                                     <span id="notificationCount" class="position-absolute notification">
                                         @(Model.Notifications?.Count ?? 0)
                                     </span>
+                                </div>
+
+                                <!-- Notification Popup -->
+                                <div id="notificationPopup" class="notification-popup" tabindex="-1">
+                                    <div class="popup-header">
+                                        <span>Notifications</span>
+                                        <a class="text-danger ReadAllBtn">Read all</a>
+                                    </div>
+                                    <div class="popup-body">
+                                        <ul id="notificationList"></ul>
+                                    </div>
                                 </div>
 
                                 <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
@@ -122,6 +133,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.15/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/signalRDashboard_Script.js"></script>
     <partial name="_ValidationScriptsPartial" />
 
     <!-- Owl Carousel JS -->

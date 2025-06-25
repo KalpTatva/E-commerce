@@ -19,6 +19,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<City> Cities { get; set; }
 
+    public virtual DbSet<Contactu> Contactus { get; set; }
+
     public virtual DbSet<Country> Countries { get; set; }
 
     public virtual DbSet<Favourite> Favourites { get; set; }
@@ -107,6 +109,34 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.State).WithMany(p => p.Cities)
                 .HasForeignKey(d => d.StateId)
                 .HasConstraintName("city_state_id_fkey");
+        });
+
+        modelBuilder.Entity<Contactu>(entity =>
+        {
+            entity.HasKey(e => e.ContactId).HasName("contactus_pkey");
+
+            entity.ToTable("contactus");
+
+            entity.Property(e => e.ContactId).HasColumnName("contact_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Message)
+                .HasColumnType("character varying")
+                .HasColumnName("message");
+            entity.Property(e => e.Name)
+                .HasColumnType("character varying")
+                .HasColumnName("name");
+            entity.Property(e => e.ReciverEmail)
+                .HasColumnType("character varying")
+                .HasColumnName("reciver_email");
+            entity.Property(e => e.SenderEmail)
+                .HasColumnType("character varying")
+                .HasColumnName("sender_email");
+            entity.Property(e => e.Subject)
+                .HasColumnType("character varying")
+                .HasColumnName("subject");
         });
 
         modelBuilder.Entity<Country>(entity =>

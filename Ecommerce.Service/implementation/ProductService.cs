@@ -363,7 +363,14 @@ public class ProductService : IProductService
             {
                 return new List<ProductNameViewModel>();
             }
-            return _productRepository.GetProductsForOffer(user.UserId);
+            if(user.RoleId != (int)RoleEnum.Seller)
+            {
+                return _productRepository.GetAllProductsForOffer();
+            }
+            else
+            {
+                return _productRepository.GetProductsForOffer(user.UserId);
+            }
         }
         catch(Exception e)
         {

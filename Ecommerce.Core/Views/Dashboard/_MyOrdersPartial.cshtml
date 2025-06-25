@@ -38,7 +38,7 @@
                 <table class="table table-bordered border">
                     <thead>
                         <tr>
-                            <th>OrderProductId</th>
+                            <th>Id</th>
                             <th>Product Name</th>
                             <th>Price</th>
                             <th>Quantity</th>
@@ -49,12 +49,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @{int count = 1;}
                         @if (o.OrderedItem != null && o.OrderedItem.Any())
                         {
                             @foreach (OrderItemsViewModel op in o.OrderedItem)
                             {
                                 <tr>
-                                    <td>@op.ProductId</td>
+                                    <td>@count @{count++;}</td>
                                     <td class="fs-4">@op.ProductName</td>
                                     <td>@op.PriceWithDiscount.ToString("C")</td>
                                     <td>@op.Quantity</td>

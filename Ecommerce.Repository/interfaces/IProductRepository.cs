@@ -211,6 +211,11 @@ public interface IProductRepository
     /// <exception cref="Exception"></exception>
     List<ProductNameViewModel> GetProductsForOffer(int userId);
 
+    /// <summary>
+    /// method for getting all products for offer
+    /// </summary>
+    public List<ProductNameViewModel> GetAllProductsForOffer();
+
 
     /// <summary>
     /// method for getting offer by product id

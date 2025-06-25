@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
@@ -16,6 +17,8 @@ public class UserService : IUserService
 {
 
     private readonly IUserRepository _userRepository;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IConfiguration _configuration;
 
     private readonly IEmailService _emailService;
@@ -24,12 +27,16 @@ public class UserService : IUserService
     public UserService(
         IUserRepository userRepository,
         IConfiguration configuration,
-        IEmailService emailService
+        IEmailService emailService,
+        IOrderRepository orderRepository,
+        IProductRepository productRepository
         )
     {
         _userRepository = userRepository;
         _configuration = configuration;
         _emailService = emailService;
+        _orderRepository = orderRepository;
+        _productRepository = productRepository;
 
     }
 
@@ -547,4 +554,96 @@ public class UserService : IUserService
         }
     }
 
+
+    /// <summary>
+    /// Method to add a contact message from the user.
+    /// This method creates a new Contactu object with the provided details,
+    /// adds it to the repository, and sends an email notification to the recipient.
+    /// </summary>
+    /// <param name="model">ContactUsViewModel containing the contact message details</param>
+    public async Task<ResponsesViewModel> AddContactMessage(ContactUsViewModel model)
+    {
+        try
+        {
+            if (model == null)
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Invalid contact message"
+                };
+            }
+            
+            Product? product = _productRepository.GetProductById(model.ProductId);
+            // add notification into the database
+            Notification notification = new Notification
+            {
+                Notification1 = $"You have received a new contact message from {model.Name} ({model.SenderEmail}) for product {product?.ProductName}. check your email.",
+                ProductId = model.ProductId
+            };
+            _orderRepository.AddNotification(notification);
+
+            // notification in mapping table of user and notification
+            List<UserNotificationMapping> userNotificationMappings = new List<UserNotificationMapping>();
+            
+            userNotificationMappings.Add(new UserNotificationMapping
+            {
+                UserId = _userRepository.GetUserByEmail(model.ReciverEmail)?.UserId ?? 0,
+                NotificationId = notification.NotificationId,
+                CreatedAt = DateTime.Now
+            });
+
+            _orderRepository.AddUserNotificationMappingRange(userNotificationMappings);
+
+            // add contact details
+            Contactu contact = new Contactu
+            {
+                Name = model.Name,
+                SenderEmail = model.SenderEmail,
+                ReciverEmail = model.ReciverEmail,
+                Subject = model.Subject,
+                Message = model.Message,
+            };
+            _userRepository.AddContact(contact);
+
+            
+
+            // Send email notification
+            string emailBody = $@"
+                <html>
+                <body>
+                    <h1>Contact Message Received</h1>
+                    <p>Dear {model.Name},</p>
+                    <p>Thank you for reaching out to us. We have received your message:</p>
+                    <p><strong>Name:</strong> {model.Name}</p>
+                    <p><strong>Email:</strong> {model.SenderEmail}</p>
+                    <p><strong>Product: </strong> {product?.ProductName} ({model.ProductId})</p>
+                    <p><strong>Subject:</strong> {model.Subject}</p>
+                    <p><strong>Message:</strong> {model.Message}</p>
+                    <p>We will get back to you shortly.</p>
+                    <p>Best regards,</p>
+                    <p>Your Company Name</p>
+                </body>
+                </html>";
+            await _emailService.SendEmailAsync(
+                model.ReciverEmail,
+                model.Subject,
+                emailBody
+            );
+
+            return new ResponsesViewModel
+            {
+                IsSuccess = true,
+                Message = "Contact message sent successfully"
+            };
+        }
+        catch (Exception e)
+        {
+            return new ResponsesViewModel
+            {
+                IsSuccess = false,
+                Message = $"Error in AddContactMessage: {e.Message}"
+            };
+        }
+    }
 }

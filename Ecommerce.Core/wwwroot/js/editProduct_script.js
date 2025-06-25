@@ -65,14 +65,22 @@ $(document).ready(function () {
         const existingImages = new Set();
 
         Array.from(files).forEach((file) => {
+        
+            // Validate file type and check for duplicates
+            const validExtensions = ["jpg", "jpeg", "avif","png","svg"];
+            const fileExtension = file.name.split(".").pop().toLowerCase();
+            if (!validExtensions.includes(fileExtension)) {
+                toastr.error(`File "${file.name}" is not a valid image format. Allowed formats: jpg, jpeg, avif, svg, png.`);
+                return;
+            }
+            
+            // Check if the image is already added
             if (existingImages.has(file.name)) {
                 toastr.error(`Image "${file.name}" is already added.`);
                 return;
             }
             existingImages.add(file.name);
-        });
-
-        Array.from(files).forEach((file, index) => {
+        
             const reader = new FileReader();
             reader.onload = function (e) {
                 const imgWrapper = $(
@@ -82,14 +90,14 @@ $(document).ready(function () {
                     '<img class="img-thumbnail" style="width: 70px; height: 70px;">'
                 );
                 img.attr("src", e.target.result);
-
+        
                 const removeBtn = $(
                     '<button class="btn btn-danger btn-sm position-absolute top-0 end-0">X</button>'
                 );
                 removeBtn.on("click", function () {
                     imgWrapper.remove();
                 });
-
+        
                 imgWrapper.append(img).append(removeBtn);
                 previewContainer.append(imgWrapper);
             };

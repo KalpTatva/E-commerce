@@ -21,7 +21,7 @@ public class OrderController : Controller
     }
 
     /// <summary>
-    /// method for set session for order
+    /// method for set cookie for order
     /// </summary>
     /// <param name="objectCart"></param>
     /// <returns>Json with success or error message</returns>
@@ -33,22 +33,20 @@ public class OrderController : Controller
         {   
             string? email = BaseValues.GetEmail(HttpContext);
     
-            // check if objectCart get dserialized or not
             ObjectSessionViewModel? res = string.IsNullOrEmpty(objectCart) 
                 ? new ObjectSessionViewModel() 
                 : JsonConvert.DeserializeObject<ObjectSessionViewModel>(objectCart);
-            // if not then show error
-            if(res==null)
+            if (res == null)
             {
                 return Json(new {
                     success = false,
-                    message = "error while setting up session while creating order"
+                    message = "error while setting up cookie while creating order"
                 }); 
             }
-            // check if any product is out of stock
+
             ResponsesViewModel response = _productService.CheckProductStockByCartId(email ?? "");
 
-            if(!response.IsSuccess)
+            if (!response.IsSuccess)
             {
                 return Json(new {
                     success = false,
@@ -56,28 +54,25 @@ public class OrderController : Controller
                 });
             }
 
-            // if json data is deserialized then add that data to session
-            // here deserialized only for checking perpose
             string sessionId = Guid.NewGuid().ToString();
-            // set it into session for 30 minutes
-            SessionUtils.SetSession(HttpContext,sessionId, objectCart);
-            // return session id which will redirect to the page
-            return Json( new {
-                success=true,
-                message=sessionId
+            CookieUtils.SetCookie(HttpContext, sessionId, objectCart);
+            return Json(new {
+                success = true,
+                message = sessionId
             });
         }
-        catch{
+        catch
+        {
             return Json(new {
                 success = false,
-                message = "error while setting up session while creating order"
+                message = "error while setting up cookie while creating order"
             });
         }
     }
 
     
     /// <summary>
-    /// method for make changes on session
+    /// method for make changes on cookie
     /// </summary>
     /// <param name="SessionId"></param>
     /// <returns></returns>
@@ -87,13 +82,12 @@ public class OrderController : Controller
     {
         try
         {
-            // util for delete session data 
-            SessionUtils.RemoveSessionById(HttpContext, SessionId);
-            return Json(new{success=true,message="order canceled"});
+            CookieUtils.RemoveCookie(HttpContext, SessionId);
+            return Json(new { success = true, message = "order canceled" });
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            return Json(new {success=false,message=e.Message});
+            return Json(new { success = false, message = e.Message });
         }
     }   
 
@@ -112,26 +106,24 @@ public class OrderController : Controller
             string? role = BaseValues.GetRole(HttpContext);
     
 
-            // check if session is persist or not
-            string? res = SessionUtils.GetSession(HttpContext, sessionId);
+            string? res = CookieUtils.GetCookie(HttpContext, sessionId);
             
-            // if not then redirect to the index of dashboard
-            if(res == null)
+            Console.WriteLine($"Cookie Data Retrieved: {res}");
+
+            if (res == null)
             {
-                TempData["ErrorMessage"] = "your order's session is expired! please reset your order";
-                return RedirectToAction("Index","BuyerDashboard");
+                TempData["ErrorMessage"] = "your order's cookie is expired! please reset your order";
+                return RedirectToAction("Index", "BuyerDashboard");
             } 
 
-            // check if objectCart get dserialized or not
             ObjectSessionViewModel? objRes = string.IsNullOrEmpty(res) 
                 ? new ObjectSessionViewModel() 
                 : JsonConvert.DeserializeObject<ObjectSessionViewModel>(res);
 
-            // if not then show error and redirect to index of dashboard
-            if(objRes==null)
+            if (objRes == null)
             {
-                TempData["ErrorMessage"] = "your order's session is expired! please reset your order";
-                return RedirectToAction("Index","BuyerDashboard");
+                TempData["ErrorMessage"] = "your order's cookie is expired! please reset your order";
+                return RedirectToAction("Index", "BuyerDashboard");
             }
 
             OrderViewModel result = await _orderService.GetDetailsForOrder(objRes, email ?? "");
@@ -141,10 +133,10 @@ public class OrderController : Controller
             return View(result);
 
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             TempData["ErrorMessage"] = e.Message;
-            return RedirectToAction("Index","BuyerDashboard");
+            return RedirectToAction("Index", "BuyerDashboard");
         }
     }
 
@@ -164,31 +156,28 @@ public class OrderController : Controller
             string? role = BaseValues.GetRole(HttpContext);
     
             
-            // check if session is persist or not
-            string? res = SessionUtils.GetSession(HttpContext, SessionId);
+            string? res = CookieUtils.GetCookie(HttpContext, SessionId);
             
-            // if not then redirect to the index of dashboard
-            if(res == null)
+            Console.WriteLine($"Cookie Data Retrieved: {res}");
+
+            if (res == null)
             {
-                return Json(new{success=false,message="your order's session is expired! please reset your order"});
+                return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
             } 
 
-            // check if objectCart get dserialized or not
             ObjectSessionViewModel? objRes = string.IsNullOrEmpty(res) 
                 ? new ObjectSessionViewModel() 
                 : JsonConvert.DeserializeObject<ObjectSessionViewModel>(res);
 
-            // if not then show error and redirect to index of dashboard
-            if(objRes==null)
+            if (objRes == null)
             {
-                return Json(new{success=false,message="your order's session is expired! please reset your order"});
+                return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
             }
 
             ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId);
             if(response!=null && response.IsSuccess)
             {
-                // util for delete session data 
-                SessionUtils.RemoveSessionById(HttpContext, SessionId);
+                CookieUtils.RemoveCookie(HttpContext, SessionId);
                 return Json(new {success=true,message=response.Message});
             }else{
                 return Json(new {success=false,message=response?.Message}); 
@@ -213,31 +202,28 @@ public class OrderController : Controller
             string? role = BaseValues.GetRole(HttpContext);
     
             
-            // check if session is persist or not
-            string? res = SessionUtils.GetSession(HttpContext, SessionId);
+            string? res = CookieUtils.GetCookie(HttpContext, SessionId);
             
-            // if not then redirect to the index of dashboard
-            if(res == null)
+            Console.WriteLine($"Cookie Data Retrieved: {res}");
+
+            if (res == null)
             {
-                return Json(new{success=false,message="your order's session is expired! please reset your order"});
+                return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
             } 
 
-            // check if objectCart get dserialized or not
             ObjectSessionViewModel? objRes = string.IsNullOrEmpty(res) 
                 ? new ObjectSessionViewModel() 
                 : JsonConvert.DeserializeObject<ObjectSessionViewModel>(res);
 
-            // if not then show error and redirect to index of dashboard
-            if(objRes==null)
+            if (objRes == null)
             {
-                return Json(new{success=false,message="your order's session is expired! please reset your order"});
+                return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
             }
 
             ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId,true);
             if(response!=null && response.IsSuccess)
             {
-                // util for delete session data 
-                SessionUtils.RemoveSessionById(HttpContext, SessionId);
+                CookieUtils.RemoveCookie(HttpContext, SessionId);
                 return Json(new {success=true,message=response.Message});
             }else{
                 return Json(new {success=false,message=response?.Message}); 
@@ -263,25 +249,23 @@ public class OrderController : Controller
             string? role = BaseValues.GetRole(HttpContext);
     
 
-            // check if session is persist or not
-            string? res = SessionUtils.GetSession(HttpContext, sessionId);
+            string? res = CookieUtils.GetCookie(HttpContext, sessionId);
             
-            // if not then redirect to the index of dashboard
-            if(res == null)
+            Console.WriteLine($"Cookie Data Retrieved: {res}");
+
+            if (res == null)
             {
-                TempData["ErrorMessage"] = "your order's session is expired! please reset your order";
+                TempData["ErrorMessage"] = "your order's cookie is expired! please reset your order";
                 return RedirectToAction("Index","BuyerDashboard");
             } 
 
-            // check if objectCart get dserialized or not
             ObjectSessionViewModel? objRes = string.IsNullOrEmpty(res) 
                 ? new ObjectSessionViewModel() 
                 : JsonConvert.DeserializeObject<ObjectSessionViewModel>(res);
 
-            // if not then show error and redirect to index of dashboard
-            if(objRes==null)
+            if (objRes == null)
             {
-                TempData["ErrorMessage"] = "your order's session is expired! please reset your order";
+                TempData["ErrorMessage"] = "your order's cookie is expired! please reset your order";
                 return RedirectToAction("Index","BuyerDashboard");
             }
 
@@ -314,7 +298,6 @@ public class OrderController : Controller
                 return Json(new { success = false, message = "Invalid order ID or status." });
             }
 
-            // Call the service to update the order status
             ResponsesViewModel? isUpdated = _orderService.UpdateOrderStatus(orderId, status);
             if (isUpdated.IsSuccess)
             {
