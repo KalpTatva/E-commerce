@@ -14,17 +14,29 @@ namespace Ecommerce.Service.implementation;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly IFeatureRepository _featureRepository;
     private readonly IUserRepository _userRepository;
+    private readonly ICartRepository _cartRepository;
+    private readonly IFavouriteRepository _favouriteRepository;
+
+
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     public ProductService(
     IProductRepository productRepository, 
     IWebHostEnvironment webHostEnvironment,
-    IUserRepository userRepository)
+    IUserRepository userRepository,
+    IFavouriteRepository favouriteRepository,
+    ICartRepository cartRepository,
+    IFeatureRepository featureRepository)
     {
         _productRepository = productRepository;
         _webHostEnvironment = webHostEnvironment;
         _userRepository = userRepository; 
+        _featureRepository = featureRepository;
+        _favouriteRepository = favouriteRepository;
+        _cartRepository = cartRepository;
+        
     }
     
 
@@ -103,7 +115,7 @@ public class ProductService : IProductService
                 feature.ProductId = product.ProductId;
             }
 
-            _productRepository.AddFeaturesRange(features);
+            _featureRepository.AddFeaturesRange(features);
 
             return new ResponsesViewModel
             {
@@ -262,7 +274,7 @@ public class ProductService : IProductService
             if(features!=null)
             {
                 // udpate features (update old one and add all new one)
-                List<Feature>? features1 = _productRepository.GetFeaturesByProductId(model.ProductId);
+                List<Feature>? features1 = _featureRepository.GetFeaturesByProductId(model.ProductId);
                 if(features1 != null)
                 {
                     // to update the range of features 
@@ -282,11 +294,11 @@ public class ProductService : IProductService
                         else
                         {
                             // Delete the feature if it's no longer in the new list
-                            _productRepository.DeleteFeature(existingFeature);
+                            _featureRepository.DeleteFeature(existingFeature);
                         }
                     }
                     
-                    _productRepository.updateFeaturesRange(FeaturesToUpdate);
+                    _featureRepository.updateFeaturesRange(FeaturesToUpdate);
 
                     // Add new features that are not already in the database
                     List<Feature> NewFeaturesToAdd = new ();
@@ -300,7 +312,7 @@ public class ProductService : IProductService
                         }
                     }
 
-                    _productRepository.AddFeaturesRange(NewFeaturesToAdd);
+                    _featureRepository.AddFeaturesRange(NewFeaturesToAdd);
                 }
             }
 
@@ -461,7 +473,7 @@ public class ProductService : IProductService
             User? user = _userRepository.GetUserByEmail(email);
             if(result!=null && user!=null)
             {
-                Favourite? favourite = _productRepository.GetFavouriteByIds(user.UserId,result.ProductId);
+                Favourite? favourite = _favouriteRepository.GetFavouriteByIds(user.UserId,result.ProductId);
                 if(favourite!= null)
                 {
                     result.IsFavourite = true;
@@ -506,17 +518,17 @@ public class ProductService : IProductService
                         Message="Invalid user details for updating favourites"
                     };
                 }
-                Favourite? favourite = _productRepository.GetFavouriteByIds(user.UserId,productId);
+                Favourite? favourite = _favouriteRepository.GetFavouriteByIds(user.UserId,productId);
                 if(favourite != null && favourite.ProductId > 0)
                 {
-                    _productRepository.dropFavourite(favourite);
+                    _favouriteRepository.dropFavourite(favourite);
                 }else
                 {
                     Favourite favourite1 = new(){
                         ProductId = productId,
                         UserId = user.UserId
                     };
-                    _productRepository.AddFavourite(favourite1);
+                    _favouriteRepository.AddFavourite(favourite1);
                 }
                 return new ResponsesViewModel{
                     IsSuccess=true,
@@ -548,7 +560,7 @@ public class ProductService : IProductService
             {
                 return new List<int>();
             }
-            return _productRepository.GetFavouriteByUserId(user.UserId);
+            return _favouriteRepository.GetFavouriteByUserId(user.UserId);
         }
         catch
         {
@@ -577,7 +589,7 @@ public class ProductService : IProductService
             }
 
             // check if product is already in cart
-            Cart? existingCart = _productRepository.GetCartByUserIdAndProductId(user.UserId, productId);
+            Cart? existingCart = _cartRepository.GetCartByUserIdAndProductId(user.UserId, productId);
             if(existingCart != null)
             {
                 return new ResponsesViewModel{
@@ -591,7 +603,7 @@ public class ProductService : IProductService
                 ProductId = productId
             };
 
-            _productRepository.AddToCart(cart);
+            _cartRepository.AddToCart(cart);
 
             return new ResponsesViewModel{
                 IsSuccess = true,
@@ -625,7 +637,7 @@ public class ProductService : IProductService
                 return new CartViewModel();
             }
 
-            List<productAtCartViewModel>? result = _productRepository.GetproductAtCart(user.UserId);
+            List<productAtCartViewModel>? result = _cartRepository.GetproductAtCart(user.UserId);
             
             if(result!=null && result.Any())
             {
@@ -712,11 +724,11 @@ public class ProductService : IProductService
             }
 
             // update cart quantity by cartId
-            _productRepository.UpdateCartById(cartId, quantity);
+            _cartRepository.UpdateCartById(cartId, quantity);
 
 
             // update values on frontend 
-            List<productAtCartViewModel>? result = _productRepository.GetproductAtCart(user.UserId);
+            List<productAtCartViewModel>? result = _cartRepository.GetproductAtCart(user.UserId);
             
             CartUpdatesViewModel model = new ();
             
@@ -792,7 +804,7 @@ public class ProductService : IProductService
     {
         try
         {
-            _productRepository.DeleteCartById(cartId);
+            _cartRepository.DeleteCartById(cartId);
             return new ResponsesViewModel(){
                 IsSuccess = true,
                 Message = "cart updated successfully"
@@ -872,7 +884,7 @@ public class ProductService : IProductService
                     Message = "user not found! please login first"
                 };
             }
-            List<productAtCartViewModel>? products = _productRepository.GetproductAtCart(user.UserId);
+            List<productAtCartViewModel>? products = _cartRepository.GetproductAtCart(user.UserId);
             if(products != null && products.Any())
             {
                 foreach (productAtCartViewModel product in products)

@@ -25,14 +25,7 @@ public interface IProductRepository
     /// <param name="userId"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    List<Product>? GetSellerSpecificProducts(int userId);
-
-
-    /// <summary>
-    /// method for adding range of features into feature table
-    /// </summary>
-    /// <param name="features"></param>
-    void AddFeaturesRange(List<Feature> features);  
+    List<Product>? GetSellerSpecificProducts(int userId); 
 
     /// <summary>
     /// get product by id
@@ -49,13 +42,6 @@ public interface IProductRepository
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     void DeleteProduct(Product product);  
-
-    /// <summary>
-    /// method for getting features of perticular product by product id
-    /// </summary>
-    /// <param name="productId"></param>
-    /// <returns></returns>
-    List<Feature>? GetFeaturesByProductId(int productId);
 
     /// <summary>
     /// method for getting details of product for edit product
@@ -76,18 +62,6 @@ public interface IProductRepository
     /// <param name="product"></param>
     void updateProducts(Product product);
 
-    /// <summary>
-    /// hard delete on features
-    /// </summary>
-    /// <param name="feature"></param>
-    void DeleteFeature(Feature feature);
-
-    /// <summary>
-    /// method for updating range of features 
-    /// </summary>
-    /// <param name="features"></param>
-    /// <exception cref="Exception"></exception>
-    void updateFeaturesRange(List<Feature> features);
 
     /// <summary>
     /// method for get all product with search filters
@@ -107,79 +81,12 @@ public interface IProductRepository
     Task<productDetailsByproductIdViewModel?> GetProductDetailsByProductId(int productId);
 
     /// <summary>
-    /// method for fetch favourites by user and product id
-    /// </summary>
-    /// <param name="UserId"></param>
-    /// <param name="ProductId"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    Favourite? GetFavouriteByIds(int UserId,int ProductId);
-
-    /// <summary>
-    /// method for dropping favourite tupple from db
-    /// </summary>
-    /// <param name="favourite"></param>
-    /// <exception cref="Exception"></exception>
-    void dropFavourite(Favourite favourite);
-
-    /// <summary>
-    /// method for add tupple in favourite
-    /// </summary>
-    /// <param name="favourite"></param>
-    /// <exception cref="Exception"></exception>
-    void AddFavourite(Favourite favourite);
-
-    /// <summary>
-    /// method for get favourite tupples from db by user id
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>    
-    List<int> GetFavouriteByUserId(int userId);
-
-    /// <summary>
     /// method for getting products which are user's favourite
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     Task<List<ProductsDeatailsViewModel>?> GetFavouriteProductsByUserId(int userId);
-
-    /// <summary>
-    /// method for add in cart
-    /// </summary>
-    /// <param name="cart"></param>
-    /// <exception cref="Exception"></exception>
-    void AddToCart(Cart cart);
-
-    /// <summary>
-    /// method which gets cart data based on user
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    List<productAtCartViewModel> GetproductAtCart(int userId);
-
-    /// <summary>
-    /// method for updating cart's quantity only
-    /// </summary>
-    /// <param name="cartId"></param>
-    /// <param name="quantity"></param>
-    /// <exception cref="Exception"></exception>
-    void UpdateCartById(int cartId,int quantity);
-
-    /// <summary>
-    /// soft delete method for updating delete boolean = true
-    /// </summary>
-    /// <param name="cartId"></param>
-    /// <exception cref="Exception"></exception>
-    void DeleteCartById(int cartId);
-
-    /// <summary>
-    /// soft delete implementation for cart items 
-    /// </summary>
-    /// <param name="cartIds"></param>
-    /// <exception cref="Exception"></exception>
-    void DeleteCartByIdsRange(List<int> cartIds);
 
     /// <summary>
     /// method for updating product details
@@ -193,15 +100,6 @@ public interface IProductRepository
     /// </summary>
     /// <param name="review"></param>
     void AddReview(Review review);
-
-    /// <summary>
-    /// method for getting cart by user id and product id
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="productId"></param>
-    /// <returns>Cart</returns>
-    Cart? GetCartByUserIdAndProductId(int userId, int productId);
-    
 
     /// <summary>
     /// method for getting products for offer by user id

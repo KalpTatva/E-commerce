@@ -69,22 +69,6 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    /// <summary>
-    /// method for adding range of features into feature table
-    /// </summary>
-    /// <param name="features"></param>
-    public void AddFeaturesRange(List<Feature> features)
-    {
-        try
-        {
-            _context.Features.AddRange(features);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
 
     /// <summary>
     /// get product by id
@@ -126,23 +110,6 @@ public class ProductRepository : IProductRepository
         }
     }
 
-
-    /// <summary>
-    /// method for getting features of perticular product by product id
-    /// </summary>
-    /// <param name="productId"></param>
-    /// <returns></returns>
-    public List<Feature>? GetFeaturesByProductId(int productId)
-    {
-        try
-        {
-            return _context.Features.Where(x => x.ProductId == productId).OrderByDescending(x => x.FeatureId).ToList();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
 
     /// <summary>
     /// method for getting details of product for edit product
@@ -209,23 +176,6 @@ public class ProductRepository : IProductRepository
         }
     }
     
-    /// <summary>
-    /// hard delete on features
-    /// </summary>
-    /// <param name="feature"></param>
-    public void DeleteFeature(Feature feature)
-    {
-        try
-        {
-            _context.Features.Remove(feature);
-            _context.SaveChanges();
-
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
 
     /// <summary>
     /// method for update product details
@@ -244,41 +194,6 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    /// <summary>
-    /// method for add new feature
-    /// </summary>
-    /// <param name="product"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddFeature(Product product)
-    {
-        try
-        {
-            _context.Products.Add(product);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// method for updating range of features 
-    /// </summary>
-    /// <param name="features"></param>
-    /// <exception cref="Exception"></exception>
-    public void updateFeaturesRange(List<Feature> features)
-    {
-        try
-        {
-            _context.Features.UpdateRange(features);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
 
 
     /// <summary>
@@ -434,220 +349,9 @@ public class ProductRepository : IProductRepository
         {
             throw new Exception(e.Message);
         }
-    }
+    }    
 
-    /// <summary>
-    /// method for fetch favourites by user and product id
-    /// </summary>
-    /// <param name="UserId"></param>
-    /// <param name="ProductId"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    public Favourite? GetFavouriteByIds(int UserId,int ProductId)
-    {
-        try
-        {
-            return _context.Favourites.FirstOrDefault(f => f.UserId == UserId && f.ProductId == ProductId);
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// method for dropping favourite tupple from db
-    /// </summary>
-    /// <param name="favourite"></param>
-    /// <exception cref="Exception"></exception>
-    public void dropFavourite(Favourite favourite)
-    {
-        try
-        {
-            _context.Favourites.Remove(favourite);
-            _context.SaveChanges();
-
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
     
-    /// <summary>
-    /// method for add tupple in favourite
-    /// </summary>
-    /// <param name="favourite"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddFavourite(Favourite favourite)
-    {
-        try
-        {
-            _context.Favourites.Add(favourite);
-            _context.SaveChanges();
-
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// method for get favourite tupples from db by user id
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    public List<int> GetFavouriteByUserId(int userId)
-    {
-        try
-        {
-            return _context.Favourites.Where(f => f.UserId == userId).Select(x => x.ProductId).ToList();
-
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-    
-
-    /// <summary>
-    /// method for add in cart
-    /// </summary>
-    /// <param name="cart"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddToCart(Cart cart)
-    {
-        try
-        {
-            _context.Carts.Add(cart);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-    /// <summary>
-    /// method which gets cart data based on user
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    public List<productAtCartViewModel> GetproductAtCart(int userId)
-    {
-        try
-        {
-            List<productAtCartViewModel>? query = (
-                from product in _context.Products
-                join cart in _context.Carts on product.ProductId equals cart.ProductId
-                where product.IsDeleted == false && cart.IsDeleted == false &&  cart.UserId == userId
-                orderby cart.CartId descending
-                select new productAtCartViewModel
-                {
-                    CartId = cart.CartId,
-                    ProductId = product.ProductId,
-                    ProductName = product.ProductName,
-                    Price = product.Price,
-                    Stocks = product.Stocks,
-                    Quantity = cart.Quantity,
-                    DiscountType = product.DiscountType,
-                    Discount = product.Discount,
-                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
-                    Offer = _context.Offers
-                        .Where(o => o.ProductId == product.ProductId && 
-                                    o.StartDate.Date <= DateTime.Now.Date && 
-                                    o.EndDate.Date > DateTime.Now.Date)
-                        .FirstOrDefault()
-                }).ToList();
-            
-            return query;
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-    /// <summary>
-    /// method for updating cart's quantity only
-    /// </summary>
-    /// <param name="cartId"></param>
-    /// <param name="quantity"></param>
-    /// <exception cref="Exception"></exception>
-    public void UpdateCartById(int cartId,int quantity)
-    {
-        try
-        {
-            Cart? cart = _context.Carts.Where(c => c.CartId == cartId).FirstOrDefault();
-            if(cart!=null)
-            {
-                cart.Quantity = quantity;
-                _context.Carts.Update(cart);
-                _context.SaveChanges();
-            }
-        
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// soft delete method for updating delete boolean = true
-    /// </summary>
-    /// <param name="cartId"></param>
-    /// <exception cref="Exception"></exception>
-    public void DeleteCartById(int cartId)
-    {
-        try
-        {
-            Cart? cart = _context.Carts.Where(c => c.CartId == cartId).FirstOrDefault();
-            if(cart!=null)
-            {
-                cart.IsDeleted = true;
-                cart.DeletedAt = DateTime.Now;
-                _context.Carts.Update(cart);
-                _context.SaveChanges();
-            }
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// soft delete implementation for cart items 
-    /// </summary>
-    /// <param name="cartIds"></param>
-    /// <exception cref="Exception"></exception>
-    public void DeleteCartByIdsRange(List<int> cartIds)
-    {
-        try
-        {
-            List<Cart>? carts = _context.Carts.Where(c => cartIds.Contains(c.CartId)).ToList();
-            if(carts!=null)
-            {
-                foreach(Cart cart in carts)
-                {
-                    cart.IsDeleted = true;
-                    cart.DeletedAt = DateTime.Now;
-                }
-                _context.Carts.UpdateRange(carts);
-                _context.SaveChanges();
-            }
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
 
     /// <summary>
     /// method for updating product details
@@ -677,25 +381,6 @@ public class ProductRepository : IProductRepository
         {
             _context.Reviews.Add(review);
             _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-    /// <summary>
-    /// method for getting cart by user id and product id
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="productId"></param>
-    /// <returns>Cart</returns>
-    public Cart? GetCartByUserIdAndProductId(int userId, int productId)
-    {
-        try
-        {
-            return _context.Carts.FirstOrDefault(c => c.UserId == userId && c.ProductId == productId && c.IsDeleted == false);
         }
         catch(Exception e)
         {

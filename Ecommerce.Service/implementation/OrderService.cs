@@ -15,7 +15,7 @@ public class OrderService : IOrderService
     private readonly IProductRepository _productRepository;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IUserRepository _userRepository;
-
+    private readonly ICartRepository _cartRepository;
     private readonly EcommerceContext _context;
     private readonly IOrderRepository _orderRepository;
 
@@ -23,6 +23,7 @@ public class OrderService : IOrderService
     IProductRepository productRepository, 
     IWebHostEnvironment webHostEnvironment,
     IUserRepository userRepository,
+    ICartRepository cartRepository,
     EcommerceContext context,
     IOrderRepository orderRepository)
     {
@@ -31,6 +32,7 @@ public class OrderService : IOrderService
         _userRepository = userRepository; 
         _orderRepository = orderRepository;
         _context = context;
+        _cartRepository = cartRepository;
     }
 
     /// <summary>
@@ -229,7 +231,7 @@ public class OrderService : IOrderService
                 }
 
                 // Mark cart items as deleted
-                _productRepository.DeleteCartByIdsRange(objSession.orders ?? new List<int>());
+                _cartRepository.DeleteCartByIdsRange(objSession.orders ?? new List<int>());
 
                 await transaction.CommitAsync();
 

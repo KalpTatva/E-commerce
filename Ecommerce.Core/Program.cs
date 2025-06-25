@@ -31,6 +31,9 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
 builder.Services.AddScoped(typeof(IProductRepository), typeof(ProductRepository));
 builder.Services.AddScoped(typeof(IOrderRepository), typeof(OrderRepository));
+builder.Services.AddScoped(typeof(IFeatureRepository), typeof(FeatureRepository));
+builder.Services.AddScoped(typeof(IFavouriteRepository), typeof(FavouriteRepository));
+builder.Services.AddScoped(typeof(ICartRepository), typeof(CartRepository));
 
 // Add session services
 builder.Services.AddDistributedMemoryCache();
