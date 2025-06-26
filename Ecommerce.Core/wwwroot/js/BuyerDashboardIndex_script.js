@@ -4,6 +4,25 @@ $(document).ready(function () {
     let categoryInput= null;
     let searchInput = null;
 
+    // signalR connection for real-time updates
+    // hub connection 
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notificationHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    // start connection
+    connection.start()
+        .then(() => console.log("SignalR Connected"))
+        .catch(err => console.error(err.toString()));
+
+    // receive notification
+    connection.on("ReceiveNotification", function (message) {
+        //fetcch products 
+        FetchProducts(categoryInput, searchInput);
+    });
+
+
     // function for getting product on page
     function FetchProducts(categoryInput, searchInput) {
         $(".loader3").show();

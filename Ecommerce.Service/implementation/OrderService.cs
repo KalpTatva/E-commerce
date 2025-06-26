@@ -169,12 +169,15 @@ public class OrderService : IOrderService
                 };
                 _orderRepository.AddOrder(order);
 
+                
                 // Add order details in orderproduct
                 List<OrderProduct> orderProducts = new();
                 foreach (productAtOrderViewModel model in orderList)
                 {
                     decimal price = model.Price;
                     decimal discount = 0;
+                    int quantity = model.Quantity;
+                    
                     if (model.DiscountType == (int)DiscountEnum.FixedAmount)
                     {
                         discount = (model.Discount ?? 0) * model.Quantity;
@@ -188,7 +191,7 @@ public class OrderService : IOrderService
 
 
                     // If there's an offer, apply it
-                    if (model.Offer != null && model.Offer.DiscountRate > 0)
+                    if (model.Offer != null && model.Offer.DiscountRate != null)
                     {
 
                         switch (model.Offer.OfferType)
@@ -200,10 +203,10 @@ public class OrderService : IOrderService
                             case (int)OfferTypeEnum.FixedPrice:
                                 price -= (model.Offer.DiscountRate ?? 0) * model.Quantity;
                                 discount += (model.Offer.DiscountRate ?? 0) * model.Quantity;
-                            break;
+                            break; 
                             case (int)OfferTypeEnum.BOGO:
-                                model.Quantity = model.Quantity * 2; // Buy one get one free logic
-                            break;
+                                quantity = model.Quantity * 2;
+                                break;
                             default:
                                 break;
                         }
@@ -213,7 +216,7 @@ public class OrderService : IOrderService
                     {
                         OrderId = order.OrderId,
                         ProductId = model.ProductId,
-                        Quantity = model.Quantity,
+                        Quantity = quantity,
                         PriceWithDiscount = price
                     });
                 }

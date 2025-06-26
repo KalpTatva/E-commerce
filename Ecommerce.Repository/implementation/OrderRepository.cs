@@ -47,7 +47,6 @@ public class OrderRepository : IOrderRepository
                         .Where(o => o.ProductId == product.ProductId &&
                                     o.StartDate.Date <= DateTime.Now.Date && 
                                     o.EndDate.Date > DateTime.Now.Date)
-                        .OrderByDescending(o => o.OfferId)
                         .FirstOrDefault()
                 }).ToListAsync();
 
@@ -90,7 +89,6 @@ public class OrderRepository : IOrderRepository
                         .Where(o => o.ProductId == product.ProductId &&
                                     o.StartDate.Date <= DateTime.Now.Date && 
                                     o.EndDate.Date > DateTime.Now.Date)
-                        .OrderByDescending(o => o.OfferId)
                         .FirstOrDefault()
                 }).ToListAsync();
 
@@ -114,6 +112,24 @@ public class OrderRepository : IOrderRepository
         try
         {
             _context.Orders.Add(order);
+            _context.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Method to update an existing order in the database.
+    /// </summary>
+    /// <param name="order"></param>
+    /// <exception cref="Exception"></exception>
+    public void updateOrder(Order order)
+    {
+        try
+        {
+            _context.Orders.Update(order);
             _context.SaveChanges();
         }
         catch (Exception e)

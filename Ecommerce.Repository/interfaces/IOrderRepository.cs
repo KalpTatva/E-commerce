@@ -35,6 +35,13 @@ public interface IOrderRepository
     /// <param name="order"></param>
     /// <exception cref="Exception"></exception>
     void AddOrder(Order order);
+
+    /// <summary>
+    /// Method to update an existing order in the database.
+    /// </summary>
+    /// <param name="order"></param>
+    /// <exception cref="Exception"></exception>
+    void updateOrder(Order order);
     
     /// <summary>
     /// Method to add a range of order products to the database.

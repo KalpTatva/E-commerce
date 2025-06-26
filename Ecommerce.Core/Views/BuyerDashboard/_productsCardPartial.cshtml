@@ -34,6 +34,7 @@
                     @{
                         decimal price = 0;
                         decimal discount = 0;
+                        int quantity = 0;
                         if (p.DiscountType == (int)DiscountEnum.FixedAmount)
                         {
                             price = p.Price - p.Discount ?? 0;
@@ -63,8 +64,10 @@
                                     discountOffer = (p.offer.DiscountRate ?? 0);
                                     price = price - discountOffer;
                                     break;
+                                case (int)OfferTypeEnum.BOGO:
+                                    quantity = 2;
+                                    break;
                                 default:
-                                    discount = 0;
                                     break;
                             }
                         }
@@ -73,7 +76,7 @@
                     <span class="text-muted text-decoration-line-through">(@p.Price.ToString("C"))</span>
                     <br />
                     <span class="text-danger">
-                        - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(%)")
+                        - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" + p.Discount  + "%)")
                     </span>
                 </div>
                 <div class="mt-2">
@@ -151,7 +154,7 @@
                             data-product-id="@p.ProductId"
                             data-price="@price"
                             data-discount="@discount"
-                            data-quantity="1"
+                            data-quantity="@quantity"
                         >Buy now</button>
                     }
                     else

@@ -61,20 +61,24 @@
                         @{
                             decimal price = 0;
                             decimal discount = 0;
+                            int quantity = 0;
                             if (product.DiscountType == (int)DiscountEnum.FixedAmount)
                             {
                                 price = product.Price - product.Discount ?? 0;
                                 discount = product.Discount ?? 0;
+                                quantity = product.Quantity;
                             }
                             else if (product.DiscountType == (int)DiscountEnum.Percentage)
                             {
                                 price = product.Price - ((product.Price * product.Discount ?? 0) / 100);
                                 discount = (product.Price * product.Discount ?? 0) / 100;
+                                quantity = product.Quantity;
                             }
                             else
                             {
                                 price = product.Price;
                                 discount = 0;
+                                quantity = product.Quantity;
                             }
 
                             decimal discountOffer = 0;
@@ -90,8 +94,10 @@
                                         discountOffer = (product.Offer.DiscountRate ?? 0);
                                         price = price - discountOffer;
                                         break;
+                                    case (int)OfferTypeEnum.BOGO:
+                                        quantity = product.Quantity * 2;
+                                        break;
                                     default:
-                                        discount = 0;
                                         break;
                                 }
                             }
@@ -109,7 +115,7 @@
                             Quantity
                         </span>
                         <span class="d-flex gap-3 ">
-                            <span class="text-secondary fs-5 quantity-text">@product.Quantity</span>
+                            <span class="text-secondary fs-5 quantity-text">@quantity</span>
                         </span>
                     </div>
                 </div>

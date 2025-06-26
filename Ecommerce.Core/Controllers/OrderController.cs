@@ -94,7 +94,7 @@ public class OrderController : Controller
 
     /// <summary>
     /// Method to view order details
-    /// /// </summary>
+    /// </summary>
     /// <returns>View with order details</returns>
     [Authorize(Roles = "Buyer")]
     [HttpGet]
@@ -108,7 +108,6 @@ public class OrderController : Controller
 
             string? res = CookieUtils.GetCookie(HttpContext, sessionId);
             
-            Console.WriteLine($"Cookie Data Retrieved: {res}");
 
             if (res == null)
             {
@@ -158,7 +157,6 @@ public class OrderController : Controller
             
             string? res = CookieUtils.GetCookie(HttpContext, SessionId);
             
-            Console.WriteLine($"Cookie Data Retrieved: {res}");
 
             if (res == null)
             {
@@ -203,8 +201,6 @@ public class OrderController : Controller
     
             
             string? res = CookieUtils.GetCookie(HttpContext, SessionId);
-            
-            Console.WriteLine($"Cookie Data Retrieved: {res}");
 
             if (res == null)
             {
@@ -251,7 +247,6 @@ public class OrderController : Controller
 
             string? res = CookieUtils.GetCookie(HttpContext, sessionId);
             
-            Console.WriteLine($"Cookie Data Retrieved: {res}");
 
             if (res == null)
             {
