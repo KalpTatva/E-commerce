@@ -48,4 +48,29 @@
     });
 
     
+
+    // js for side bar
+
+    var $asidebar = $(".sidebar-dropdown");
+    var $asidebarToggle = $(".E-commerce");
+
+    $(document).on("click", function (e) {
+        if (!$asidebar.is(e.target) && $asidebar.has(e.target).length === 0 && !$asidebarToggle.is(e.target)) {
+            $asidebar.hide();
+        }
+    });
+
+    $asidebarToggle.on("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if($asidebar.is(":visible")) {
+            $asidebar.hide();
+        }else{
+            $asidebar.show();
+        }
+    });
+
+
+
+
 });

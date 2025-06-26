@@ -14,21 +14,25 @@ html {
 
 html {
   position: relative;
-  min-height: 100%;
+  min-height: 100vh;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
-}
+body{
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  min-height: 100vh;
 
+}
 
 .height{
   min-height: 100vh;
 }
 
 .widthOfForms{
-  min-width: 500px ;
+  min-width: 300px;
 }
 
 /* colors */
@@ -52,12 +56,28 @@ html {
   word-wrap: break-word;
 }
 
+/* sidebar style */
+.sidebar-dropdown {
+  display: none;
+  position: absolute;
+  top: 54px !important;
+  left: 0px !important;
+  min-width: 200px;
+  max-width: 250px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  z-index: 9999;
+  padding: 0;
+  animation: fadeIn 0.2s;
+}
+
 
 /* Popup Styles */
 .notification-popup {
   display: none;
-  position: absolute;
-  top: 44px !important;
+  position: absolute !important;
+  top: 67px !important;
   right: 222px !important;
   min-width: 320px;
   max-width: 400px;
@@ -171,6 +191,7 @@ to { opacity: 1; transform: translateY(0);}
 
 .asideBar{
   width: 250px;
+  border-radius: 8px;
   color: white;
 }
 
@@ -444,7 +465,6 @@ to { opacity: 1; transform: translateY(0);}
 
 /* keyframes */
 
-
 @keyframes rotation {
   0% {
     transform: rotate(0deg);
@@ -463,4 +483,32 @@ to { opacity: 1; transform: translateY(0);}
     0%   {clip-path:polygon(50% 50%,0 0,0 0,0 0,0 0,0 0)}
     50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0)}
     75%, 100%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
+}
+
+.mainDiv{
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  width: 100%;
+}
+.productImageClass{
+  width: 50%;
+}
+.ProductbodyClass{
+  width: 50%;
+}
+
+
+/* media query */
+
+@media (max-width: 768px) {
+  .productImageClass{
+    width: 100%;
+  }
+  .ProductbodyClass{
+    width: 100%;
+  }
+  .mainDiv{
+    flex-direction: column;
+  }
 }

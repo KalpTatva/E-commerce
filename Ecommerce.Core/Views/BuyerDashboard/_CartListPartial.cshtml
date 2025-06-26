@@ -29,106 +29,111 @@
                     @Model.TotalQuantity
                 </span>
             </div>
-            <button class="btn btn-danger w-50 mt-3 buy-all-btn"> Buy All </button>
+            <button class="btn btn-danger w-50 mt-3 buy-all-btn">Buy All</button>
         </div>
 
     </div>
 
     foreach (productAtCartViewModel product in Model.ProductsAtCart)
     {
-        <div class="d-flex w-100">
-            <div class="productImageClass d-flex justify-content-center align-items-center  w-50 ">
+
+        <div class=" mt-3 d-flex  flex-column flex-lg-row justify-content-center align-items-center p-3 border rounded-3 bg-white mb-4">
+            <div class="productImageClass d-flex justify-content-center align-items-center w-100 ">
                 <img class="imageClass" src="@Url.Content(product.Images?.ImageUrl)" alt="">
             </div>
-            <div class="CartBody d-flex flex-column justify-content-center align-items-start  w-50">
-                <span class="fs-3 fw-normal ">
-                    @product.ProductName
-                </span>
-                <div class="mt-2">
-                    @{
-                        decimal price = 0;
-                        decimal discount = 0;
-                        if (product.DiscountType == (int)DiscountEnum.FixedAmount)
-                        {
-                            price = product.Price - product.Discount ?? 0;
-                            discount = product.Discount ?? 0;
-                        }
-                        else if (product.DiscountType == (int)DiscountEnum.Percentage)
-                        {
-                            price = product.Price - ((product.Price * product.Discount ?? 0) / 100);
-                            discount = (product.Price * product.Discount ?? 0) / 100;
-                        }
-                        else
-                        {
-                            price = product.Price;
-                            discount = 0;
-                        }
-
-                        decimal discountOffer = 0;
-                        if(product.Offer != null && product.Offer.OfferId > 0)
-                        {
-                            switch (product.Offer.OfferType)
+            <div class="CartBody d-flex flex-column justify-content-center align-items-center w-100">
+                <div>
+                    <span class="fs-3 fw-normal ">
+                        @product.ProductName
+                    </span>
+                    <div class="mt-2">
+                        @{
+                            decimal price = 0;
+                            decimal discount = 0;
+                            if (product.DiscountType == (int)DiscountEnum.FixedAmount)
                             {
-                                case (int)OfferTypeEnum.BOGO:
-                                    <span class="text-success fs-5">Offer: Buy One Get One</span>
-                                    <br/>
-                                    break;
-                                case (int)OfferTypeEnum.Percentage:
-                                    <span class="text-success fs-5">Offer: Percentage Discount @(product.Offer.DiscountRate.HasValue ? product.Offer.DiscountRate.Value.ToString("g") : "N/A") per quantity</span>;
-                                    <br/>
-                                    discountOffer = (price * (product.Offer.DiscountRate ?? 0)) / 100;
-                                    price = price - discountOffer;
-                                    break;
-                                case (int)OfferTypeEnum.FixedPrice:
-                                    <span class="text-success fs-5">Offer: Fixed Discount  @(product.Offer.DiscountRate.HasValue ? product.Offer.DiscountRate.Value.ToString("c") : "N/A") per quantity</span>
-                                    <br/>
-                                    discountOffer = (product.Offer.DiscountRate ?? 0);
-                                    price = price - discountOffer;
-                                    break;
-                                default:
-                                    <span class="text-success fs-5">No Offer Available</span>;
-                                    <br/>
-                                    break;
+                                price = product.Price - product.Discount ?? 0;
+                                discount = product.Discount ?? 0;
+                            }
+                            else if (product.DiscountType == (int)DiscountEnum.Percentage)
+                            {
+                                price = product.Price - ((product.Price * product.Discount ?? 0) / 100);
+                                discount = (product.Price * product.Discount ?? 0) / 100;
+                            }
+                            else
+                            {
+                                price = product.Price;
+                                discount = 0;
+                            }
+
+                            decimal discountOffer = 0;
+                            if(product.Offer != null && product.Offer.OfferId > 0)
+                            {
+                                switch (product.Offer.OfferType)
+                                {
+                                    case (int)OfferTypeEnum.BOGO:
+                                        <span class="text-success fs-5">Offer: Buy One Get One</span>
+                                        <br/>
+                                        break;
+                                    case (int)OfferTypeEnum.Percentage:
+                                        <span class="text-success fs-5">Offer: Percentage Discount @(product.Offer.DiscountRate.HasValue ? product.Offer.DiscountRate.Value.ToString("g") : "N/A") per quantity</span>;
+                                        <br/>
+                                        discountOffer = (price * (product.Offer.DiscountRate ?? 0)) / 100;
+                                        price = price - discountOffer;
+                                        break;
+                                    case (int)OfferTypeEnum.FixedPrice:
+                                        <span class="text-success fs-5">Offer: Fixed Discount  @(product.Offer.DiscountRate.HasValue ? product.Offer.DiscountRate.Value.ToString("c") : "N/A") per quantity</span>
+                                        <br/>
+                                        discountOffer = (product.Offer.DiscountRate ?? 0);
+                                        price = price - discountOffer;
+                                        break;
+                                    default:
+                                        <span class="text-success fs-5">No Offer Available</span>;
+                                        <br/>
+                                        break;
+                                }
                             }
                         }
-                    }
-                    <span class="display-6 fw-normal">@price.ToString("C")</span>
-                    <span class="text-muted text-decoration-line-through">(@product.Price.ToString("C"))</span>
-                    <br />
-                    <span class="text-danger">
-                        - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == product.DiscountType ? "(Fixed)" : "(%)")
-                    </span>
+                        <span class="display-6 fw-normal">@price.ToString("C")</span>
+                        <span class="text-muted text-decoration-line-through text-nowrap">(@product.Price.ToString("C"))</span>
+                        <br />
+                        <span class="text-danger">
+                            - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == product.DiscountType ? "(Fixed)" : "(%)")
+                        </span>
+                    </div>
                 </div>
-
-                <div class="mt-3 d-flex gap-4 justify-content-center align-items-center">
-                    <span class="fs-6 text-success ">
-                        Quantity
-                    </span>
-                    <span class="d-flex gap-3 ">
-                        <button 
-                            class="btn btn-warning Quantity-minus"  
-                            data-quantity="@product.Quantity"
-                            data-cart-id="@product.CartId"
-                        >
-                            <i class="bi bi-dash "></i>
+                <div>
+                    <div class="mt-3 d-flex gap-4 justify-content-center align-items-center">
+                        <span class="fs-6 text-success ">
+                            Quantity
+                        </span>
+                        <span class="d-flex gap-3 ">
+                            <button 
+                                class="btn btn-warning Quantity-minus"  
+                                data-quantity="@product.Quantity"
+                                data-cart-id="@product.CartId"
+                            >
+                                <i class="bi bi-dash "></i>
+                            </button>
+                            <span class="text-secondary fs-5 quantity-text">@product.Quantity</span>
+                            <button 
+                                class="btn btn-warning Quantity-plus" 
+                                data-quantity="@product.Quantity"
+                                data-cart-id="@product.CartId"
+                            >
+                                <i class="bi bi-plus-lg" ></i>
+                            </button>
+                        </span>
+                    </div>
+                    <div class="d-flex w-100 gap-2">
+                        <button class=" mt-3 RemoveProductFromCart btn btn-secondary BuyProduct" data-cart-id="@product.CartId">
+                            Remove from cart
                         </button>
-                        <span class="text-secondary fs-5 quantity-text">@product.Quantity</span>
-                        <button 
-                            class="btn btn-warning Quantity-plus" 
-                            data-quantity="@product.Quantity"
-                            data-cart-id="@product.CartId"
-                        >
-                            <i class="bi bi-plus-lg" ></i>
-                        </button>
-                    </span>
-                </div>
-                <div class="d-flex w-50 gap-2">
-                    <button class=" mt-3 RemoveProductFromCart btn btn-secondary w-50 BuyProduct" data-cart-id="@product.CartId">
-                        Remove from cart
-                    </button>
+                    </div>
                 </div>
             </div>
         </div>
+        
     }
 
 }

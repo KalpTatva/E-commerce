@@ -30,7 +30,12 @@ public interface IOrderService
     /// <param name="objSession">ObjectSessionViewModel containing order details</param>
     /// <param name="UserId">ID of the user placing the order</param>
     /// <param name="isByProductId">Flag to indicate if the order is by product ID</param>
-    Task<ResponsesViewModel?> PlaceOrder(ObjectSessionViewModel objSession, int UserId, bool isByProductId = false);
+    Task<ResponsesViewModel?> PlaceOrder(
+        ObjectSessionViewModel objSession, 
+        int UserId, 
+        string rzp_paymentid,
+        string rzp_orderid,
+        bool isByProductId = false);
 
     /// <summary>
     /// Method to retrieve the order history for a user based on their email address.
@@ -92,5 +97,8 @@ public interface IOrderService
     /// <param name="email"></param>
     /// <exception cref="Exception"></exception>
     void MarkNotificationAsRead(string email);
+
+
+    PaymentViewModel CreatePayment(int UserId,ObjectSessionViewModel objRes);
 
 }

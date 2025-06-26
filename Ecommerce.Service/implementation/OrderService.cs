@@ -5,6 +5,7 @@ using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using static Ecommerce.Repository.Helpers.Enums;
 
 namespace Ecommerce.Service.implementation;
@@ -18,6 +19,7 @@ public class OrderService : IOrderService
     private readonly ICartRepository _cartRepository;
     private readonly EcommerceContext _context;
     private readonly IOrderRepository _orderRepository;
+    private readonly IConfiguration _configuration;
 
     public OrderService(
     IProductRepository productRepository, 
@@ -25,7 +27,8 @@ public class OrderService : IOrderService
     IUserRepository userRepository,
     ICartRepository cartRepository,
     EcommerceContext context,
-    IOrderRepository orderRepository)
+    IOrderRepository orderRepository,
+    IConfiguration configuration)
     {
         _productRepository = productRepository;
         _webHostEnvironment = webHostEnvironment;
@@ -33,6 +36,7 @@ public class OrderService : IOrderService
         _orderRepository = orderRepository;
         _context = context;
         _cartRepository = cartRepository;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -141,6 +145,8 @@ public class OrderService : IOrderService
     public async Task<ResponsesViewModel?> PlaceOrder(
     ObjectSessionViewModel objSession, 
     int UserId, 
+    string rzp_paymentid,
+    string rzp_orderid,
     bool isByProductId = false)
     {
         try
@@ -166,6 +172,8 @@ public class OrderService : IOrderService
                     Status = (int)OrderStatusEnum.Pending,
                     TotalQuantity = (int)objSession.totalQuantity,
                     TotalDiscount = objSession.totalDiscount,
+                    RzpPaymentId = rzp_paymentid,
+                    RzpOrderId = rzp_orderid,
                 };
                 _orderRepository.AddOrder(order);
 
@@ -558,4 +566,78 @@ public class OrderService : IOrderService
     }
 
 
+    /// <summary>
+    /// razorpay payment gateway helper service
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="objRes"></param>
+    /// <returns></returns>
+    public PaymentViewModel CreatePayment(int UserId,ObjectSessionViewModel objRes)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserById(UserId);
+            Profile? profile = user != null ? _userRepository.GetProfileById(user.ProfileId) : null;
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            
+
+            // generating transaction id
+            string transactionId = Guid.NewGuid().ToString();
+
+            string razorpaySecret = _configuration["Razorpay:Secret"] ?? "";
+            string razorpayKey = _configuration["Razorpay:Key"] ?? "";
+
+            Razorpay.Api.RazorpayClient client = new Razorpay.Api.RazorpayClient(razorpayKey, razorpaySecret);
+            
+            Dictionary<string, object> options = new Dictionary<string, object>();
+            options.Add("amount", (int)((objRes.totalPrice > 0 ? objRes.totalPrice : 0) * 100)); // Amount in paise
+            options.Add("receipt", transactionId);
+            options.Add("currency", "INR");
+            options.Add("payment_capture", "0"); // 0 for authorization only, 1 for automatic capture
+            
+            Razorpay.Api.Order orderResponse = client.Order.Create(options);
+            string orderId2 = orderResponse["id"].ToString();
+
+            PaymentViewModel payment = new PaymentViewModel()
+            {
+                orderId = orderResponse.Attributes["id"],
+                UserId = user.UserId,
+                Amount = ((objRes.totalPrice > 0 ? objRes.totalPrice : 0) * 100), // Amount in paise
+                TotalQuantity = objRes.totalQuantity,
+                TotalDiscount = objRes.totalDiscount,
+                RazorpayKey = _configuration["Razorpay:Key"] ?? "",
+                Currency = _configuration["Razorpay:Currency"] ?? "INR",
+                Name = profile?.FirstName + " " + profile?.LastName,
+                Email = user.Email,
+                PhoneNumber = profile?.PhoneNumber,
+                Address = profile?.Address,
+                Description = "Order Payment for " + (objRes.orders?.Count > 0 ? objRes.orders.Count + " items" : "1 item")
+            };
+
+            return payment;
+
+        }
+        catch{
+            return new PaymentViewModel()
+            {
+                orderId = null,
+                UserId = 0,
+                Amount = 0,
+                TotalQuantity = 0,
+                TotalDiscount = 0,
+                RazorpayKey = string.Empty,
+                Currency = "INR",
+                Name = string.Empty,
+                Email = string.Empty,
+                PhoneNumber = string.Empty,
+                Address = string.Empty,
+                Description = "An error occurred while fetching payment details."
+
+            };
+        }
+    }
 }

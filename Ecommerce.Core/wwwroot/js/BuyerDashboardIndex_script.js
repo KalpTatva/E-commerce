@@ -123,7 +123,8 @@ $(document).ready(function () {
             orders: arrayHelper,
             totalPrice: $(this).data('price'),
             totalDiscount: $(this).data('discount'),
-            totalQuantity:$(this).data('quantity')
+            totalQuantity:$(this).data('quantity'),
+            isByProductId: true,
         };
 
         $.ajax({

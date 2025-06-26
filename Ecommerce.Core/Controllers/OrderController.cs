@@ -7,6 +7,7 @@ using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Razorpay.Api;
 
 namespace Ecommerce.Core.Controllers;
 
@@ -147,7 +148,12 @@ public class OrderController : Controller
     /// <param name="UserId"></param>
     [Authorize(Roles = "Buyer")]
     [HttpPost]
-    public async Task<IActionResult> PlaceOrder(int UserId, string SessionId)
+    public async Task<IActionResult> PlaceOrder(
+        string rzp_paymentid,
+        string rzp_orderid,
+        int UserId, 
+        string SessionId
+    )
     {
         try{
 
@@ -157,11 +163,11 @@ public class OrderController : Controller
             
             string? res = CookieUtils.GetCookie(HttpContext, SessionId);
             
-
             if (res == null)
             {
                 return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
             } 
+
 
             ObjectSessionViewModel? objRes = string.IsNullOrEmpty(res) 
                 ? new ObjectSessionViewModel() 
@@ -172,7 +178,7 @@ public class OrderController : Controller
                 return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
             }
 
-            ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId);
+            ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId, rzp_paymentid, rzp_orderid, objRes.isByProductId);
             if(response!=null && response.IsSuccess)
             {
                 CookieUtils.RemoveCookie(HttpContext, SessionId);
@@ -187,49 +193,6 @@ public class OrderController : Controller
         }
     }
 
-    /// <summary>
-    /// Method to place an order for a single product
-    /// </summary>
-    /// <param name="UserId"></param>
-    [Authorize(Roles = "Buyer")]
-    [HttpPost]
-    public async Task<IActionResult> PlaceOrderFoSingleProduct(int UserId, string SessionId)
-    {
-        try{
-            string? email = BaseValues.GetEmail(HttpContext);
-            string? role = BaseValues.GetRole(HttpContext);
-    
-            
-            string? res = CookieUtils.GetCookie(HttpContext, SessionId);
-
-            if (res == null)
-            {
-                return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
-            } 
-
-            ObjectSessionViewModel? objRes = string.IsNullOrEmpty(res) 
-                ? new ObjectSessionViewModel() 
-                : JsonConvert.DeserializeObject<ObjectSessionViewModel>(res);
-
-            if (objRes == null)
-            {
-                return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
-            }
-
-            ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId,true);
-            if(response!=null && response.IsSuccess)
-            {
-                CookieUtils.RemoveCookie(HttpContext, SessionId);
-                return Json(new {success=true,message=response.Message});
-            }else{
-                return Json(new {success=false,message=response?.Message}); 
-            }
-
-        }
-        catch(Exception e){
-           return Json(new {success=false,message=e.Message}); 
-        }
-    }
 
     /// <summary>
     /// Method to view order details for a single product
@@ -350,6 +313,36 @@ public class OrderController : Controller
         {
             return Json(new { success = false, message = "Invalid order product ID." });
         }
+    }
+
+
+
+
+
+    public IActionResult CreatePayment(int UserId, string SessionId)
+    {
+        
+        // get details from cookie 
+        string? res = CookieUtils.GetCookie(HttpContext, SessionId);
+        if (res == null)
+        {
+            return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
+        } 
+
+        ObjectSessionViewModel? objRes = string.IsNullOrEmpty(res) 
+            ? new ObjectSessionViewModel() 
+            : JsonConvert.DeserializeObject<ObjectSessionViewModel>(res);
+
+        if (objRes == null)
+        {
+            return Json(new{success=false,message="your order's cookie is expired! please reset your order"});
+        }
+        
+        // create payment
+        PaymentViewModel paymentViewModel = _orderService.CreatePayment(UserId, objRes);
+        paymentViewModel.sessionId = SessionId;
+        return View(paymentViewModel);
+    
     }
 
 

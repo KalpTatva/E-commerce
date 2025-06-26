@@ -121,7 +121,8 @@ $(document).ready(function () {
             orders: cartIds,
             totalPrice: $("#TotalPrice").data("totalprice"),
             totalDiscount: $("#TotalDiscount").data("totaldiscount"),
-            totalQuantity: $("#TotalQuantity").data("totalquantity")
+            totalQuantity: $("#TotalQuantity").data("totalquantity"),
+            isByProductId: false,
         };
 
         $.ajax({

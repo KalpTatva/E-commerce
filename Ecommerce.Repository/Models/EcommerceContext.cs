@@ -312,6 +312,12 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.IsDeleted)
                 .HasDefaultValue(false)
                 .HasColumnName("is_deleted");
+            entity.Property(e => e.RzpOrderId)
+                .HasColumnType("character varying")
+                .HasColumnName("rzp_order_id");
+            entity.Property(e => e.RzpPaymentId)
+                .HasColumnType("character varying")
+                .HasColumnName("rzp_payment_id");
             entity.Property(e => e.Status)
                 .HasDefaultValue(1)
                 .HasColumnName("status");

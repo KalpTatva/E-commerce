@@ -25,6 +25,10 @@ public partial class Order
 
     public decimal TotalDiscount { get; set; }
 
+    public string? RzpPaymentId { get; set; }
+
+    public string? RzpOrderId { get; set; }
+
     public virtual User? Buyer { get; set; }
 
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();

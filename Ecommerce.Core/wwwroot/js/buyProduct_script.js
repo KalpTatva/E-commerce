@@ -20,20 +20,8 @@ $(document).ready(function(){
 
     $(document).on('submit','#SingleOrderDetailsForm',function(e){
         e.preventDefault();
-        $.ajax({
-            url: '/Order/PlaceOrderFoSingleProduct',
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function (response) {
-                if (response.success) {
-                    window.location.href = '/Dashboard/MyOrders';
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                toastr.error('An error occurred while delete the product.');
-            }
-        })
+        var data = $(this).serialize();
+        console.log(data);
+        window.location.href = '/Order/CreatePayment?'+data;
     });
 });

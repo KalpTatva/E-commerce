@@ -7,6 +7,7 @@ public class ObjectSessionViewModel
     public decimal totalPrice {get;set;}
     public decimal totalDiscount {get;set;}
     public decimal totalQuantity {get;set;}
+    public bool isByProductId {get;set;}
    
     // contains list of cartids for multiple product to buy from cart
     // or productid for single product to buy
