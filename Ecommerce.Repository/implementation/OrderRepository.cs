@@ -210,6 +210,26 @@ public class OrderRepository : IOrderRepository
         }
     }
 
+    /// <summary>
+    /// Method to get the count of orders for a seller based on their user ID.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns>int</returns>
+    /// <exception cref="Exception"></exception>
+    public int GetSellersOrderTotalCount(int userId)
+    {
+        try
+        {
+            return _context.OrderProducts
+                .Where(op => op.Product.SellerId == userId && op.IsDeleted == false)
+                .Count();
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
 
     /// <summary>
     /// Method to get the seller's orders.
@@ -218,7 +238,9 @@ public class OrderRepository : IOrderRepository
     /// <param name="userId"></param>
     /// <returns>It returns a list of SellerOrderViewModel objects containing order and buyer details.</returns>
     /// <exception cref="Exception"></exception>
-    public async Task<List<SellerOrderViewModel>?> GetSellerOrders(int userId)
+    /// 
+    
+    public async Task<List<SellerOrderViewModel>?> GetSellerOrders(int userId, int pageNumber = 1, int pageSize = 5)
     {
         try
         {
@@ -261,6 +283,8 @@ public class OrderRepository : IOrderRepository
                                 .FirstOrDefault()
 
                     }))
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             return query;

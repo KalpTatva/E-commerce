@@ -54,7 +54,7 @@ public interface IOrderService
     /// </summary>
     /// <param name="email">Seller's email address</param>
     /// <returns>List of SellerOrderViewModel containing seller's order details</returns>
-    Task<List<SellerOrderViewModel>?> GetSellerOrders(string email);
+    Task<List<SellerOrderViewModel>?> GetSellerOrders(string email, int pageNumber = 1, int pageSize = 5);
 
 
     /// <summary>
@@ -66,6 +66,14 @@ public interface IOrderService
     /// <param name="status">New status for the order (e.g., "pending", "shipped", "delivered", "cancelled")</param>
     /// <returns>ResponsesViewModel indicating success or failure of the operation</returns>
     ResponsesViewModel UpdateOrderStatus(int orderId, string status);
+
+    /// <summary>
+    /// Method to get the total count of orders for a seller based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>int: count of orders</returns>
+    /// <exception cref="Exception"></exception>
+    int GetSellersOrderTotalCount(string email);
 
     /// <summary>
     /// method for adding new offer to the product

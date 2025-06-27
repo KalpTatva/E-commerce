@@ -2,6 +2,7 @@ namespace Ecommerce.Repository.ViewModels;
 
 public class SellerOrderListViewModel : BaseViewModel
 {
+    public int TotalCount { get; set; }
     public List<SellerOrderViewModel> SellerOrders { get; set; } = new List<SellerOrderViewModel>();
 }
 public class SellerOrderViewModel

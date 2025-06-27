@@ -68,7 +68,7 @@ public interface IOrderRepository
     /// <param name="userId"></param>
     /// <returns>It returns a list of SellerOrderViewModel objects containing order and buyer details.</returns>
     /// <exception cref="Exception"></exception>
-    Task<List<SellerOrderViewModel>?> GetSellerOrders(int userId);
+    Task<List<SellerOrderViewModel>?> GetSellerOrders(int userId, int pageNumber = 1, int pageSize = 5);
 
     /// <summary>
     /// Method to get an order by its ID.
@@ -92,6 +92,14 @@ public interface IOrderRepository
     /// This method adds a new offer to the Offers table and saves changes to the database.
     /// </summary>
     void AddOffer(Offer offer);
+
+    /// <summary>
+    /// Method to get the count of orders for a seller based on their user ID.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns>int</returns>
+    /// <exception cref="Exception"></exception>
+    int GetSellersOrderTotalCount(int userId);
 
 
 }

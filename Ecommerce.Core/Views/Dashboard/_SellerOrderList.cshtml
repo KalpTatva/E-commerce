@@ -5,12 +5,12 @@
 
 @if (Model.SellerOrders != null && Model.SellerOrders.Any())
 {
-    <div class=" container  d-flex bg-white border rounded-3 align-items-center flex-column">
+    <div id="TableContainer" class=" container d-flex align-items-center flex-column" data-total-items="@Model.TotalCount">
+        
         <div class="p-3 overflow-handler w-100">
             <table class="table table-striped border table-hover table-responsive">
                 <thead>
                     <tr class="text-nowrap">
-                        <th>ID</th>
                         <th>Order ID</th>
                         <th>Customer Email</th>
                         <th>Delivery Address</th>
@@ -24,11 +24,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @{int count = Model.SellerOrders.Count;}
                     @foreach (var order in Model.SellerOrders)
                     {
                         <tr class="">
-                            <td>@count @{count--;}</td>
                             <td>@order.OrderId</td>
                             <td>@order.BuyerEmail</td>
                             <td class="address-class">@order.Address</td>

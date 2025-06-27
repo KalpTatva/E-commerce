@@ -170,17 +170,21 @@ public class DashboardController : Controller
     /// </summary>
     [Authorize(Roles = "Seller")]
     [HttpGet]
-    public async Task<IActionResult> GetSellerOrders()
+    public async Task<IActionResult> GetSellerOrders(
+        int pageNumber = 1, 
+        int pageSize = 5
+    )
     {   
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
 
-        List<SellerOrderViewModel>? model = await _orderService.GetSellerOrders(email ?? "");
-
+        List<SellerOrderViewModel>? model = await _orderService.GetSellerOrders(email ?? "", pageNumber, pageSize);
+        int TotalOrders = _orderService.GetSellersOrderTotalCount(email ?? "");
         SellerOrderListViewModel sellerOrderListViewModel = new SellerOrderListViewModel
         {
             BaseEmail = email,
             BaseRole = role,
+            TotalCount = TotalOrders,
             SellerOrders = model ?? new List<SellerOrderViewModel>()
         };
         return PartialView("_SellerOrderList", sellerOrderListViewModel);   

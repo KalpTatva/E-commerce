@@ -356,6 +356,36 @@ to { opacity: 1; transform: translateY(0);}
   background-color: #cf0b0bcb;
 }
 
+/* pagging helper */
+
+
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  min-width: 50px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.page-size-option {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.page-size-option:hover {
+  background-color: #f0f0f0;
+}
+
+
 /* cards css */
 .card{
   background-color: #fff;

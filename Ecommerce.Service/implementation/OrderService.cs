@@ -336,7 +336,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="email">Seller's email address</param>
     /// <returns>List of SellerOrderViewModel containing seller's order details</returns>
-    public async Task<List<SellerOrderViewModel>?> GetSellerOrders(string email)
+    public async Task<List<SellerOrderViewModel>?> GetSellerOrders(string email, int pageNumber = 1, int pageSize = 5)
     {
         try
         {
@@ -345,12 +345,35 @@ public class OrderService : IOrderService
             {
                 throw new Exception("User not found");
             }
-            List<SellerOrderViewModel>? sellerOrders = await _orderRepository.GetSellerOrders(user.UserId);
+            List<SellerOrderViewModel>? sellerOrders = await _orderRepository.GetSellerOrders(user.UserId, pageNumber, pageSize);
             return sellerOrders ?? new List<SellerOrderViewModel>();
         }
         catch
         {
             return new List<SellerOrderViewModel>();
+        }
+    }
+
+    /// <summary>
+    /// Method to get the total count of orders for a seller based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>int: count of orders</returns>
+    /// <exception cref="Exception"></exception>
+    public int GetSellersOrderTotalCount(string email)
+    {
+        try
+        {
+            User? user = _userRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            return _orderRepository.GetSellersOrderTotalCount(user.UserId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
         }
     }
 
