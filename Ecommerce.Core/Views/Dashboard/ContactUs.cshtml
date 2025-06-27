@@ -60,41 +60,9 @@
         <script>
             window.successMessage = '@TempData["SuccessMessage"]';
             window.errorMessage = '@TempData["ErrorMessage"]';
-            $(".sendMessage").show();
-            $(".loader2").hide();
-            $(document).ready(function () {
-            function fetchProductName() {
-                $.ajax({
-                    url: '/Dashboard/GetProducts',
-                    type: 'GET',
-                    success: function (data) {
-                        console.log(data);
-                        var productSelect = $('#ProductId');
-                        productSelect.empty();
-                        productSelect.append('<option value="">Select Product</option>');
-                        $.each(data.products, function (index, product) {
-                            productSelect.append($('<option>', {
-                                value: product.id,
-                                text: product.name
-                            }));
-                        });
-                    },
-                    error: function () {
-                        toastr.error('Failed to load products.');
-                    }
-                });
-            }
-
-            $(document).on('submit', '#contactUsForm', function () {
-                $(".sendMessage").hide();
-                $(".loader2").show();
-            });
-
-            fetchProductName();
-
             
-            
-        });
+
         </script>
         <script src="~/js/toastr_script.js"></script>
+        <script src="~/js/contactUs_script.js"></script>
 }

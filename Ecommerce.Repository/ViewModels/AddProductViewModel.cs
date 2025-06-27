@@ -8,9 +8,11 @@ public class AddProductViewModel : BaseViewModel
     public int ProductId { get; set; }
 
     [Required(ErrorMessage = "product name is required")]
+    [RegularExpression(@"^[a-zA-Z0-9\s]+$", ErrorMessage = "product name must be alphanumeric and can contain spaces")]
     public string ProductName { get; set; } = null!;
 
     [Required(ErrorMessage = "product description is required")]
+    [RegularExpression(@"^[a-zA-Z0-9\s,.!+-/*#?]+$", ErrorMessage = "product description must be alphanumeric and can contain spaces and punctuation")]
     public string Description { get; set; } = null!;
 
     [Required(ErrorMessage = "please select the category")]

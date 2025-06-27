@@ -20,16 +20,16 @@ public class UserService : IUserService
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
     private readonly IConfiguration _configuration;
-
+    private readonly INotificationRepository _notificationRepository;
     private readonly IEmailService _emailService;
-
 
     public UserService(
         IUserRepository userRepository,
         IConfiguration configuration,
         IEmailService emailService,
         IOrderRepository orderRepository,
-        IProductRepository productRepository
+        IProductRepository productRepository,
+        INotificationRepository notificationRepository
         )
     {
         _userRepository = userRepository;
@@ -37,6 +37,7 @@ public class UserService : IUserService
         _emailService = emailService;
         _orderRepository = orderRepository;
         _productRepository = productRepository;
+        _notificationRepository = notificationRepository;
 
     }
 
@@ -44,7 +45,7 @@ public class UserService : IUserService
     /// service for user login 
     /// </summary>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns>ResponseTokenViewModel</returns>
    public ResponseTokenViewModel UserLogin(LoginViewModel model)
     {
         try
@@ -87,7 +88,7 @@ public class UserService : IUserService
     /// <param name="email"></param>
     /// <param name="expiryTime"></param>
     /// <param name="RoleName"></param>
-    /// <returns></returns>
+    /// <returns>string</returns>
     private string GenerateJwtToken(string email, DateTime expiryTime, string RoleName)
     {
         SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
@@ -118,7 +119,7 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="email"></param>
     /// <param name="role"></param>
-    /// <returns></returns>
+    /// <returns>ResponseTokenViewModel</returns>
     /// <exception cref="Exception"></exception>
     public ResponseTokenViewModel RefreshToken(string email, string role)
     {
@@ -144,7 +145,7 @@ public class UserService : IUserService
     /// method for generating link for reset password
     /// </summary>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public async Task<ResponsesViewModel> ForgotPassword(EmailViewModel email)
     {
         try
@@ -214,7 +215,7 @@ public class UserService : IUserService
     /// method for validate reset password link 
     /// </summary>
     /// <param name="token"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel ValidateResetPasswordToken(string token)
     {
         try
@@ -292,7 +293,7 @@ public class UserService : IUserService
     /// resets password 
     /// </summary>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel ResetPassword(ForgetPasswordViewModel model)
     {
         try
@@ -366,7 +367,7 @@ public class UserService : IUserService
     /// method for registering a new user
     /// </summary>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel RegisterUser(RegisterUserViewModel model)
     {
         try
@@ -380,8 +381,26 @@ public class UserService : IUserService
                     IsSuccess = false,
                     Message = "User with this email already exists"
                 };
+            }  
+            // Validate required fields
+            if(string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.Email))
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "Username, Password and Email are required"
+                };
             }
-            
+            // check if address is valid or not
+            if(model.Address.Trim() == string.Empty || model.Address.Length < 5)
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "Address is required and should be at least 5 characters long"
+                };
+            }
+        
             Profile profile = new Profile 
             {
                 PhoneNumber = model.PhoneNumber,
@@ -427,7 +446,7 @@ public class UserService : IUserService
     /// <summary>
     /// method for getting list of countries
     /// </summary>
-    /// <returns></returns>
+    /// <returns>List<Country></returns>
     /// <exception cref="Exception"></exception>
     public List<Country>? GetCountries()
     {
@@ -446,7 +465,7 @@ public class UserService : IUserService
     /// method for getting states based on country id
     /// </summary>
     /// <param name="countryId"></param>
-    /// <returns></returns>
+    /// <returns> List<State></returns>
     /// <exception cref="Exception"></exception>
     public List<State>? GetStates(int countryId)
     {
@@ -464,7 +483,7 @@ public class UserService : IUserService
     /// method for getting cities based on state id
     /// </summary>
     /// <param name="stateId"></param>
-    /// <returns></returns>
+    /// <returns>List<City>?</returns>
     /// <exception cref="Exception"></exception>
     public List<City>? GetCities(int stateId)
     {
@@ -581,7 +600,7 @@ public class UserService : IUserService
                 Notification1 = $"You have received a new contact message from {model.Name} ({model.SenderEmail}) for product {product?.ProductName}. check your email.",
                 ProductId = model.ProductId
             };
-            _orderRepository.AddNotification(notification);
+            _notificationRepository.AddNotification(notification);
 
             // notification in mapping table of user and notification
             List<UserNotificationMapping> userNotificationMappings = new List<UserNotificationMapping>();
@@ -593,7 +612,7 @@ public class UserService : IUserService
                 CreatedAt = DateTime.Now
             });
 
-            _orderRepository.AddUserNotificationMappingRange(userNotificationMappings);
+            _notificationRepository.AddUserNotificationMappingRange(userNotificationMappings);
 
             // add contact details
             Contactu contact = new Contactu

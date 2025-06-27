@@ -17,7 +17,7 @@ public class FeatureRepository : IFeatureRepository
     /// method for getting features of perticular product by product id
     /// </summary>
     /// <param name="productId"></param>
-    /// <returns></returns>
+    /// <returns>List<Feature></returns>
     public List<Feature>? GetFeaturesByProductId(int productId)
     {
         try
@@ -67,7 +67,7 @@ public class FeatureRepository : IFeatureRepository
     }
 
 
-        /// <summary>
+    /// <summary>
     /// method for updating range of features 
     /// </summary>
     /// <param name="features"></param>

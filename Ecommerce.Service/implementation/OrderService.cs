@@ -19,6 +19,7 @@ public class OrderService : IOrderService
     private readonly ICartRepository _cartRepository;
     private readonly EcommerceContext _context;
     private readonly IOrderRepository _orderRepository;
+    private readonly INotificationRepository _notificationRepository;
     private readonly IConfiguration _configuration;
 
     public OrderService(
@@ -28,6 +29,7 @@ public class OrderService : IOrderService
     ICartRepository cartRepository,
     EcommerceContext context,
     IOrderRepository orderRepository,
+    INotificationRepository notificationRepository,
     IConfiguration configuration)
     {
         _productRepository = productRepository;
@@ -37,6 +39,7 @@ public class OrderService : IOrderService
         _context = context;
         _cartRepository = cartRepository;
         _configuration = configuration;
+        _notificationRepository = notificationRepository;
     }
 
     /// <summary>
@@ -244,6 +247,36 @@ public class OrderService : IOrderService
                 // Mark cart items as deleted
                 _cartRepository.DeleteCartByIdsRange(objSession.orders ?? new List<int>());
 
+
+                // now adding notification for seller after placing order
+                User? user = _userRepository.GetUserById(UserId);
+                string notification = $"New order placed pleace check your dashboard for more details. Order ID: {order.OrderId}"; 
+
+                Notification notificationModel = new Notification()
+                {
+                    Notification1 = notification,
+                    ProductId = orderProducts.Count > 0 ? orderProducts[0].ProductId : 0,
+                    CreatedAt = DateTime.Now
+                };
+                _notificationRepository.AddNotification(notificationModel);
+
+                // adding notification to seller at mapping table 
+                List<UserNotificationMapping> userNotificationMappings = new List<UserNotificationMapping>();
+                foreach (productAtOrderViewModel model in orderList)
+                {
+                    Product? product = _productRepository.GetProductById(model.ProductId);
+                    userNotificationMappings.Add(new UserNotificationMapping()
+                    {
+                        UserId = product?.SellerId ?? 0,
+                        NotificationId = notificationModel.NotificationId,
+                        ReadAll = false,
+                        CreatedAt = DateTime.Now
+                    });
+                }
+                
+                _notificationRepository.AddUserNotificationMappingRange(userNotificationMappings);
+            
+
                 await transaction.CommitAsync();
 
                 return new ResponsesViewModel()
@@ -449,7 +482,7 @@ public class OrderService : IOrderService
                 ProductId = model.ProductId,
                 CreatedAt = DateTime.Now
             };
-            _orderRepository.AddNotification(notification);
+            _notificationRepository.AddNotification(notification);
 
             // next is to get users who have this product in their favourite list
             List<User>? users = _userRepository.GetUsersByProductIdFromFavourite(model.ProductId);
@@ -470,7 +503,7 @@ public class OrderService : IOrderService
                     
                 }
             }
-            _orderRepository.AddUserNotificationMappingRange(userNotificationMapping);        
+            _notificationRepository.AddUserNotificationMappingRange(userNotificationMapping);        
 
             return new ResponsesViewModel()
             {
@@ -503,7 +536,7 @@ public class OrderService : IOrderService
             {
                 throw new Exception("User not found");
             }
-            return _orderRepository.GetNotificationCount(user.UserId);
+            return _notificationRepository.GetNotificationCount(user.UserId);
         }
         catch (Exception e)
         {
@@ -526,7 +559,7 @@ public class OrderService : IOrderService
             {
                 throw new Exception("User not found");
             }
-            return _orderRepository.GetNotificationsByUserId(user.UserId);
+            return _notificationRepository.GetNotificationsByUserId(user.UserId);
         }
         catch (Exception e)
         {
@@ -548,7 +581,7 @@ public class OrderService : IOrderService
             {
                 throw new Exception("User not found");
             }
-            List<UserNotificationMapping>? notifications = _orderRepository.GetUserNotificationMapping(user.UserId);
+            List<UserNotificationMapping>? notifications = _notificationRepository.GetUserNotificationMapping(user.UserId);
             if (notifications != null && notifications.Count > 0)
             {
                 foreach (UserNotificationMapping notification in notifications)
@@ -556,7 +589,7 @@ public class OrderService : IOrderService
                     notification.ReadAll = true;
                     notification.EditedAt = DateTime.Now;
                 }
-                _orderRepository.UpdateNotificationRange(notifications);
+                _notificationRepository.UpdateNotificationRange(notifications);
             }
         }
         catch (Exception e)

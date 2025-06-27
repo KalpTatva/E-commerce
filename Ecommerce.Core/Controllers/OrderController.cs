@@ -1,11 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Ecommerce.Core.Hub;
 using Ecommerce.Core.Utils;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Razorpay.Api;
 
@@ -15,9 +17,14 @@ public class OrderController : Controller
 {
     private readonly IProductService _productService;
     private readonly IOrderService _orderService;
-    public OrderController(IProductService productService, IOrderService orderService)
+    private readonly IHubContext<NotificationHub> _notificationHub;
+    public OrderController(
+        IProductService productService, 
+        IOrderService orderService,
+        IHubContext<NotificationHub> notificationHub)
     {
         _productService = productService;
+        _notificationHub = notificationHub;
         _orderService = orderService;
     }
 
@@ -181,7 +188,10 @@ public class OrderController : Controller
             ResponsesViewModel? response = await _orderService.PlaceOrder(objRes, UserId, rzp_paymentid, rzp_orderid, objRes.isByProductId);
             if(response!=null && response.IsSuccess)
             {
+                // clearing cookie 
                 CookieUtils.RemoveCookie(HttpContext, SessionId);
+                // calling signalR to update order status
+                await _notificationHub.Clients.All.SendAsync("ReceiveNotification", "Order placed successfully");
                 return Json(new {success=true,message=response.Message});
             }else{
                 return Json(new {success=false,message=response?.Message}); 

@@ -56,7 +56,7 @@ public class ProductRepository : IProductRepository
     /// get method for seller specific products
     /// </summary>
     /// <param name="userId"></param>
-    /// <returns></returns>
+    /// <returns>List<Product></returns>
     /// <exception cref="Exception"></exception>
     public List<Product>? GetSellerSpecificProducts(int userId){
         try
@@ -115,7 +115,7 @@ public class ProductRepository : IProductRepository
     /// method for getting details of product for edit product
     /// </summary>
     /// <param name="productId"></param>
-    /// <returns></returns>
+    /// <returns>EditProductViewModel</returns>
     public EditProductViewModel? GetProductDetailsById(int productId)
     {
         try
@@ -203,7 +203,7 @@ public class ProductRepository : IProductRepository
     /// </summary>
     /// <param name="search"></param>
     /// <param name="category"></param>
-    /// <returns></returns>
+    /// <returns>List<ProductsDeatailsViewModel></returns>
     /// <exception cref="Exception"></exception>
     public async Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null)
     {
@@ -252,7 +252,7 @@ public class ProductRepository : IProductRepository
     /// method for getting product details by product id
     /// </summary>
     /// <param name="productId"></param>
-    /// <returns></returns>
+    /// <returns>productDetailsByproductIdViewModel</returns>
     /// <exception cref="Exception"></exception>
     public async Task<productDetailsByproductIdViewModel?> GetProductDetailsByProductId(int productId)
     {
@@ -315,7 +315,7 @@ public class ProductRepository : IProductRepository
     /// method for getting products which are user's favourite
     /// </summary>
     /// <param name="userId"></param>
-    /// <returns></returns>
+    /// <returns>List<ProductsDeatailsViewModel></returns>
     /// <exception cref="Exception"></exception>
     public async Task<List<ProductsDeatailsViewModel>?> GetFavouriteProductsByUserId(int userId)
     {
@@ -444,7 +444,7 @@ public class ProductRepository : IProductRepository
     /// method for getting offer by product id
     /// </summary>
     /// <param name="productId"></param>
-    /// <returns></returns>
+    /// <returns>Offer</returns>
     /// <exception cref="Exception"></exception>
     public Offer? GetOfferByProductId(int productId)
     {
@@ -457,4 +457,6 @@ public class ProductRepository : IProductRepository
             throw new Exception(e.Message);
         }
     }
+
+    
 }

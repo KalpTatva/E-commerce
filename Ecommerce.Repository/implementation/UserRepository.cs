@@ -388,4 +388,6 @@ public class UserRepository : IUserRepository
             throw new Exception("An error occurred while adding contact.", e);
         }
     }
+
+    
 }

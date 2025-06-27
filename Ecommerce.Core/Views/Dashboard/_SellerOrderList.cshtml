@@ -11,6 +11,7 @@
                 <thead>
                     <tr class="text-nowrap">
                         <th>ID</th>
+                        <th>Order ID</th>
                         <th>Customer Email</th>
                         <th>Delivery Address</th>
                         <th>Status</th>
@@ -23,29 +24,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @{int count = 1;}
+                    @{int count = Model.SellerOrders.Count;}
                     @foreach (var order in Model.SellerOrders)
                     {
                         <tr class="">
-                            <td>@count @{count++;}</td>
+                            <td>@count @{count--;}</td>
+                            <td>@order.OrderId</td>
                             <td>@order.BuyerEmail</td>
                             <td class="address-class">@order.Address</td>
                             <td class="">
-                                @if (order.OrderStatus == (int)OrderStatusEnum.Pending)
+                                @switch (order.OrderStatus)
                                 {
-                                    <span class="badge p-2 bg-primary">Pending</span>
-                                }
-                                else if (order.OrderStatus == (int)OrderStatusEnum.Cancelled)
-                                {
-                                    <span class="badge p-2 bg-danger">Canceled</span>
-                                }
-                                else if (order.OrderStatus == (int)OrderStatusEnum.Delivered)
-                                {
-                                    <span class="badge p-2 bg-success">Delivered</span>
-                                }
-                                else
-                                {
-                                    <span class="badge p-2 bg-warning">Shipped</span>
+                                    case (int)OrderStatusEnum.Pending:
+                                        <span class="badge p-2 bg-primary">Pending</span>
+                                        break;
+                                    case (int)OrderStatusEnum.Cancelled:
+                                        <span class="badge p-2 bg-danger">Canceled</span>
+                                        break;
+                                    case (int)OrderStatusEnum.Delivered:
+                                        <span class="badge p-2 bg-success">Delivered</span>
+                                        break;
+                                    default:
+                                        <span class="badge p-2 bg-warning">Shipped</span>
+                                        break;
                                 }
                             </td>
                             <td>@order.ProductName</td>

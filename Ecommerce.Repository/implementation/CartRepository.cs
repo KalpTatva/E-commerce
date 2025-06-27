@@ -35,7 +35,7 @@ public class CartRepository : ICartRepository
     /// method which gets cart data based on user
     /// </summary>
     /// <param name="userId"></param>
-    /// <returns></returns>
+    /// <returns> List<productAtCartViewModel></returns>
     public List<productAtCartViewModel> GetproductAtCart(int userId)
     {
         try
@@ -162,6 +162,28 @@ public class CartRepository : ICartRepository
         try
         {
             return _context.Carts.FirstOrDefault(c => c.UserId == userId && c.ProductId == productId && c.IsDeleted == false);
+        }
+        catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// get product details by cart id
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <returns>product</returns>
+    /// <exception cref="Exception"></exception>
+    public Product? GetProductByCartId(int cartId, int userId)
+    {
+        try{
+            return _context.Carts.Where(c => c.CartId == cartId && c.IsDeleted == false && c.UserId == userId)
+                .Join(_context.Products,
+                    cart => cart.ProductId,
+                    product => product.ProductId,
+                    (cart,product) => product)
+                .FirstOrDefault();
         }
         catch(Exception e)
         {

@@ -127,23 +127,23 @@ public class HomeController : Controller
     }
 
     /// <summary>
-    /// logout method for clearing cookies and session and redirect to home
+    /// logout method for clearing cookies and session and redirect to login page
     /// </summary>
-    /// <returns>redirect to buyer dashboard</returns>
+    /// <returns>redirect to login view</returns>
     public IActionResult Logout()
     {
         try
         {
-            // Invalidate session in database if stored
             // Clear session and cookies
             SessionUtils.ClearSession(HttpContext);
             CookieUtils.ClearCookies(Response, "auth_token");
-
+    
             TempData["SuccessMessage"] = "Logged out successfully!";
-            return RedirectToAction("Index", "BuyerDashboard"); 
+            return RedirectToAction("Index", "Home"); // Redirect to login page
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "An error occurred during logout.");
             TempData["ErrorMessage"] = "An error occurred during logout. Please try again.";
             return RedirectToAction("Index", "Home");
         }
@@ -297,7 +297,7 @@ public class HomeController : Controller
         {
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Invalid user details. Please check your input.";
+                TempData["ErrorMessage"] = "Invalid user details. Please check your input as per Guidlines.";
                 return View(model);
             }
 

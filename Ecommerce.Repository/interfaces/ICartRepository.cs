@@ -48,4 +48,14 @@ public interface ICartRepository
     /// <param name="productId"></param>
     /// <returns>Cart</returns>
     Cart? GetCartByUserIdAndProductId(int userId, int productId);
+
+
+    /// <summary>
+    /// get product details by cart id
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <param name="userId"></param>
+    /// <returns>product</returns>
+    /// <exception cref="Exception"></exception>
+    Product? GetProductByCartId(int cartId,int userId);
 }

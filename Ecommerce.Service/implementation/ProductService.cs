@@ -47,7 +47,7 @@ public class ProductService : IProductService
     /// <param name="model"></param>
     /// <param name="email"></param>
     /// <param name="features"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel AddProduct(AddProductViewModel model, string email, List<Feature> features)
     {
         try
@@ -62,6 +62,41 @@ public class ProductService : IProductService
                     Message = $"Error occurred while adding product"
                 };
             }
+
+            if(model.ProductName.Trim() == string.Empty || model.Description.Trim() == string.Empty)
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Product name and description cannot be empty"
+                };
+            }
+            if(model.Price <= 0 || model.Stocks <= 0)
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Price and stocks must be greater than zero"
+                };
+            }
+            if((int)DiscountEnum.Percentage == model.DiscountType && (model.Discount <= 0 || model.Discount > 100))
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Discount must be between 0 and 100 for percentage discount type"
+                };
+            }
+            if((int)DiscountEnum.FixedAmount == model.DiscountType && (model.Discount <= 0 || model.Discount > model.Price))
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Discount must be greater than zero and less than or equal to price for fixed amount discount type"
+                };
+            }
+
+
             
             // Create a folder for storing product images if it doesn't exist
             string imagesFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "ProductImages");
@@ -137,7 +172,7 @@ public class ProductService : IProductService
     /// get seller specific data from db
     /// </summary>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>List<Product></returns>
     /// <exception cref="Exception"></exception>
     public List<Product>? GetSellerSpecificProductsByEmail(string email)
     {
@@ -159,7 +194,7 @@ public class ProductService : IProductService
     /// soft delete of product
     /// </summary>
     /// <param name="id"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel DeleteProductById(int id)
     {
         try
@@ -198,7 +233,7 @@ public class ProductService : IProductService
     /// method for getting details of product for edit product
     /// </summary>
     /// <param name="productId"></param>
-    /// <returns></returns>
+    /// <returns>EditProductViewModel</returns>
     public EditProductViewModel? GetProductDetailsById(int productId)
     {
         try
@@ -222,11 +257,46 @@ public class ProductService : IProductService
     /// <param name="model"></param>
     /// <param name="features"></param>
     /// <param name="DeletedImageIdList"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel UpdateProductDetails(EditProductViewModel model, List<Feature>? features, List<int>? DeletedImageIdList)
     {
         try
-        {   
+        {  
+            // validaions 
+            if(model.ProductName.Trim() == string.Empty || model.Description.Trim() == string.Empty)
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Product name and description cannot be empty"
+                };
+            }
+            if(model.Price <= 0 || model.Stocks <= 0)
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Price and stocks must be greater than zero"
+                };
+            }
+            if((int)DiscountEnum.Percentage == model.DiscountType && (model.Discount <= 0 || model.Discount > 100))
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Discount must be between 0 and 100 for percentage discount type"
+                };
+            }
+            if((int)DiscountEnum.FixedAmount == model.DiscountType && (model.Discount <= 0 || model.Discount > model.Price))
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Discount must be greater than zero and less than or equal to price for fixed amount discount type"
+                };
+            }
+
+
 
             // image management
             if(DeletedImageIdList != null && DeletedImageIdList.Any())
@@ -399,7 +469,7 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="search"></param>
     /// <param name="category"></param>
-    /// <returns></returns>
+    /// <returns>ProductsViewModel</returns>
     public async Task<ProductsViewModel> GetProducts(string? search = null, int? category = null)
     {
         try
@@ -431,7 +501,7 @@ public class ProductService : IProductService
     /// method for getting user wise favourite products details
     /// </summary>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>ProductsViewModel</returns>
     public async Task<ProductsViewModel> GetFavouriteProducts(string email)
     {
         try
@@ -464,7 +534,7 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="productId"></param>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>productDetailsByproductIdViewModel</returns>
     public async Task<productDetailsByproductIdViewModel?> GetProductById(int productId, string email)
     {
         try
@@ -502,7 +572,7 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="productId"></param>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     /// <exception cref="Exception"></exception>
     public ResponsesViewModel UpdateFavourite(int productId,string? email = null)
     {
@@ -550,7 +620,7 @@ public class ProductService : IProductService
     /// mehtod for getting details of favourite products list by user emails
     /// </summary>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>List<int></returns>
     public List<int> GetFavouritesByEmail(string email)
     {
         try
@@ -711,7 +781,7 @@ public class ProductService : IProductService
     /// <param name="quantity"></param>
     /// <param name="cartId"></param>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>CartUpdatesViewModel</returns>
     /// <exception cref="Exception"></exception>
     public CartUpdatesViewModel UpdateQuantityAtCart(int quantity, int cartId, string email)
     {
@@ -721,6 +791,19 @@ public class ProductService : IProductService
             if(user == null)
             {
                 return new CartUpdatesViewModel();
+            }
+            //need to check weather the quantity exceeds the available stocks
+            Product? product1 = _cartRepository.GetProductByCartId(cartId, user.UserId);
+            if(product1 != null)
+            {
+                if(quantity > product1.Stocks || quantity <= 0)
+                {
+                    throw new Exception($"Product {product1.ProductName} has only {product1.Stocks} stocks available for now! you can add once stocks are updated");
+                }
+            }
+            else
+            {
+                throw new Exception("Product not found in cart!");
             }
 
             // update cart quantity by cartId
@@ -799,7 +882,7 @@ public class ProductService : IProductService
     /// method for delete product from cart (soft delete)
     /// </summary>
     /// <param name="cartId"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel DeleteCartFromList(int cartId)
     {
         try
@@ -827,7 +910,7 @@ public class ProductService : IProductService
     /// <param name="productId"></param>
     /// <param name="reviewText"></param>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel AddReview(int orderProductId,decimal rating, int productId, string reviewText,string email)
     {
         try
@@ -871,7 +954,7 @@ public class ProductService : IProductService
     /// method to check product stock by cart ids
     /// </summary>
     /// <param name="email"></param>
-    /// <returns></returns>
+    /// <returns>ResponsesViewModel</returns>
     public ResponsesViewModel CheckProductStockByCartId(string email)
     {
         try

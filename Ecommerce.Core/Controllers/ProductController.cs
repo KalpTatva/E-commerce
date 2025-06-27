@@ -83,7 +83,7 @@ public class ProductController : Controller
                 }
                 return Json(new { success = false, message = responses.Message });
             }
-            return Json(new { success = false, message = "Invalid model state!" });
+            return Json(new { success = false, message = "Invalid model state! please fill out the inputs properly according to Guidlines" });
         }
         catch (Exception e)
         {

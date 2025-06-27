@@ -8,19 +8,20 @@ public class RegisterUserViewModel
     
     [Required(ErrorMessage = "username is required")]
     [MaxLength(50,ErrorMessage = "limit exceed ")]
+    [RegularExpression(@"^[a-zA-Z0-9._-]+$", ErrorMessage = "Username can only contain letters, numbers, dots, underscores, and hyphens.")]
     public string UserName { get; set; } 
 
     [Required(ErrorMessage = "role is required")]
     public int RoleId { get; set; }
     
     [Required(ErrorMessage = "firstname is required")]
-    [MaxLength(40,ErrorMessage = "limit exceed ")] ///^[a-zA-Z ]*$/
-    [RegularExpression("^[a-zA-Z ]*$", ErrorMessage = "invalid input")]
+    [MaxLength(40,ErrorMessage = "limit exceed ")] ///^[a-zA-Z]*$/
+    [RegularExpression("^[a-zA-Z]*$", ErrorMessage = "name dosen't contain special case")]
     public string FirstName {get;set;}
     
     [Required(ErrorMessage = "lastname is required")]
     [MaxLength(40,ErrorMessage = "limit exceed ")]
-    [RegularExpression("^[a-zA-Z ]*$", ErrorMessage = "name dosen't contain special case")]
+    [RegularExpression("^[a-zA-Z]*$", ErrorMessage = "name dosen't contain special case")]
     public string LastName {get;set;}
 
     [Required(ErrorMessage = "email is required")]

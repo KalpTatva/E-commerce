@@ -17,74 +17,71 @@ $(document).ready(function () {
         })
     }
 
-    function updateQuantityDetails(cartId, quantity) {
+    function updateQuantityDetails(cartId, quantity, onSuccess, onError) {
         $.ajax({
             url: '/BuyerDashboard/UpdateValuesOfCart',
             type: 'PUT',
-            data: {
-                quantity: quantity,
-                cartId: cartId
-            },
+            data: { quantity, cartId },
             success: function (response) {
                 if (response.success) {
                     $("#TotalPrice").html(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(response.totalPrice));
                     $("#TotalDiscount").html(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(response.totalDiscount));
-                    $("#TotalQuantity").html(response.totalQuantity); // Quantity is just a number
-
+                    $("#TotalQuantity").html(response.totalQuantity);
+    
                     $("#TotalPrice").data("totalprice", response.totalPrice);
                     $("#TotalDiscount").data("totaldiscount", response.totalDiscount);
                     $("#TotalQuantity").data("totalquantity", response.totalQuantity);
-
+                    onSuccess();
                 } else {
-                    toastr.error('An error occurred while getting cart', "Error", { timeOut: 4000 });
+                    toastr.error(response.message, "Error", { timeOut: 4000 });
+                    onError();
                 }
             },
             error: function () {
-                toastr.error('An error occurred while getting cart', "Error", { timeOut: 4000 });
+                toastr.error('An error occurred while updating the cart', "Error", { timeOut: 4000 });
+                onError();
             }
-        })
+        });
     }
-
-    $(document).on('click', '.Quantity-minus', function () {
-        var $minusBtn = $(this);
-        var $wrapper = $minusBtn.parent(); // The parent <span class="d-flex gap-3 ">
-        var $qtySpan = $wrapper.find('.quantity-text');
-        var $plusBtn = $wrapper.find('.Quantity-plus');
-
-        var quantity = $(this).data("quantity");
-        var cartId = $(this).data("cart-id");
-        if (quantity <= 1) {
-            toastr.error('value can\'t be less than 1', "Error", { timeOut: 4000 });
+    
+    function handleQuantityChange(button, isIncrement) {
+        const $btn = $(button);
+        const $wrapper = $btn.parent();
+        const $qtySpan = $wrapper.find('.quantity-text');
+        const $minusBtn = $wrapper.find('.Quantity-minus');
+        const $plusBtn = $wrapper.find('.Quantity-plus');
+    
+        let quantity = $btn.data("quantity");
+        const cartId = $btn.data("cart-id");
+    
+        if (!isIncrement && quantity <= 1) {
+            toastr.error('Value can\'t be less than 1', "Error", { timeOut: 4000 });
             return;
         }
-
-        quantity--;
-
-        // Update UI
-        $qtySpan.text(quantity);
-        $minusBtn.data("quantity", quantity);
-        $plusBtn.data("quantity", quantity);
-
-        updateQuantityDetails(cartId, quantity);
+    
+        quantity = isIncrement ? quantity + 1 : quantity - 1;
+    
+        updateQuantityDetails(
+            cartId,
+            quantity,
+            function () {
+                // Success callback: Update UI
+                $qtySpan.text(quantity);
+                $minusBtn.data("quantity", quantity);
+                $plusBtn.data("quantity", quantity);
+            },
+            function () {
+                // Error callback: Do nothing or handle error
+            }
+        );
+    }
+    
+    $(document).on('click', '.Quantity-minus', function () {
+        handleQuantityChange(this, false);
     });
-
+    
     $(document).on('click', '.Quantity-plus', function () {
-        var $plusBtn = $(this);
-        var $wrapper = $plusBtn.parent();
-        var $qtySpan = $wrapper.find('.quantity-text');
-        var $minusBtn = $wrapper.find('.Quantity-minus');
-
-        var quantity = $(this).data("quantity");
-        var cartId = $(this).data("cart-id");
-
-        quantity++;
-
-        // Update UI
-        $qtySpan.text(quantity);
-        $plusBtn.data("quantity", quantity);
-        $minusBtn.data("quantity", quantity);
-
-        updateQuantityDetails(cartId, quantity);
+        handleQuantityChange(this, true);
     });
 
     $(document).on('click', '.RemoveProductFromCart', function () {

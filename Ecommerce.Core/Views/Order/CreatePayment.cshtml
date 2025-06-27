@@ -56,11 +56,13 @@
             }
         };
         var rzp1 = new Razorpay(options);
-
+        
+        // here when the page gets load, cliking on the hidden button which triggers the razorpay 
         window.onload = function () {
             document.getElementById('rzp-button1').click();
         };
 
+        // here on clicking the button, handling the razorpay payment
         document.getElementById('rzp-button1').onclick = function (e) {
             rzp1.open();
             e.preventDefault();

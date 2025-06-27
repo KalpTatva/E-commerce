@@ -17,7 +17,7 @@ public class FavouriteRepository : IFavouriteRepository
     /// </summary>
     /// <param name="UserId"></param>
     /// <param name="ProductId"></param>
-    /// <returns></returns>
+    /// <returns>Favourite</returns>
     /// <exception cref="Exception"></exception>
     public Favourite? GetFavouriteByIds(int UserId,int ProductId)
     {
@@ -76,7 +76,7 @@ public class FavouriteRepository : IFavouriteRepository
     /// method for get favourite tupples from db by user id
     /// </summary>
     /// <param name="userId"></param>
-    /// <returns></returns>
+    /// <returns>List<int></returns>
     /// <exception cref="Exception"></exception>
     public List<int> GetFavouriteByUserId(int userId)
     {

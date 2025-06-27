@@ -9,18 +9,37 @@
     {
         <div class="card " data-product-id="@p.ProductId">
 
-            @if(p.OfferAvailable)
+            @if (p.OfferAvailable)
             {
-                <div class="offer d-flex justify-content-center align-items-center fs-4 text-white">OFFER</div>
+                <div class="offer d-flex justify-content-center align-items-center fs-4 text-white">
+                    OFFER
+
+                </div>
 
             }
-            
-            
             <div class="card-img" data-product-id="@p.ProductId">
                 <img class="imageInCard" src="@Url.Content(p?.Images?.ImageUrl)" alt="">
             </div>
             <div class="card-body">
                 <span class="h4">
+                    @if (p.offer != null && p.offer.ProductId > 0)
+                    {
+                        <span class="bg-warning rounded-2 px-3">
+                            @if (p.offer.OfferType == (int)OfferTypeEnum.Percentage)
+                            {
+                                <span class="text-danger">-@p.offer.DiscountRate %</span>
+                            }
+                            else if (p.offer.OfferType == (int)OfferTypeEnum.FixedPrice)
+                            {
+                                <span class="text-danger">- @((p.offer.DiscountRate ?? 0).ToString("C")) Fixed Discount</span>
+                            }
+                            else if (p.offer.OfferType == (int)OfferTypeEnum.BOGO)
+                            {
+                                <span class="text-danger">Buy 1 Get 1 Free</span>
+                            }
+                        </span>
+                    }
+                    <br />
                     @p.ProductName
                 </span>
                 <div>
@@ -34,7 +53,7 @@
                     @{
                         decimal price = 0;
                         decimal discount = 0;
-                        int quantity = 0;
+                        int quantity = 1;
                         if (p.DiscountType == (int)DiscountEnum.FixedAmount)
                         {
                             price = p.Price - p.Discount ?? 0;
@@ -52,7 +71,7 @@
                         }
 
                         decimal discountOffer = 0;
-                        if(p.offer != null && p.offer.ProductId > 0)
+                        if (p.offer != null && p.offer.ProductId > 0)
                         {
                             switch (p.offer.OfferType)
                             {
@@ -76,12 +95,13 @@
                     <span class="text-muted text-decoration-line-through text-nowrap">(@p.Price.ToString("C"))</span>
                     <br />
                     <span class="text-danger">
-                        - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" + p.Discount  + "%)")
-                    </span>
-                </div>
-                <div class="mt-2">
-                    <span class="text-success fs-5">Features </span>
-                    @if (p.Features != null && p.Features.Any())
+                        - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" +
+                                        p.Discount + "%)")
+            </span>
+        </div>
+        <div class="mt-2">
+            <span class="text-success fs-5">Features </span>
+            @if (p.Features != null && p.Features.Any())
                     {
                         string features = "";
                         foreach (Feature f in p.Features)
@@ -102,46 +122,51 @@
                         <span class="text-success fs-5">Reviews </span>
                         <span>
                             <span class="text-secondary fs-5 mb-2">
-                                    @if (p.AverageRatings > 0)
+                                @if (p.AverageRatings > 0)
+                                {
+                                    int fullStars = (int)p.AverageRatings;
+                                    decimal fractionalStar = p.AverageRatings - fullStars;
+
+                                    for (int i = 0; i < fullStars; i++)
                                     {
-                                        int fullStars = (int)p.AverageRatings;
-                                        decimal fractionalStar = p.AverageRatings - fullStars;
-
-                                        for (int i = 0; i < fullStars; i++)
-                                        {
-                                            <i class="bi bi-star-fill text-warning"></i>
-                                        }
-
-                                        if (fractionalStar >= 0.5m)
-                                        {
-                                            <i class="bi bi-star-half text-warning"></i>
-                                        }
-
-                                        for (int i = fullStars + (fractionalStar >= 0.5m ? 1 : 0); i < 5; i++)
-                                        {
-                                            <i class="bi bi-star text-muted"></i>
-                                        }
+                                        <i class="bi bi-star-fill text-warning"></i>
                                     }
-                                    else
+
+                                    if (fractionalStar >= 0.5m)
                                     {
-                                        <span class="text-muted">No rating</span>
+                                        <i class="bi bi-star-half text-warning"></i>
                                     }
-                                </span>
-                            
+
+                                    for (int i = fullStars + (fractionalStar >= 0.5m ? 1 : 0); i < 5; i++)
+                                    {
+                                        <i class="bi bi-star text-muted"></i>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No rating</span>
+                                }
+                            </span>
+
                         </span>
                     </div>
                     <div>
-                        <div class="addTofavourite" data-product-id="@p.ProductId"
-                            data-is-favourite="@(Model.favourites != null && Model.favourites.Contains(p.ProductId) ? "true" : "false")">
-                            @if (Model.favourites != null && Model.favourites.Contains(p.ProductId))
-                            {
-                                <span><i class="bi bi-heart-fill icons-css text-danger fs-4"></i></span>
-                            }
-                            else
-                            {
-                                <span><i class="bi bi-heart icons-css text-danger fs-4"></i></span>
-                            }
-                        </div>
+                        @if (Model.BaseEmail != null)
+                        {
+                             <div class="addTofavourite" data-product-id="@p.ProductId"
+                                data-is-favourite="@(Model.favourites != null && Model.favourites.Contains(p.ProductId) ? "true" : "false")">
+                                @if (Model.favourites != null && Model.favourites.Contains(p.ProductId))
+                                {
+                                    <span><i class="bi bi-heart-fill icons-css text-danger fs-4"></i></span>
+                                }
+                                else
+                                {
+                                    <span><i class="bi bi-heart icons-css text-danger fs-4"></i></span>
+                                }
+                            </div>
+                        }
+                        
+
                     </div>
                 </div>
 
@@ -149,13 +174,8 @@
                     @if (Model.BaseEmail != null && p.Stocks > 0)
                     {
                         <button class="btn btn-warning rounded-pill AddToCart " data-product-id="@p.ProductId">Add to cart</button>
-                        <button 
-                            class="btn btn-success rounded-pill BuySingleProduct" 
-                            data-product-id="@p.ProductId"
-                            data-price="@price"
-                            data-discount="@discount"
-                            data-quantity="@quantity"
-                        >Buy now</button>
+                        <button class="btn btn-success rounded-pill BuySingleProduct" data-product-id="@p.ProductId"
+                            data-price="@price" data-discount="@discount" data-quantity="@quantity">Buy now</button>
                     }
                     else
                     {
@@ -168,9 +188,9 @@
                             <span class="text-danger fs-5">Out of stock</span>
                         }
                     }
-                    
-                    
-                    
+
+
+
                 </div>
 
             </div>
