@@ -2,6 +2,26 @@ $(".loader3").show();
 $('#OrderContainer').hide();
 
 $(document).ready(function () {
+
+    // signalR connection for real-time updates
+    // hub connection 
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notificationHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    // start connection
+    connection.start()
+        .then(() => console.log("SignalR Connected"))
+        .catch(err => console.error(err.toString()));
+
+    // receive notification
+    connection.on("ReceiveNotification", function (message) {
+        //fetcch orders
+        FetchOrders();
+    });
+
+
     function FetchOrders() {
         $.ajax({
             url: '/Dashboard/GetSellerOrders',
