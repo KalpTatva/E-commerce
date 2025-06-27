@@ -130,6 +130,8 @@ public class ProductRepository : IProductRepository
                              Images = _context.Images.Where(i => i.ProductId == product.ProductId).ToList()
                          }).FirstOrDefault();
 
+            
+
             if (query != null)
             {
                 model.ProductId = query.Product.ProductId;

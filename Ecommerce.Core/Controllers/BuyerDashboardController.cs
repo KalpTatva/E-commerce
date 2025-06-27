@@ -26,8 +26,10 @@ public class BuyerDashboardController : Controller
     public IActionResult Index()
     {
         string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
         BaseViewModel baseViewModel = new () {
-            BaseEmail = email
+            BaseEmail = email,
+            BaseRole = role
         }; 
         return View(baseViewModel);
     }
@@ -61,10 +63,13 @@ public class BuyerDashboardController : Controller
     public async Task<IActionResult> GetFavouriteProducts()
     {
         string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
     
         ProductsViewModel model = await _productService.GetFavouriteProducts(email ?? "");
         List<int> favourites = _productService.GetFavouritesByEmail(email ?? "");
         model.favourites = favourites;
+        model.BaseEmail = email;
+        model.BaseRole = role;
         return PartialView("_productsCardPartial",model);
     }
 
@@ -119,8 +124,10 @@ public class BuyerDashboardController : Controller
     public IActionResult Favourite()
     {
         string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
         BaseViewModel baseViewModel = new () {
-            BaseEmail = email
+            BaseEmail = email,
+            BaseRole = role
         }; 
         return View(baseViewModel);
     }
@@ -135,8 +142,11 @@ public class BuyerDashboardController : Controller
     public IActionResult Cart()
     {
         string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
         BaseViewModel baseViewModel = new () {
-            BaseEmail = email
+            BaseEmail = email,
+            BaseRole = role
+
         }; 
         return View(baseViewModel);
     }
