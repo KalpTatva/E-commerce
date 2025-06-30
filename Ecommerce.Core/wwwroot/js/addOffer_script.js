@@ -20,5 +20,19 @@ $(document).ready(function () {
             }
         });
     }
+
+    // summer note
+    $('#Description').summernote({
+        height: 200,
+        placeholder: 'Type your description here...it should be detailed and informative which can make impact on customer',
+        toolbar: [
+          ['style', ['bold', 'italic', 'underline', 'clear']],
+          ['font', ['strikethrough', 'superscript', 'subscript']],
+          ['fontsize', ['fontsize']],
+          ['color', ['color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['height', ['height']]
+        ]
+    });
     fetchProductName();  
 });

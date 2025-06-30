@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
@@ -174,14 +175,14 @@ public class ProductService : IProductService
     /// <param name="email"></param>
     /// <returns>List<Product></returns>
     /// <exception cref="Exception"></exception>
-    public List<Product>? GetSellerSpecificProductsByEmail(string email)
+    public async Task<List<Product>?> GetSellerSpecificProductsByEmail(string email)
     {
         try{
 
             User? user = _userRepository.GetUserByEmail(email);
             if(user!= null)
             {
-                return _productRepository.GetSellerSpecificProducts(user.UserId) ?? null;
+                return await _productRepository.GetSellerSpecificProducts(user.UserId) ?? null;
             }
             return null;
 

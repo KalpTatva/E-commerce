@@ -1,3 +1,4 @@
+using System.Data;
 using System.Threading.Tasks;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
@@ -9,10 +10,12 @@ namespace Ecommerce.Repository.implementation;
 public class OrderRepository : IOrderRepository
 {
     private readonly EcommerceContext _context;
+    private IDbConnection _dbConnection { get; }
 
-    public OrderRepository(EcommerceContext context)
+    public OrderRepository(EcommerceContext context, IDbConnection dbConnection)
     {
         _context = context;
+        _dbConnection = dbConnection;
     }
 
 
@@ -49,8 +52,9 @@ public class OrderRepository : IOrderRepository
                                     o.EndDate.Date > DateTime.Now.Date)
                         .FirstOrDefault()
                 }).ToListAsync();
-
+            
             return query;
+
         }
         catch (Exception e)
         {

@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Ecommerce.Core.Utils;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
@@ -98,13 +99,13 @@ public class ProductController : Controller
     /// <returns>Json</returns>
     [Authorize(Roles ="Seller")]
     [HttpGet]
-    public IActionResult GetSellerSpecificProducts()
+    public async Task<IActionResult> GetSellerSpecificProducts()
     {
         try
         {
             string? email = BaseValues.GetEmail(HttpContext);
         
-            List<Product>? products = _productService.GetSellerSpecificProductsByEmail(email ?? "");
+            List<Product>? products = await _productService.GetSellerSpecificProductsByEmail(email ?? "");
             if(products != null)
             {
                 return PartialView("_ListOfProductPartial", products);

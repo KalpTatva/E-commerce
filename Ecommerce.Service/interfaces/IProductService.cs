@@ -19,7 +19,7 @@ public interface IProductService
     /// </summary>
     /// <param name="email"></param>
     /// <returns></returns>
-    List<Product>? GetSellerSpecificProductsByEmail(string email);
+    Task<List<Product>?> GetSellerSpecificProductsByEmail(string email);
 
     /// <summary>
     /// soft delete of product

@@ -25,7 +25,7 @@ public interface IProductRepository
     /// <param name="userId"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    List<Product>? GetSellerSpecificProducts(int userId); 
+    Task<List<Product>?> GetSellerSpecificProducts(int userId); 
 
     /// <summary>
     /// get product by id

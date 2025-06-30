@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text;
 using Ecommerce.Core.Hub;
 using Ecommerce.Repository.implementation;
@@ -9,6 +10,7 @@ using Ecommerce.Service.interfaces.implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,10 @@ builder.Services.AddSignalR();
 builder.Services.AddDbContext<EcommerceContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+// dapper injection
+builder.Services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 // services injection
 builder.Services.AddScoped<IUserService, UserService>();

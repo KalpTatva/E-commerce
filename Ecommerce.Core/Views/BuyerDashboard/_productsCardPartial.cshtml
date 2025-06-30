@@ -13,7 +13,6 @@
             {
                 <div class="offer d-flex justify-content-center align-items-center fs-4 text-white">
                     OFFER
-
                 </div>
 
             }
@@ -42,13 +41,6 @@
                     <br />
                     @p.ProductName
                 </span>
-                <div>
-                    <span class="text-success fs-5">About </span>
-                    @{
-                        string Description = p.Description.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description;
-                    }
-                    @Description
-                </div>
                 <div class="mt-2">
                     @{
                         decimal price = 0;

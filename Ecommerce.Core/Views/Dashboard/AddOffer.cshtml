@@ -37,18 +37,17 @@
                         <label for="Title">Offer Name</label>
                     </div>
                     <div class="form-floating has-validation my-2 mb-3 w-100">
-                        <input type="text" class="form-control" id="Description" placeholder="Enter offer description"
-                            asp-for="Description">
-                        <span asp-validation-for="Description" class="text-danger "></span>
-                        <label for="Description">Offer Description</label>
+                        <input type="number" class="form-control" id="DiscountRate" placeholder="Enter discount rate"
+                            asp-for="DiscountRate">
+                        <span asp-validation-for="DiscountRate" class="text-danger "></span>
+                        <label for="DiscountRate">Discount Rate</label>
                     </div>
                 </div>
 
                 <div class="form-floating has-validation my-2 mb-3 w-100">
-                    <input type="number" class="form-control" id="DiscountRate" placeholder="Enter discount rate"
-                        asp-for="DiscountRate">
-                    <span asp-validation-for="DiscountRate" class="text-danger "></span>
-                    <label for="DiscountRate">Discount Rate</label>
+                    <input type="text" class="form-control" id="Description" placeholder="Enter offer description"
+                        asp-for="Description">
+                    <span asp-validation-for="Description" class="text-danger "></span>
                 </div>
 
                 <div class="d-flex gap-3 ">
@@ -76,11 +75,13 @@
 </div>
 @section scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-lite.min.js"></script>
     <script>
         window.successMessage = '@TempData["SuccessMessage"]';
         window.errorMessage = '@TempData["ErrorMessage"]';
 
-       
+
 
     </script>
     <script src="~/js/toastr_script.js"></script>

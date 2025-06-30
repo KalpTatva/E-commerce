@@ -29,5 +29,18 @@ $(document).ready(function () {
     $(".loader2").show();
   });
 
+  $('#MessageInput').summernote({
+    height: 200,
+    placeholder: 'Type your message here...',
+    toolbar: [
+      ['style', ['bold', 'italic', 'underline', 'clear']],
+      ['font', ['strikethrough', 'superscript', 'subscript']],
+      ['fontsize', ['fontsize']],
+      ['color', ['color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['height', ['height']]
+    ]
+  });
+
   fetchProductName();
 });

@@ -212,7 +212,12 @@
                     }
                 }
 
-
+                <span class="text-success fs-5 mb-2">About</span>
+                <div>
+                    <div class="product-description">
+                        @Html.Raw(Model.Description)
+                    </div>
+                </div>
                 <span class="d-flex flex-column mb-2 gap-2">
 
                     <span class="text-success fs-5">Reviews </span>
@@ -296,10 +301,7 @@
 
                 </span>
 
-                <span class="text-success fs-5 mb-2">About</span>
-                <div>
-                    @Model.Description
-                </div>
+                
             </span>
         }
         else

@@ -376,10 +376,10 @@ public class DashboardController : Controller
     {
         try
         {
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
             if (ModelState.IsValid)
             {
-                string? email = BaseValues.GetEmail(HttpContext);
-                string? role = BaseValues.GetRole(HttpContext);
                 
                 ResponsesViewModel responses = await _userService.AddContactMessage(model);
 
@@ -403,6 +403,8 @@ public class DashboardController : Controller
                
                 return RedirectToAction("EditProfile", "Dashboard");
             }
+            model.BaseEmail = email;
+            model.BaseRole = role;
             TempData["ErrorMessage"] = "Invalid input. Please check your details.";
             return View(model);
         }

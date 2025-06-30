@@ -1,3 +1,5 @@
+using System.Data;
+using Dapper;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
@@ -8,10 +10,13 @@ namespace Ecommerce.Repository.implementation;
 public class ProductRepository : IProductRepository
 {
     private readonly EcommerceContext _context;
+    private IDbConnection _dbConnection { get; }
 
-    public ProductRepository(EcommerceContext context)
+    public ProductRepository(EcommerceContext context, IDbConnection dbConnection)
     {
         _context = context;
+        _dbConnection = dbConnection;
+
     }
 
 
@@ -58,10 +63,16 @@ public class ProductRepository : IProductRepository
     /// <param name="userId"></param>
     /// <returns>List<Product></returns>
     /// <exception cref="Exception"></exception>
-    public List<Product>? GetSellerSpecificProducts(int userId){
+    public async Task<List<Product>?> GetSellerSpecificProducts(int userId)
+    {
         try
         {
-            return _context.Products.Where(x => x.SellerId == userId && x.IsDeleted == false ).OrderByDescending(x => x.ProductId).ToList();
+            return await _context.Products.Where(x => x.SellerId == userId && x.IsDeleted == false ).OrderByDescending(x => x.ProductId).ToListAsync();
+
+            // var query = "SELECT product_id, product_name, description, category_id, price, stocks, seller_id, created_at, edited_at, deleted_at, is_deleted, discount_type, discount from product where seller_id = @userId and is_deleted = 'false' order by product_id desc;";
+            // var parameters = new { userId = userId };
+            // var result = await _dbConnection.QueryAsync<Product>(query, parameters);
+            // return result.ToList();
         }
         catch (Exception e)
         {

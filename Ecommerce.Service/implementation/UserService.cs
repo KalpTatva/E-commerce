@@ -636,7 +636,7 @@ public class UserService : IUserService
                     <p>Thank you for reaching out to us. We have received your message:</p>
                     <p><strong>Name:</strong> {model.Name}</p>
                     <p><strong>Email:</strong> {model.SenderEmail}</p>
-                    <p><strong>Product: </strong> {product?.ProductName} ({model.ProductId})</p>
+                    <p><strong>Product: </strong> {product?.ProductName} (product id : {model.ProductId})</p>
                     <p><strong>Subject:</strong> {model.Subject}</p>
                     <p><strong>Message:</strong> {model.Message}</p>
                     <p>We will get back to you shortly.</p>
