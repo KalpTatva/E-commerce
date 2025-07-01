@@ -3,12 +3,11 @@ using Ecommerce.Repository.Models;
 
 namespace Ecommerce.Repository.implementation;
 
-public class FeatureRepository : GenericRepository<Feature>, IFeatureRepository
+public class ProfileRepository : GenericRepository<Profile> , IProfileRepository
 {
-
     private readonly EcommerceContext _context;
 
-    public FeatureRepository(EcommerceContext context) : base (context)
+    public ProfileRepository(EcommerceContext context) : base (context)
     {
         _context = context;
     }

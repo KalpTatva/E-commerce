@@ -12,34 +12,18 @@ namespace Ecommerce.Service.implementation;
 
 public class OrderService : IOrderService
 {
-
-    private readonly IProductRepository _productRepository;
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly IUserRepository _userRepository;
-    private readonly ICartRepository _cartRepository;
     private readonly EcommerceContext _context;
-    private readonly IOrderRepository _orderRepository;
-    private readonly INotificationRepository _notificationRepository;
     private readonly IConfiguration _configuration;
+    private readonly IUnitOfWork _unitOfWork;
 
     public OrderService(
-    IProductRepository productRepository, 
-    IWebHostEnvironment webHostEnvironment,
-    IUserRepository userRepository,
-    ICartRepository cartRepository,
     EcommerceContext context,
-    IOrderRepository orderRepository,
-    INotificationRepository notificationRepository,
+    IUnitOfWork unitOfWork,
     IConfiguration configuration)
     {
-        _productRepository = productRepository;
-        _webHostEnvironment = webHostEnvironment;
-        _userRepository = userRepository; 
-        _orderRepository = orderRepository;
         _context = context;
-        _cartRepository = cartRepository;
         _configuration = configuration;
-        _notificationRepository = notificationRepository;
+        _unitOfWork = unitOfWork;
     }
 
     /// <summary>
@@ -52,8 +36,8 @@ public class OrderService : IOrderService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
-            Profile? profile = user!=null ? _userRepository.GetProfileById(user.ProfileId) : null;
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            Profile? profile = user!=null ? await _unitOfWork.ProfileRepository.GetByIdAsync(user.ProfileId) : null;
             
             if(user==null && obj.orders == null && profile==null)
             {
@@ -63,7 +47,7 @@ public class OrderService : IOrderService
             OrderViewModel result = new ();
 
             // method for getting order details based on cart ids 
-            List<productAtOrderViewModel>? orderList = await _orderRepository.GetDetailsForOrders(obj.orders ?? new List<int>()); 
+            List<productAtOrderViewModel>? orderList = await  _unitOfWork.OrderRepository.GetDetailsForOrders(obj.orders ?? new List<int>()); 
             if(orderList != null)
             {
             
@@ -75,9 +59,9 @@ public class OrderService : IOrderService
                 result.LastName = profile?.LastName;
                 result.objSession = obj;
                 result.PinCode = profile?.Pincode ?? 0;
-                result.CountryName = _userRepository.GetCountryNameById(profile?.CountryId ?? 0);
-                result.CityName = _userRepository.GetCityNameById(profile?.CityId ?? 0);
-                result.StateName = _userRepository.GetStateNameById(profile?.StateId ?? 0);
+                result.CountryName = _unitOfWork.CountryRepository.GetCountryNameById(profile?.CountryId ?? 0);
+                result.CityName = _unitOfWork.CityRepository.GetCityNameById(profile?.CityId ?? 0);
+                result.StateName = _unitOfWork.StateRepository.GetStateNameById(profile?.StateId ?? 0);
 
                 return result;
 
@@ -100,8 +84,9 @@ public class OrderService : IOrderService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
-            Profile? profile = user!=null ? _userRepository.GetProfileById(user.ProfileId) : null;
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            Profile? profile = user!=null ? await _unitOfWork.ProfileRepository.GetByIdAsync(user.ProfileId) : null;
+
             
             if(user==null && obj.orders == null && profile==null)
             {
@@ -111,7 +96,7 @@ public class OrderService : IOrderService
             OrderViewModel result = new ();
 
             // method for getting order details based on cart ids 
-            List<productAtOrderViewModel>? orderList = await _orderRepository.GetDetailsForOrdersByProductId(obj.orders ?? new List<int>()); 
+            List<productAtOrderViewModel>? orderList = await  _unitOfWork.OrderRepository.GetDetailsForOrdersByProductId(obj.orders ?? new List<int>()); 
             if(orderList != null)
             {
             
@@ -123,9 +108,10 @@ public class OrderService : IOrderService
                 result.LastName = profile?.LastName;
                 result.objSession = obj;
                 result.PinCode = profile?.Pincode ?? 0;
-                result.CountryName = _userRepository.GetCountryNameById(profile?.CountryId ?? 0);
-                result.CityName = _userRepository.GetCityNameById(profile?.CityId ?? 0);
-                result.StateName = _userRepository.GetStateNameById(profile?.StateId ?? 0);
+                result.CountryName = _unitOfWork.CountryRepository.GetCountryNameById(profile?.CountryId ?? 0);
+                result.CityName = _unitOfWork.CityRepository.GetCityNameById(profile?.CityId ?? 0);
+                result.StateName = _unitOfWork.StateRepository.GetStateNameById(profile?.StateId ?? 0);
+
                 return result;
 
             }
@@ -160,9 +146,9 @@ public class OrderService : IOrderService
 
             // Choose which method to fetch order details
             if (isByProductId){
-                orderList = await _orderRepository.GetDetailsForOrdersByProductId(objSession.orders ?? new List<int>());
+                orderList = await  _unitOfWork.OrderRepository.GetDetailsForOrdersByProductId(objSession.orders ?? new List<int>());
             }else{
-                orderList = await _orderRepository.GetDetailsForOrders(objSession.orders ?? new List<int>());
+                orderList = await  _unitOfWork.OrderRepository.GetDetailsForOrders(objSession.orders ?? new List<int>());
             }
 
             if (orderList != null)
@@ -178,7 +164,7 @@ public class OrderService : IOrderService
                     RzpPaymentId = rzp_paymentid,
                     RzpOrderId = rzp_orderid,
                 };
-                _orderRepository.AddOrder(order);
+                await _unitOfWork.OrderRepository.AddAsync(order);
 
                 
                 // Add order details in orderproduct
@@ -231,25 +217,38 @@ public class OrderService : IOrderService
                         PriceWithDiscount = price
                     });
                 }
-                _orderRepository.AddOrderProductRange(orderProducts);
+                
+                await _unitOfWork.OrderProductRepository.AddRangeAsync(orderProducts);
 
                 // update product's quantity in product table
                 foreach (productAtOrderViewModel model in orderList)
                 {
-                    Product? product = _productRepository.GetProductById(model.ProductId);
+                    Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(model.ProductId);
                     if (product != null)
                     {
                         product.Stocks -= model.Quantity;
-                        _productRepository.UpdateProduct(product);
+                        await _unitOfWork.ProductRepository.UpdateAsync(product);
                     }
                 }
 
                 // Mark cart items as deleted
-                _cartRepository.DeleteCartByIdsRange(objSession.orders ?? new List<int>());
+                // await _unitOfWork.CartRepository.DeleteCartByIdsRangeAsync(objSession.orders ?? new List<int>());
+                List<Cart>? cartsToDelete = await _unitOfWork.CartRepository.FindAllAsync(c => objSession.orders != null && objSession.orders.Contains(c.CartId));
+                if(cartsToDelete != null)
+                {
 
+                    foreach (var cart in cartsToDelete)
+                    {
+                        cart.IsDeleted = true;
+                        cart.DeletedAt = DateTime.Now;
+                    }
+                    await _unitOfWork.CartRepository.UpdateRangeAsync(cartsToDelete);
+                }
 
                 // now adding notification for seller after placing order
-                User? user = _userRepository.GetUserById(UserId);
+                // User? user = _userRepository.GetUserById(UserId);
+                User? user = await _unitOfWork.UserRepository.GetByIdAsync(UserId);
+
                 string notification = $"New order placed pleace check your dashboard for more details. Order ID: {order.OrderId}"; 
 
                 Notification notificationModel = new Notification()
@@ -258,13 +257,14 @@ public class OrderService : IOrderService
                     ProductId = orderProducts.Count > 0 ? orderProducts[0].ProductId : 0,
                     CreatedAt = DateTime.Now
                 };
-                _notificationRepository.AddNotification(notificationModel);
+                // _notificationRepository.AddNotification(notificationModel);
+                await _unitOfWork.NotificationRepository.AddAsync(notificationModel);
 
                 // adding notification to seller at mapping table 
                 List<UserNotificationMapping> userNotificationMappings = new List<UserNotificationMapping>();
                 foreach (productAtOrderViewModel model in orderList)
                 {
-                    Product? product = _productRepository.GetProductById(model.ProductId);
+                    Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(model.ProductId);
                     userNotificationMappings.Add(new UserNotificationMapping()
                     {
                         UserId = product?.SellerId ?? 0,
@@ -274,7 +274,7 @@ public class OrderService : IOrderService
                     });
                 }
                 
-                _notificationRepository.AddUserNotificationMappingRange(userNotificationMappings);
+                await _unitOfWork.UserNotificationMappingRepository.AddRangeAsync(userNotificationMappings);
             
 
                 await transaction.CommitAsync();
@@ -314,11 +314,11 @@ public class OrderService : IOrderService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             List<MyOrderViewModel>? myOrderViewModel = new ();
             if(user != null)
             {
-                myOrderViewModel = await _orderRepository.GetMyOrderDetails(user.UserId); 
+                myOrderViewModel = await _unitOfWork.OrderRepository.GetMyOrderDetails(user.UserId); 
             }
 
             return myOrderViewModel ?? new List<MyOrderViewModel>();
@@ -340,12 +340,12 @@ public class OrderService : IOrderService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user == null)
             {
                 throw new Exception("User not found");
             }
-            List<SellerOrderViewModel>? sellerOrders = await _orderRepository.GetSellerOrders(user.UserId, pageNumber, pageSize);
+            List<SellerOrderViewModel>? sellerOrders = await  _unitOfWork.OrderRepository.GetSellerOrders(user.UserId, pageNumber, pageSize);
             return sellerOrders ?? new List<SellerOrderViewModel>();
         }
         catch
@@ -364,12 +364,12 @@ public class OrderService : IOrderService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if (user == null)
             {
                 throw new Exception("User not found");
             }
-            return _orderRepository.GetSellersOrderTotalCount(user.UserId);
+            return  _unitOfWork.OrderRepository.GetSellersOrderTotalCount(user.UserId);
         }
         catch (Exception e)
         {
@@ -385,11 +385,11 @@ public class OrderService : IOrderService
     /// <param name="orderId">ID of the order to be updated</param>
     /// <param name="status">New status for the order (e.g., "pending", "shipped", "delivered", "cancelled")</param>
     /// <returns>ResponsesViewModel indicating success or failure of the operation</returns>
-    public ResponsesViewModel UpdateOrderStatus(int orderId, string status)
+    public async Task<ResponsesViewModel> UpdateOrderStatus(int orderId, string status)
     {
         try
         {
-            OrderProduct? order = _orderRepository.GetOrderById(orderId);
+            OrderProduct? order = await _unitOfWork.OrderProductRepository.FindAsync(op => op.OrderProductId == orderId && op.IsDeleted == false);
             if (order == null)
             {
                 return new ResponsesViewModel()
@@ -419,18 +419,19 @@ public class OrderService : IOrderService
                     order.Status = (int)OrderStatusEnum.Cancelled;
                     Message = "Order status updated to cancelled";
                     // If order is cancelled, we can also update the product stock
-                    Product? product = _productRepository.GetProductById(order.ProductId);
+                    Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(order.ProductId);
+
                     if (product != null)
                     {
                         product.Stocks += order.Quantity; // Restoring stock
-                        _productRepository.UpdateProduct(product);
+                        await _unitOfWork.ProductRepository.UpdateAsync(product);
                     }
                     break;
                 default:
                     throw new Exception("Invalid status");
             }
             
-            _orderRepository.UpdateOrderProducts(order);
+            await _unitOfWork.OrderProductRepository.UpdateAsync(order);
             return new ResponsesViewModel()
             {
                 IsSuccess = true,
@@ -452,7 +453,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>responsesviewmodel</returns>
-    public ResponsesViewModel AddOffer(OfferViewModel model)
+    public async Task<ResponsesViewModel> AddOffer(OfferViewModel model)
     {
         try
         {
@@ -465,7 +466,11 @@ public class OrderService : IOrderService
                 };
             }
 
-            Offer? offer1 = _productRepository.GetOfferByProductId(model.ProductId);
+            Offer? offer1 = await _unitOfWork.OfferRepository.FindAsync(
+                o => o.ProductId == model.ProductId 
+                && o.StartDate.Date <= DateTime.Now.Date 
+                && o.EndDate.Date > DateTime.Now.Date);
+
             if (offer1 != null)
             {
                 return new ResponsesViewModel()
@@ -487,7 +492,7 @@ public class OrderService : IOrderService
             };
             
             // Add the offer to the repository
-            _orderRepository.AddOffer(offer);
+            await _unitOfWork.OfferRepository.AddAsync(offer);
            
 
 
@@ -495,7 +500,7 @@ public class OrderService : IOrderService
             // that means who have produts in their favorite list
         
             // first need to make notification message 
-            Product? product = _productRepository.GetProductById(model.ProductId);
+            Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(model.ProductId);
             string notificationMessage = $"New offer on product {product?.ProductName}: {model.Title} - {model.Description}";
             
             // next is to add this message into notification table
@@ -505,10 +510,11 @@ public class OrderService : IOrderService
                 ProductId = model.ProductId,
                 CreatedAt = DateTime.Now
             };
-            _notificationRepository.AddNotification(notification);
+            // _notificationRepository.AddNotification(notification);
+            await _unitOfWork.NotificationRepository.AddAsync(notification);
 
             // next is to get users who have this product in their favourite list
-            List<User>? users = _userRepository.GetUsersByProductIdFromFavourite(model.ProductId);
+            List<User>? users =  _unitOfWork.UserRepository.GetUsersByProductIdFromFavourite(model.ProductId);
 
             // and add this notification to their usernotificationmapping table
             List<UserNotificationMapping> userNotificationMapping = new List<UserNotificationMapping>();
@@ -526,7 +532,8 @@ public class OrderService : IOrderService
                     
                 }
             }
-            _notificationRepository.AddUserNotificationMappingRange(userNotificationMapping);        
+            await _unitOfWork.UserNotificationMappingRepository.AddRangeAsync(userNotificationMapping);
+
 
             return new ResponsesViewModel()
             {
@@ -554,12 +561,12 @@ public class OrderService : IOrderService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if (user == null)
             {
                 throw new Exception("User not found");
             }
-            return _notificationRepository.GetNotificationCount(user.UserId);
+            return  _unitOfWork.NotificationRepository.GetNotificationCount(user.UserId);
         }
         catch (Exception e)
         {
@@ -577,12 +584,12 @@ public class OrderService : IOrderService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if (user == null)
             {
                 throw new Exception("User not found");
             }
-            return _notificationRepository.GetNotificationsByUserId(user.UserId);
+            return  _unitOfWork.NotificationRepository.GetNotificationsByUserId(user.UserId);
         }
         catch (Exception e)
         {
@@ -595,16 +602,17 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="email"></param>
     /// <exception cref="Exception"></exception>
-    public void MarkNotificationAsRead(string email)
+    public async Task MarkNotificationAsRead(string email)
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if (user == null)
             {
                 throw new Exception("User not found");
             }
-            List<UserNotificationMapping>? notifications = _notificationRepository.GetUserNotificationMapping(user.UserId);
+            // List<UserNotificationMapping>? notifications = _notificationRepository.GetUserNotificationMapping(user.UserId);
+            List<UserNotificationMapping>? notifications = await _unitOfWork.UserNotificationMappingRepository.FindAllAsync(unm => unm.UserId == user.UserId && unm.ReadAll == false);
             if (notifications != null && notifications.Count > 0)
             {
                 foreach (UserNotificationMapping notification in notifications)
@@ -612,7 +620,8 @@ public class OrderService : IOrderService
                     notification.ReadAll = true;
                     notification.EditedAt = DateTime.Now;
                 }
-                _notificationRepository.UpdateNotificationRange(notifications);
+                // _notificationRepository.UpdateNotificationRange(notifications);
+                await _unitOfWork.UserNotificationMappingRepository.UpdateRangeAsync(notifications);
             }
         }
         catch (Exception e)
@@ -628,12 +637,15 @@ public class OrderService : IOrderService
     /// <param name="UserId"></param>
     /// <param name="objRes"></param>
     /// <returns></returns>
-    public PaymentViewModel CreatePayment(int UserId,ObjectSessionViewModel objRes)
+    public async Task<PaymentViewModel> CreatePayment(int UserId,ObjectSessionViewModel objRes)
     {
         try
         {
-            User? user = _userRepository.GetUserById(UserId);
-            Profile? profile = user != null ? _userRepository.GetProfileById(user.ProfileId) : null;
+            // User? user = _userRepository.GetUserById(UserId);
+            User? user = await _unitOfWork.UserRepository.GetByIdAsync(UserId);
+
+            Profile? profile = user!=null ? await _unitOfWork.ProfileRepository.GetByIdAsync(user.ProfileId) : null;
+
             if (user == null)
             {
                 throw new Exception("User not found");

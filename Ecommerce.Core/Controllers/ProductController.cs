@@ -64,7 +64,7 @@ public class ProductController : Controller
     /// <returns>Json</returns>
     [Authorize(Roles ="Seller")]
     [HttpPost]
-    public IActionResult AddProduct(AddProductViewModel model)
+    public async Task<IActionResult> AddProduct(AddProductViewModel model)
     {
         try
         {
@@ -76,7 +76,7 @@ public class ProductController : Controller
                     ? new List<Feature>() 
                     : JsonConvert.DeserializeObject<List<Feature>>(model.FeaturesInput);
 
-                ResponsesViewModel responses = _productService.AddProduct(model, email ?? "", features ?? new List<Feature>());
+                ResponsesViewModel responses = await _productService.AddProduct(model, email ?? "", features ?? new List<Feature>());
                 if (responses.IsSuccess)
                 {
                     TempData["SuccessMessage"] = responses.Message;
@@ -128,11 +128,11 @@ public class ProductController : Controller
     /// <returns>Json</returns>
     [Authorize(Roles ="Seller")]
     [HttpPut]
-    public IActionResult DeleteProduct(int ProductId)
+    public async Task<IActionResult> DeleteProduct(int ProductId)
     {
         try
         {
-            ResponsesViewModel response = _productService.DeleteProductById(ProductId);
+            ResponsesViewModel response = await _productService.DeleteProductById(ProductId);
             if(response.IsSuccess)
             {
                 return Json(new { success = true, message = response.Message });
@@ -175,7 +175,7 @@ public class ProductController : Controller
     /// <returns>View(model)</returns>
     [Authorize(Roles ="Seller")]
     [HttpPost]
-    public IActionResult EditProduct(EditProductViewModel model)
+    public async Task<IActionResult> EditProduct(EditProductViewModel model)
     {
         try
         {
@@ -193,7 +193,7 @@ public class ProductController : Controller
                         ? new List<int>() 
                         : JsonConvert.DeserializeObject<List<int>>(model.ImageDeleteInput);
 
-                ResponsesViewModel responses = _productService.UpdateProductDetails(model, features, DeletedImageIdList);
+                ResponsesViewModel responses = await _productService.UpdateProductDetails(model, features, DeletedImageIdList);
 
                 if(responses.IsSuccess)
                 {

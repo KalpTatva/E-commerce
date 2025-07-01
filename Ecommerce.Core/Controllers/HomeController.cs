@@ -6,6 +6,7 @@ using Ecommerce.Service.interfaces;
 using static Ecommerce.Repository.Helpers.Enums;
 using Ecommerce.Repository.Models;
 using Ecommerce.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Ecommerce.Core.Controllers;
 
@@ -205,7 +206,7 @@ public class HomeController : Controller
     /// <param name="token"></param>
     /// <returns>redirect to forget password</returns>
     [HttpGet]
-    public ActionResult ResetPassword(string token)
+    public async Task<ActionResult> ResetPassword(string token)
     {
         try
         {
@@ -214,7 +215,7 @@ public class HomeController : Controller
                 TempData["ErrorMessage"] = "Invalid password reset link.";
                 return RedirectToAction("ForgotPassword","Home");
             }
-            ResponsesViewModel response = _userService.ValidateResetPasswordToken(token);
+            ResponsesViewModel response = await _userService.ValidateResetPasswordToken(token);
             if (response.IsSuccess)
             {
                 return View(new ForgetPasswordViewModel { Token = token, Email = response.Message });
@@ -241,7 +242,7 @@ public class HomeController : Controller
     /// <param name="model"></param>
     /// <returns>Resset password view</returns>
     [HttpPost]
-    public IActionResult ResetPassword(ForgetPasswordViewModel model)
+    public async Task<IActionResult> ResetPassword(ForgetPasswordViewModel model)
     {
         if (model == null || string.IsNullOrEmpty(model.Token) || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
         {
@@ -250,7 +251,7 @@ public class HomeController : Controller
         }
         try
         {
-            ResponsesViewModel response = _userService.ResetPassword(model);
+            ResponsesViewModel response = await _userService.ResetPassword(model);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = response.Message;
@@ -291,7 +292,7 @@ public class HomeController : Controller
     /// <param name="model"></param>
     /// <returns>View</returns>
     [HttpPost]
-    public IActionResult RegisterUser(RegisterUserViewModel model)
+    public async Task<IActionResult> RegisterUser(RegisterUserViewModel model)
     {
         try
         {
@@ -301,7 +302,7 @@ public class HomeController : Controller
                 return View(model);
             }
 
-            ResponsesViewModel response = _userService.RegisterUser(model);
+            ResponsesViewModel response = await _userService.RegisterUser(model);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = response.Message;
@@ -327,11 +328,11 @@ public class HomeController : Controller
     /// <returns>Json</returns>
     // helpers
     [HttpGet]
-    public IActionResult GetCountries()
+    public async Task<IActionResult> GetCountries()
     {
         try
         {
-            List<Country>? countries = _userService.GetCountries();
+            List<Country>? countries = await _userService.GetCountries();
             return PartialView("_countryoptionsPartial", countries);
         }
         catch (Exception e)
@@ -346,11 +347,11 @@ public class HomeController : Controller
     /// <param name="countryId"></param>
     /// <returns>Json</returns>.
     [HttpGet]
-    public IActionResult GetStates(int countryId)
+    public async Task<IActionResult> GetStates(int countryId)
     {
         try
         {
-            List<State>? states = _userService.GetStates(countryId);
+            List<State>? states = await _userService.GetStates(countryId);
             return PartialView("_stateoptionPartial", states);
         }
         catch (Exception e)
@@ -365,11 +366,11 @@ public class HomeController : Controller
     /// <param name="stateId"></param>
     /// <returns>Json</returns>
     [HttpGet]
-    public IActionResult GetCities(int stateId)
+    public async Task<IActionResult> GetCities(int stateId)
     {
         try
         {
-            List<City>? cities = _userService.GetCities(stateId);
+            List<City>? cities = await _userService.GetCities(stateId);
             return PartialView("_cityoptionPartial", cities);
         }
         catch (Exception e)

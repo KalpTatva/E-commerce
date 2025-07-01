@@ -12,7 +12,7 @@ public interface IProductService
     /// <param name="email"></param>
     /// <param name="List<Features>"></param>
     /// <returns></returns>
-    ResponsesViewModel AddProduct(AddProductViewModel model, string email, List<Feature> features);
+    Task<ResponsesViewModel> AddProduct(AddProductViewModel model, string email, List<Feature> features);
 
     /// <summary>
     /// get seller specific data from db
@@ -26,7 +26,7 @@ public interface IProductService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    ResponsesViewModel DeleteProductById(int id);
+    Task<ResponsesViewModel> DeleteProductById(int id);
 
     /// <summary>
     /// method for getting details of product for edit product
@@ -45,7 +45,7 @@ public interface IProductService
     /// <param name="features"></param>
     /// <param name="DeletedImageIdList"></param>
     /// <returns></returns>
-    ResponsesViewModel UpdateProductDetails(EditProductViewModel model, List<Feature>? features, List<int>? DeletedImageIdList);
+    Task<ResponsesViewModel> UpdateProductDetails(EditProductViewModel model, List<Feature>? features, List<int>? DeletedImageIdList);
 
     /// <summary>
     /// method for getting all products details
@@ -77,7 +77,7 @@ public interface IProductService
     /// <param name="email"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    ResponsesViewModel UpdateFavourite(int productId,string? email = null);
+    Task<ResponsesViewModel> UpdateFavourite(int productId,string? email = null);
     
     /// <summary>
     /// mehtod for getting details of favourite products list by user emails
@@ -93,14 +93,14 @@ public interface IProductService
     /// <param name="email"></param>
     /// <param name="productId"></param>
     /// <returns>responsesviewmodel</returns>
-    ResponsesViewModel AddToCart(string email, int productId);
+    Task<ResponsesViewModel> AddToCart(string email, int productId);
 
     /// <summary>
     /// method which calculate major properties of cart and returns cart items of user
     /// </summary>
     /// <param name="email"></param>
     /// <returns>CartViewModel</returns>
-    CartViewModel GetCartDetails(string email);
+    Task<CartViewModel> GetCartDetails(string email);
 
 
     /// <summary>
@@ -111,14 +111,14 @@ public interface IProductService
     /// <param name="email"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    CartUpdatesViewModel UpdateQuantityAtCart(int quantity, int cartId, string email);
+    Task<CartUpdatesViewModel> UpdateQuantityAtCart(int quantity, int cartId, string email);
 
     /// <summary>
     /// method for delete product from cart (soft delete)
     /// </summary>
     /// <param name="cartId"></param>
     /// <returns></returns>
-    ResponsesViewModel DeleteCartFromList(int cartId);
+    Task<ResponsesViewModel> DeleteCartFromList(int cartId);
 
     /// <summary>
     /// method for adding review to the product
@@ -129,7 +129,7 @@ public interface IProductService
     /// <param name="reviewText"></param>
     /// <param name="email"></param>
     /// <returns></returns>
-    ResponsesViewModel AddReview(int orderProductId,decimal rating, int productId, string reviewText,string email);
+    Task<ResponsesViewModel> AddReview(int orderProductId,decimal rating, int productId, string reviewText,string email);
 
 
 
@@ -138,7 +138,7 @@ public interface IProductService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    ResponsesViewModel CheckProductStockByCartId(string email);
+    Task<ResponsesViewModel> CheckProductStockByCartId(string email);
 
 
     /// <summary>

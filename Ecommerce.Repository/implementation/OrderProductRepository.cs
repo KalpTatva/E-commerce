@@ -3,12 +3,11 @@ using Ecommerce.Repository.Models;
 
 namespace Ecommerce.Repository.implementation;
 
-public class FeatureRepository : GenericRepository<Feature>, IFeatureRepository
+public class OrderProductRepository : GenericRepository<OrderProduct> , IOrderProductRepository
 {
-
     private readonly EcommerceContext _context;
 
-    public FeatureRepository(EcommerceContext context) : base (context)
+    public OrderProductRepository(EcommerceContext context) : base (context)
     {
         _context = context;
     }

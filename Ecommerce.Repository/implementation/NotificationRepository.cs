@@ -3,54 +3,14 @@ using Ecommerce.Repository.Models;
 
 namespace Ecommerce.Repository.implementation;
 
-public class NotificationRepository : INotificationRepository
+public class NotificationRepository : GenericRepository<Notification>, INotificationRepository
 {
     private readonly EcommerceContext _context;
-    public NotificationRepository(EcommerceContext context)
+    public NotificationRepository(EcommerceContext context) : base (context)
     {
         _context = context;
     }
 
-
-    /// <summary>
-    /// Method to update a range of user notification mappings in the database.
-    /// </summary>
-    /// <param name="userNotificationMappings"></param>
-    /// <exception cref="Exception"></exception>
-    public void UpdateNotificationRange(List<UserNotificationMapping> userNotificationMappings)
-    {
-        try
-        {
-            _context.UserNotificationMappings.UpdateRange(userNotificationMappings);
-            _context.SaveChanges();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Method to get the user notification mapping for a specific user.
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns>List<UserNotificationMapping></returns>
-    /// <exception cref="Exception"></exception>
-    public List<UserNotificationMapping> GetUserNotificationMapping(int userId)
-    {
-        try
-        {
-            List<UserNotificationMapping> userNotificationMappings = _context.UserNotificationMappings
-                .Where(unm => unm.UserId == userId && unm.ReadAll == false)
-                .ToList();
-
-            return userNotificationMappings;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
 
     /// <summary>
     /// Method to retrieve notifications for a user based on their user ID.
@@ -93,42 +53,6 @@ public class NotificationRepository : INotificationRepository
             int count = _context.UserNotificationMappings
                 .Count(unm => unm.UserId == userId && unm.ReadAll == false);
             return count;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Method to add a range of user notification mappings to the database.
-    /// </summary>
-    /// <param name="userNotificationMappings"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddUserNotificationMappingRange(List<UserNotificationMapping> userNotificationMappings)
-    {
-        try
-        {
-            _context.UserNotificationMappings.AddRange(userNotificationMappings);
-            _context.SaveChanges();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Method to add a notification to the database.
-    /// </summary>
-    /// <param name="notification"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddNotification(Notification notification)
-    {
-        try
-        {
-            _context.Notifications.Add(notification);
-            _context.SaveChanges();
         }
         catch (Exception e)
         {

@@ -97,12 +97,12 @@ public class BuyerDashboardController : Controller
     /// <returns>Json</returns>
     [Authorize(Roles = "Buyer")]
     [HttpPost]
-    public IActionResult UpdateFavourite(int productId)
+    public async Task<IActionResult> UpdateFavourite(int productId)
     {
         try{
             string? email = BaseValues.GetEmail(HttpContext);
 
-            ResponsesViewModel res = _productService.UpdateFavourite(productId, email);
+            ResponsesViewModel res = await _productService.UpdateFavourite(productId, email);
             if(res.IsSuccess)
             {
                 return Json(new {success=true,message=res.Message});
@@ -159,13 +159,13 @@ public class BuyerDashboardController : Controller
     /// <returns>json</returns>
     [Authorize(Roles ="Buyer")]
     [HttpPost]
-    public IActionResult AddToCart(int productId)
+    public async Task<IActionResult> AddToCart(int productId)
     {   
         try
         {
             string? email = BaseValues.GetEmail(HttpContext);
 
-            ResponsesViewModel res = _productService.AddToCart(email ?? "", productId);
+            ResponsesViewModel res = await _productService.AddToCart(email ?? "", productId);
             if(res.IsSuccess)
             {
                 return Json(new {success = true, message = res.Message});    
@@ -185,10 +185,10 @@ public class BuyerDashboardController : Controller
     /// <returns>partial view with model</returns>
     [Authorize(Roles ="Buyer")]
     [HttpGet]
-    public IActionResult GetCart()
+    public async Task<IActionResult> GetCart()
     {
         string? email = BaseValues.GetEmail(HttpContext);
-        CartViewModel model = _productService.GetCartDetails(email??"");
+        CartViewModel model = await _productService.GetCartDetails(email??"");
         return PartialView("_CartListPartial",model);
     }
 
@@ -201,12 +201,12 @@ public class BuyerDashboardController : Controller
     /// returns>Json</returns>
     [Authorize(Roles ="Buyer")]
     [HttpPut]
-    public IActionResult UpdateValuesOfCart(int quantity,int cartId)
+    public async Task<IActionResult> UpdateValuesOfCart(int quantity,int cartId)
     {
         try
         {
             string? email = BaseValues.GetEmail(HttpContext);
-            CartUpdatesViewModel res = _productService.UpdateQuantityAtCart(quantity, cartId,email ?? "");
+            CartUpdatesViewModel res = await _productService.UpdateQuantityAtCart(quantity, cartId,email ?? "");
             if(res.IsSuccess == true)
             {
                 return Json(new {
@@ -233,16 +233,16 @@ public class BuyerDashboardController : Controller
     /// returns>PartialView</returns>
     [Authorize(Roles ="Buyer")]
     [HttpPut]
-    public IActionResult UpdateCartList(int cartId)
+    public async Task<IActionResult> UpdateCartList(int cartId)
     {
         string? email = BaseValues.GetEmail(HttpContext);
         
-        ResponsesViewModel res = _productService.DeleteCartFromList(cartId);
+        ResponsesViewModel res = await _productService.DeleteCartFromList(cartId);
         if(res.IsSuccess == false)
         {
             TempData["ErrorMessage"] = res.Message;
         }
-        CartViewModel model = _productService.GetCartDetails(email??"");
+        CartViewModel model = await _productService.GetCartDetails(email??"");
         return PartialView("_CartListPartial",model);
     }
 }

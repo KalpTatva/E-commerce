@@ -7,120 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Repository.implementation;
 
-public class ProductRepository : IProductRepository
+public class ProductRepository : GenericRepository<Product>,  IProductRepository
 {
     private readonly EcommerceContext _context;
-    private IDbConnection _dbConnection { get; }
 
-    public ProductRepository(EcommerceContext context, IDbConnection dbConnection)
+    public ProductRepository(EcommerceContext context) : base (context)
     {
         _context = context;
-        _dbConnection = dbConnection;
-
     }
-
-
-    /// <summary>
-    /// method for adding product into db
-    /// </summary>
-    /// <param name="product"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddProduct(Product product)
-    {
-        try
-        {
-            _context.Products.Add(product);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-
-    }
-
-    /// <summary>
-    /// method for adding multiple images 
-    /// </summary>
-    /// <param name="images"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddProductImages(List<Image> images)
-    {
-        try
-        {
-            _context.Images.AddRange(images);
-            _context.SaveChanges();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// get method for seller specific products
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns>List<Product></returns>
-    /// <exception cref="Exception"></exception>
-    public async Task<List<Product>?> GetSellerSpecificProducts(int userId)
-    {
-        try
-        {
-            return await _context.Products.Where(x => x.SellerId == userId && x.IsDeleted == false ).OrderByDescending(x => x.ProductId).ToListAsync();
-
-            // var query = "SELECT product_id, product_name, description, category_id, price, stocks, seller_id, created_at, edited_at, deleted_at, is_deleted, discount_type, discount from product where seller_id = @userId and is_deleted = 'false' order by product_id desc;";
-            // var parameters = new { userId = userId };
-            // var result = await _dbConnection.QueryAsync<Product>(query, parameters);
-            // return result.ToList();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-    /// <summary>
-    /// get product by id
-    /// </summary>
-    /// <param name="product"></param>
-    /// <returns>Product</returns>
-    public Product? GetProductById(int product)
-    {
-        try
-        {
-            return _context.Products.FirstOrDefault(x => x.ProductId == product && x.IsDeleted == false);
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// method for soft delete the product 
-    /// which updates isdelete, edit and delete time by self
-    /// </summary>
-    /// <param name="product"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    public void DeleteProduct(Product product)
-    {
-        try
-        {
-            product.IsDeleted = true;
-            product.EditedAt = DateTime.Now;
-            product.DeletedAt = DateTime.Now;
-            _context.Products.Update(product);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
 
     /// <summary>
     /// method for getting details of product for edit product
@@ -169,45 +63,6 @@ public class ProductRepository : IProductRepository
         
 
     } 
-
-    /// <summary>
-    /// method which delete images which are no longer selected
-    /// </summary>
-    /// <param name="DeletedImageIdList"></param>
-    /// <exception cref="Exception"></exception>
-    public void DeleteProductImagesByIds(List<int> DeletedImageIdList)
-    {
-        try
-        {
-            List<Image>? imagesToDelete = _context.Images.Where(image => DeletedImageIdList.Contains(image.ImageId)).ToList();
-            _context.Images.RemoveRange(imagesToDelete);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-    
-
-    /// <summary>
-    /// method for update product details
-    /// </summary>
-    /// <param name="product"></param>
-    public void updateProducts(Product product)
-    {
-        try
-        {
-            _context.Products.Update(product);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
 
     /// <summary>
     /// method for get all product with search filters
@@ -321,7 +176,6 @@ public class ProductRepository : IProductRepository
         }
     }
 
-
     /// <summary>
     /// method for getting products which are user's favourite
     /// </summary>
@@ -363,44 +217,6 @@ public class ProductRepository : IProductRepository
             throw new Exception(e.Message);
         }
     }    
-
-    
-
-    /// <summary>
-    /// method for updating product details
-    /// </summary>
-    /// <param name="product"></param>
-    public void UpdateProduct(Product product)
-    {
-        try
-        {
-            _context.Products.Update(product);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-    /// <summary>
-    /// method for adding review in db
-    /// </summary>
-    /// <param name="review"></param>
-    public void AddReview(Review review)
-    {
-        try
-        {
-            _context.Reviews.Add(review);
-            _context.SaveChanges();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
 
     /// <summary>
     /// method for getting products for offer by user id
@@ -449,25 +265,5 @@ public class ProductRepository : IProductRepository
             throw new Exception(e.Message);
         }   
     }
-
-
-    /// <summary>
-    /// method for getting offer by product id
-    /// </summary>
-    /// <param name="productId"></param>
-    /// <returns>Offer</returns>
-    /// <exception cref="Exception"></exception>
-    public Offer? GetOfferByProductId(int productId)
-    {
-        try
-        {
-            return _context.Offers.FirstOrDefault(o => o.ProductId == productId && o.StartDate.Date <= DateTime.Now.Date && o.EndDate.Date > DateTime.Now.Date);
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
     
 }

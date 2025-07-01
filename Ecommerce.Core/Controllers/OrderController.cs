@@ -35,7 +35,7 @@ public class OrderController : Controller
     /// <returns>Json with success or error message</returns>
     [Authorize(Roles = "Buyer")]
     [HttpPost]
-    public IActionResult SetSessionForOrder(string objectCart)
+    public async Task<IActionResult> SetSessionForOrder(string objectCart)
     {
         try
         {   
@@ -52,7 +52,7 @@ public class OrderController : Controller
                 }); 
             }
 
-            ResponsesViewModel response = _productService.CheckProductStockByCartId(email ?? "");
+            ResponsesViewModel response = await _productService.CheckProductStockByCartId(email ?? "");
 
             if (!response.IsSuccess)
             {
@@ -257,7 +257,7 @@ public class OrderController : Controller
     /// <returns>Partial view with order history</returns>
     [HttpPut]
     [Authorize]
-    public IActionResult UpdateOrderStatus(int orderId, string status)
+    public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
     {
         try
         {
@@ -266,7 +266,7 @@ public class OrderController : Controller
                 return Json(new { success = false, message = "Invalid order ID or status." });
             }
 
-            ResponsesViewModel? isUpdated = _orderService.UpdateOrderStatus(orderId, status);
+            ResponsesViewModel? isUpdated = await _orderService.UpdateOrderStatus(orderId, status);
             if (isUpdated.IsSuccess)
             {
                 return Json(new { success = true, message = isUpdated.Message });
@@ -290,7 +290,7 @@ public class OrderController : Controller
     /// <param name="rating"></param>
     /// <param name="reviewText"></param>
     [HttpPost]
-    public IActionResult AddReview(int orderProductId,decimal rating,int productId, string reviewText)
+    public async Task<IActionResult> AddReview(int orderProductId,decimal rating,int productId, string reviewText)
     {
         if(orderProductId > 0)
         {
@@ -304,7 +304,7 @@ public class OrderController : Controller
                     return Json(new { success = false, message = "User email not found." });
                 }
 
-                ResponsesViewModel response = _productService.AddReview(orderProductId, rating, productId, reviewText, email);
+                ResponsesViewModel response = await _productService.AddReview(orderProductId, rating, productId, reviewText, email);
                 if (response.IsSuccess)
                 {
                     return Json(new { success = true, message = response.Message });
@@ -329,7 +329,7 @@ public class OrderController : Controller
 
 
 
-    public IActionResult CreatePayment(int UserId, string SessionId)
+    public async Task<IActionResult> CreatePayment(int UserId, string SessionId)
     {
         
         // get details from cookie 
@@ -349,7 +349,7 @@ public class OrderController : Controller
         }
         
         // create payment
-        PaymentViewModel paymentViewModel = _orderService.CreatePayment(UserId, objRes);
+        PaymentViewModel paymentViewModel = await _orderService.CreatePayment(UserId, objRes);
         paymentViewModel.sessionId = SessionId;
         return View(paymentViewModel);
     

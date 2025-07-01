@@ -91,11 +91,11 @@ public class DashboardController : Controller
     /// </summary>
     /// <param name="model">Model containing user details</param>
     [Authorize]
-    public IActionResult EditUser(EditRegisteredUserViewModel model)
+    public async Task<IActionResult> EditUser(EditRegisteredUserViewModel model)
     {
         try
         {
-            ResponsesViewModel responses = _userService.EditUserDetails(model);
+            ResponsesViewModel responses = await _userService.EditUserDetails(model);
             if(responses.IsSuccess)
             {
                 return Json(new {success= true,message=responses.Message});
@@ -222,7 +222,7 @@ public class DashboardController : Controller
         {
             if(ModelState.IsValid)
             {
-                ResponsesViewModel responses = _orderService.AddOffer(model);
+                ResponsesViewModel responses = await _orderService.AddOffer(model);
                 if(responses.IsSuccess)
                 {
                     TempData["SuccessMessage"] = responses.Message;

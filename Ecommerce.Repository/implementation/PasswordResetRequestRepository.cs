@@ -3,12 +3,10 @@ using Ecommerce.Repository.Models;
 
 namespace Ecommerce.Repository.implementation;
 
-public class FeatureRepository : GenericRepository<Feature>, IFeatureRepository
+public class PasswordResetRequestRepository : GenericRepository<PasswordResetRequest>, IPasswordResetRequestRepository
 {
-
     private readonly EcommerceContext _context;
-
-    public FeatureRepository(EcommerceContext context) : base (context)
+    public PasswordResetRequestRepository(EcommerceContext context) : base (context)
     {
         _context = context;
     }

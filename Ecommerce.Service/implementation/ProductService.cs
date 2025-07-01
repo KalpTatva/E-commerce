@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Ecommerce.Repository.implementation;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
@@ -14,29 +15,17 @@ namespace Ecommerce.Service.implementation;
 
 public class ProductService : IProductService
 {
-    private readonly IProductRepository _productRepository;
-    private readonly IFeatureRepository _featureRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly ICartRepository _cartRepository;
-    private readonly IFavouriteRepository _favouriteRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
 
     private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public ProductService(
-    IProductRepository productRepository, 
+    public ProductService( 
     IWebHostEnvironment webHostEnvironment,
-    IUserRepository userRepository,
-    IFavouriteRepository favouriteRepository,
-    ICartRepository cartRepository,
-    IFeatureRepository featureRepository)
+    IUnitOfWork unitOfWork)
     {
-        _productRepository = productRepository;
-        _webHostEnvironment = webHostEnvironment;
-        _userRepository = userRepository; 
-        _featureRepository = featureRepository;
-        _favouriteRepository = favouriteRepository;
-        _cartRepository = cartRepository;
+        _webHostEnvironment = webHostEnvironment; 
+        _unitOfWork = unitOfWork;
         
     }
     
@@ -49,12 +38,12 @@ public class ProductService : IProductService
     /// <param name="email"></param>
     /// <param name="features"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel AddProduct(AddProductViewModel model, string email, List<Feature> features)
+    public async Task<ResponsesViewModel> AddProduct(AddProductViewModel model, string email, List<Feature> features)
     {
         try
         {
             // get user details by email
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user==null)
             {
                 return new ResponsesViewModel
@@ -119,7 +108,7 @@ public class ProductService : IProductService
                 DiscountType = model.DiscountType,
                 CreatedAt = DateTime.Now
             };
-            _productRepository.AddProduct(product);
+            await _unitOfWork.ProductRepository.AddAsync(product);
 
             // Save images and store their paths in the database
             List<Image> productImages = new List<Image>();
@@ -143,7 +132,7 @@ public class ProductService : IProductService
                 }
             }
 
-            _productRepository.AddProductImages(productImages);
+            await _unitOfWork.ImageRepository.AddRangeAsync(productImages);
 
             // Save features
             foreach (Feature feature in features)
@@ -151,7 +140,8 @@ public class ProductService : IProductService
                 feature.ProductId = product.ProductId;
             }
 
-            _featureRepository.AddFeaturesRange(features);
+            // _featureRepository.AddFeaturesRange(features);
+            await _unitOfWork.FeatureRepository.AddRangeAsync(features);
 
             return new ResponsesViewModel
             {
@@ -179,10 +169,14 @@ public class ProductService : IProductService
     {
         try{
 
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user!= null)
             {
-                return await _productRepository.GetSellerSpecificProducts(user.UserId) ?? null;
+                return await _unitOfWork.ProductRepository.FindAllAsync(
+                    x => x.SellerId == user.UserId && x.IsDeleted == false,
+                    x => x.ProductId,
+                    false
+                ) ?? null;
             }
             return null;
 
@@ -196,15 +190,19 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel DeleteProductById(int id)
+    public async Task<ResponsesViewModel> DeleteProductById(int id)
     {
         try
         {
-            Product? product = _productRepository.GetProductById(id);
+            Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+
             if(product!=null)
             {   
                 // soft delete of product
-                _productRepository.DeleteProduct(product);
+                product.IsDeleted = true;
+                product.EditedAt = DateTime.Now;
+                product.DeletedAt = DateTime.Now;
+                await _unitOfWork.ProductRepository.UpdateAsync(product);
         
                 return new ResponsesViewModel 
                 {
@@ -239,7 +237,7 @@ public class ProductService : IProductService
     {
         try
         {
-            EditProductViewModel? product = _productRepository.GetProductDetailsById(productId);
+            EditProductViewModel? product = _unitOfWork.ProductRepository.GetProductDetailsById(productId);
             return product;
         }
         catch(Exception e)
@@ -259,7 +257,7 @@ public class ProductService : IProductService
     /// <param name="features"></param>
     /// <param name="DeletedImageIdList"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel UpdateProductDetails(EditProductViewModel model, List<Feature>? features, List<int>? DeletedImageIdList)
+    public async Task<ResponsesViewModel> UpdateProductDetails(EditProductViewModel model, List<Feature>? features, List<int>? DeletedImageIdList)
     {
         try
         {  
@@ -303,7 +301,7 @@ public class ProductService : IProductService
             if(DeletedImageIdList != null && DeletedImageIdList.Any())
             {
                 // method which delete images which are no longer selected
-                _productRepository.DeleteProductImagesByIds(DeletedImageIdList);   
+                _unitOfWork.ImageRepository.DeleteProductImagesByIds(DeletedImageIdList);
             }
 
             // Create a folder for storing product images if it doesn't exist
@@ -336,8 +334,7 @@ public class ProductService : IProductService
                 }   
 
                 // call for adding images
-                _productRepository.AddProductImages(productImages);
-
+                await _unitOfWork.ImageRepository.AddRangeAsync(productImages);
             }
             
 
@@ -345,7 +342,10 @@ public class ProductService : IProductService
             if(features!=null)
             {
                 // udpate features (update old one and add all new one)
-                List<Feature>? features1 = _featureRepository.GetFeaturesByProductId(model.ProductId);
+                List<Feature>? features1 = await _unitOfWork.FeatureRepository.FindAllAsync(
+                                                x => x.ProductId == model.ProductId,
+                                                x => x.FeatureId, false);
+
                 if(features1 != null)
                 {
                     // to update the range of features 
@@ -365,11 +365,13 @@ public class ProductService : IProductService
                         else
                         {
                             // Delete the feature if it's no longer in the new list
-                            _featureRepository.DeleteFeature(existingFeature);
+                            await _unitOfWork.FeatureRepository.DeleteAsync(existingFeature);
                         }
                     }
                     
-                    _featureRepository.updateFeaturesRange(FeaturesToUpdate);
+                    // _featureRepository.updateFeaturesRange(FeaturesToUpdate);
+                    await _unitOfWork.FeatureRepository.UpdateRangeAsync(FeaturesToUpdate);
+
 
                     // Add new features that are not already in the database
                     List<Feature> NewFeaturesToAdd = new ();
@@ -383,14 +385,15 @@ public class ProductService : IProductService
                         }
                     }
 
-                    _featureRepository.AddFeaturesRange(NewFeaturesToAdd);
+                    // _featureRepository.AddFeaturesRange(NewFeaturesToAdd);
+                    await _unitOfWork.FeatureRepository.AddRangeAsync(NewFeaturesToAdd);
                 }
             }
 
             if(model != null)
             {
+                Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(model.ProductId);
 
-                Product? product = _productRepository.GetProductById(model.ProductId);
                 if(product!=null)
                 {
                     product.ProductName = model.ProductName;
@@ -402,7 +405,7 @@ public class ProductService : IProductService
                     product.Discount = model.Discount;
                     product.EditedAt = DateTime.Now;
 
-                    _productRepository.updateProducts(product);
+                    await _unitOfWork.ProductRepository.UpdateAsync(product);
 
                     return new ResponsesViewModel
                     {
@@ -441,18 +444,18 @@ public class ProductService : IProductService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user == null)
             {
                 return new List<ProductNameViewModel>();
             }
             if(user.RoleId != (int)RoleEnum.Seller)
             {
-                return _productRepository.GetAllProductsForOffer();
+                return _unitOfWork.ProductRepository.GetAllProductsForOffer();
             }
             else
             {
-                return _productRepository.GetProductsForOffer(user.UserId);
+                return _unitOfWork.ProductRepository.GetProductsForOffer(user.UserId);
             }
         }
         catch(Exception e)
@@ -481,7 +484,7 @@ public class ProductService : IProductService
                 search = search.ToLower().Trim();
             }
 
-            List<ProductsDeatailsViewModel>? products = await _productRepository.GetAllProducts(search,category);
+            List<ProductsDeatailsViewModel>? products = await _unitOfWork.ProductRepository.GetAllProducts(search,category);
             
             
             if(products != null && products.Any() )
@@ -507,14 +510,14 @@ public class ProductService : IProductService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user==null)
             {
                 // will showcase no items found on page
                 return new ProductsViewModel();
             }
             ProductsViewModel productsViewModel = new ();
-            List<ProductsDeatailsViewModel>? products = await _productRepository.GetFavouriteProductsByUserId(user.UserId);
+            List<ProductsDeatailsViewModel>? products = await _unitOfWork.ProductRepository.GetFavouriteProductsByUserId(user.UserId);
             if(products != null && products.Any() )
             {
 
@@ -540,11 +543,12 @@ public class ProductService : IProductService
     {
         try
         {
-            productDetailsByproductIdViewModel? result = await _productRepository.GetProductDetailsByProductId(productId);
-            User? user = _userRepository.GetUserByEmail(email);
+            productDetailsByproductIdViewModel? result = await _unitOfWork.ProductRepository.GetProductDetailsByProductId(productId);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(result!=null && user!=null)
             {
-                Favourite? favourite = _favouriteRepository.GetFavouriteByIds(user.UserId,result.ProductId);
+                // Favourite? favourite = _favouriteRepository.GetFavouriteByIds(user.UserId,result.ProductId);
+                Favourite? favourite = await _unitOfWork.FavouriteRepository.FindAsync(f => f.UserId == user.UserId && f.ProductId == productId);
                 if(favourite!= null)
                 {
                     result.IsFavourite = true;
@@ -575,13 +579,13 @@ public class ProductService : IProductService
     /// <param name="email"></param>
     /// <returns>ResponsesViewModel</returns>
     /// <exception cref="Exception"></exception>
-    public ResponsesViewModel UpdateFavourite(int productId,string? email = null)
+    public async Task<ResponsesViewModel> UpdateFavourite(int productId,string? email = null)
     {
         try
         {
             if(email!=null)
             {
-                User? user = _userRepository.GetUserByEmail(email);
+                User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
                 if(user == null)
                 {
                     return new ResponsesViewModel{
@@ -589,17 +593,18 @@ public class ProductService : IProductService
                         Message="Invalid user details for updating favourites"
                     };
                 }
-                Favourite? favourite = _favouriteRepository.GetFavouriteByIds(user.UserId,productId);
+
+                Favourite? favourite = await _unitOfWork.FavouriteRepository.FindAsync(f => f.UserId == user.UserId && f.ProductId == productId);
                 if(favourite != null && favourite.ProductId > 0)
                 {
-                    _favouriteRepository.dropFavourite(favourite);
+                    await _unitOfWork.FavouriteRepository.DeleteAsync(favourite);
                 }else
                 {
                     Favourite favourite1 = new(){
                         ProductId = productId,
                         UserId = user.UserId
                     };
-                    _favouriteRepository.AddFavourite(favourite1);
+                    await _unitOfWork.FavouriteRepository.AddAsync(favourite1);
                 }
                 return new ResponsesViewModel{
                     IsSuccess=true,
@@ -626,12 +631,12 @@ public class ProductService : IProductService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user==null)
             {
                 return new List<int>();
             }
-            return _favouriteRepository.GetFavouriteByUserId(user.UserId);
+            return _unitOfWork.FavouriteRepository.GetFavouriteByUserId(user.UserId);
         }
         catch
         {
@@ -646,11 +651,11 @@ public class ProductService : IProductService
     /// <param name="email"></param>
     /// <param name="productId"></param>
     /// <returns>responsesviewmodel</returns>
-    public ResponsesViewModel AddToCart(string email, int productId)
+    public async Task<ResponsesViewModel> AddToCart(string email, int productId)
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user==null)
             {
                 return new ResponsesViewModel{
@@ -660,7 +665,7 @@ public class ProductService : IProductService
             }
 
             // check if product is already in cart
-            Cart? existingCart = _cartRepository.GetCartByUserIdAndProductId(user.UserId, productId);
+            Cart? existingCart = await _unitOfWork.CartRepository.FindAsync(c => c.UserId == user.UserId && c.ProductId == productId && c.IsDeleted == false);
             if(existingCart != null)
             {
                 return new ResponsesViewModel{
@@ -674,7 +679,8 @@ public class ProductService : IProductService
                 ProductId = productId
             };
 
-            _cartRepository.AddToCart(cart);
+            // _cartRepository.AddToCart(cart);
+            await _unitOfWork.CartRepository.AddAsync(cart);
 
             return new ResponsesViewModel{
                 IsSuccess = true,
@@ -697,18 +703,18 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="email"></param>
     /// <returns>CartViewModel</returns>
-    public CartViewModel GetCartDetails(string email)
+    public async Task<CartViewModel> GetCartDetails(string email)
     {
         try
         {
             CartViewModel model = new ();
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user == null)
             {
                 return new CartViewModel();
             }
 
-            List<productAtCartViewModel>? result = _cartRepository.GetproductAtCart(user.UserId);
+            List<productAtCartViewModel>? result = await _unitOfWork.CartRepository.GetproductAtCart(user.UserId);
             
             if(result!=null && result.Any())
             {
@@ -784,17 +790,17 @@ public class ProductService : IProductService
     /// <param name="email"></param>
     /// <returns>CartUpdatesViewModel</returns>
     /// <exception cref="Exception"></exception>
-    public CartUpdatesViewModel UpdateQuantityAtCart(int quantity, int cartId, string email)
+    public async Task<CartUpdatesViewModel> UpdateQuantityAtCart(int quantity, int cartId, string email)
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user == null)
             {
                 return new CartUpdatesViewModel();
             }
             //need to check weather the quantity exceeds the available stocks
-            Product? product1 = _cartRepository.GetProductByCartId(cartId, user.UserId);
+            Product? product1 =  await _unitOfWork.CartRepository.GetProductByCartId(cartId, user.UserId);
             if(product1 != null)
             {
                 if(quantity > product1.Stocks || quantity <= 0)
@@ -808,11 +814,15 @@ public class ProductService : IProductService
             }
 
             // update cart quantity by cartId
-            _cartRepository.UpdateCartById(cartId, quantity);
+            // await _unitOfWork.CartRepository.UpdateCartByIdAsync(cartId, quantity);
+            Cart cart = await _unitOfWork.CartRepository.GetByIdAsync(cartId);
+            cart.Quantity = quantity;
+            cart.EditedAt = DateTime.Now;
+            await _unitOfWork.CartRepository.UpdateAsync(cart);
 
 
             // update values on frontend 
-            List<productAtCartViewModel>? result = _cartRepository.GetproductAtCart(user.UserId);
+            List<productAtCartViewModel>? result = await _unitOfWork.CartRepository.GetproductAtCart(user.UserId);
             
             CartUpdatesViewModel model = new ();
             
@@ -884,11 +894,14 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="cartId"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel DeleteCartFromList(int cartId)
+    public async Task<ResponsesViewModel> DeleteCartFromList(int cartId)
     {
         try
         {
-            _cartRepository.DeleteCartById(cartId);
+            Cart cart = await _unitOfWork.CartRepository.GetByIdAsync(cartId);
+            cart.IsDeleted = true;
+            cart.DeletedAt = DateTime.Now;
+            await _unitOfWork.CartRepository.UpdateAsync(cart);
             return new ResponsesViewModel(){
                 IsSuccess = true,
                 Message = "cart updated successfully"
@@ -912,11 +925,11 @@ public class ProductService : IProductService
     /// <param name="reviewText"></param>
     /// <param name="email"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel AddReview(int orderProductId,decimal rating, int productId, string reviewText,string email)
+    public async Task<ResponsesViewModel> AddReview(int orderProductId,decimal rating, int productId, string reviewText,string email)
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user == null)
             {
                 return new ResponsesViewModel{
@@ -934,7 +947,7 @@ public class ProductService : IProductService
                 BuyerId = user.UserId,
             };
 
-            _productRepository.AddReview(review);
+            await _unitOfWork.ReviewRepository.AddAsync(review);
 
             return new ResponsesViewModel{
                 IsSuccess = true,
@@ -956,11 +969,11 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="email"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel CheckProductStockByCartId(string email)
+    public async Task<ResponsesViewModel> CheckProductStockByCartId(string email)
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
             if(user == null)
             {
                 return new ResponsesViewModel{
@@ -968,7 +981,7 @@ public class ProductService : IProductService
                     Message = "user not found! please login first"
                 };
             }
-            List<productAtCartViewModel>? products = _cartRepository.GetproductAtCart(user.UserId);
+            List<productAtCartViewModel>? products = await _unitOfWork.CartRepository.GetproductAtCart(user.UserId);
             if(products != null && products.Any())
             {
                 foreach (productAtCartViewModel product in products)
