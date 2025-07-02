@@ -26,7 +26,7 @@
                     <tr>
                         <td>@count @{count++;}</td>
                         <td>@product.ProductName</td>
-                        <td>@product.Price.ToString("C")</td>
+                        <td>@product.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td>
                         <td>@product.Stocks.ToString()</td>
                         <td>@(((CategoriesEnum)product.CategoryId).ToString())</td>
                         <td>@product.CreatedAt</td>

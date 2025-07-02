@@ -48,7 +48,7 @@
                                 }
                             </td>
                             <td>@order.ProductName</td>
-                            <td>@order.Price.ToString("C")</td>
+                            <td>@order.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td>
                             <td>@order.Quantity</td>
                             <td>@order.Stocks</td>
                             <td>@order.OrderDate.ToString("g")</td>

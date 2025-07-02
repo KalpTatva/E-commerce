@@ -17,13 +17,13 @@
                     <div>
                         <span class="fs-4"> Total : </span>
                         <span class="fs-4 fw-normal" id="TotalPrice">
-                            @o.Amount.ToString("C")
+                            @o.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
                         </span>
                     </div>
                     <div>
                         <span class="fs-4"> Discount : </span>
                         <span class="fs-4 fw-normal text-success" id="TotalDiscount">
-                            @o.TotalDiscount.ToString("C")
+                            @o.TotalDiscount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
                         </span>
                     </div>
                     <div>
@@ -57,7 +57,7 @@
                                 <tr>
                                     <td>@count @{count++;}</td>
                                     <td class="fs-4">@op.ProductName</td>
-                                    <td>@op.PriceWithDiscount.ToString("C")</td>
+                                    <td>@op.PriceWithDiscount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td>
                                     <td>@op.Quantity</td>
                                     <td>@op.CreatedAt</td>
                                     <td class="">

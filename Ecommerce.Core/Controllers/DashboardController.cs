@@ -256,6 +256,7 @@ public class DashboardController : Controller
                     BaseEmail = email,
                     BaseRole = role
                 }; 
+                return View(baseViewModel);
             }
             return View(model);
         }
