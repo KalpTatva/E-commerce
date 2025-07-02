@@ -82,10 +82,11 @@ public class BuyerDashboardController : Controller
     public async Task<IActionResult> GetProductsByproductId(int productId)
     {
         string? email = BaseValues.GetEmail(HttpContext);
-
+        string? role = BaseValues.GetRole(HttpContext);
         productDetailsByproductIdViewModel? model  = await _productService.GetProductById(productId,email ?? "");
         model.BaseEmail = email;
         model.UserEmail = email;
+        model.BaseRole = role;
         return View(model);
     
     }

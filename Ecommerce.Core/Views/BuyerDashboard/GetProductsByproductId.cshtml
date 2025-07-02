@@ -186,7 +186,7 @@
                 </span>
 
 
-                @if (Model.UserEmail != null && Model.Stocks > 0)
+                @if (Model.UserEmail != null && Model.Stocks > 0 && Model.BaseRole == RoleEnum.Buyer.ToString())
                 {
                     <div class="d-flex w-100 gap-2 mb-2">
                         <button id="AddToCart" class="btn btn-warning rounded-pill w-50" data-product-id="@Model.ProductId">Add to
@@ -201,10 +201,14 @@
                     </div>
                 }
                 else
-                {
-                    if (Model.UserEmail == null)
+                {       
+                    @if (Model.BaseEmail == null)
                     {
-                        <span class="text-secondary fs-5">Please login to buy this product</span>
+                        <span class="text-secondary fs-5">Please login first</span>
+                    }
+                    else if(Model.BaseRole == RoleEnum.Seller.ToString())
+                    {
+                        <span class="text-danger fs-6">Seller's are not allowed to Buy, login with buyer's role</span>
                     }
                     else
                     {
