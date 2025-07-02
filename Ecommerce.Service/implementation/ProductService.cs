@@ -194,6 +194,7 @@ public class ProductService : IProductService
     {
         try
         {
+            
             Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
 
             if(product!=null)

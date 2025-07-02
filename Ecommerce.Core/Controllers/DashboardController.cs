@@ -335,12 +335,12 @@ public class DashboardController : Controller
     }
 
     [HttpPost]
-    public IActionResult MarkAllNotificationsAsRead()
+    public async Task<IActionResult> MarkAllNotificationsAsRead()
     {
         try
         {
             string? email = BaseValues.GetEmail(HttpContext);
-            _orderService.MarkNotificationAsRead( email ?? "");
+            await _orderService.MarkNotificationAsRead( email ?? "");
             return Json(new { success = true, message = "Notification marked as read." });
         }
         catch (Exception e)

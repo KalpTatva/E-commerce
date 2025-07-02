@@ -63,12 +63,13 @@
                             @if (Model.BaseEmail != null)
                             {
 
-                                <div class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
+                                <div class="tagbtnNotification text-white me-3 text-decoration-none profile-link position-relative"
                                     id="notificationBell" tabindex="0">
                                     <i class="bi bi-bell-fill icons-css position-relative"></i>
                                     <span id="notificationCount" class="position-absolute notification">
                                         @(Model.Notifications?.Count ?? 0)
                                     </span>
+                                    <span class="messageNotification">Notification</span>
                                 </div>
 
                                 <!-- Notification Popup -->
@@ -82,23 +83,28 @@
                                     </div>
                                 </div>
 
-                                <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
-                                    asp-action="Favourite" asp-controller="BuyerDashboard">
-                                    <i class="bi bi-heart-fill icons-css"></i>
-                                    <span class="message">Favourites</span>
-                                </a>
+                                @if(RoleEnum.Seller.ToString() != Model.BaseRole)
+                                {
 
-                                <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
-                                    asp-action="Cart" asp-controller="BuyerDashboard">
-                                    <i class="bi bi-basket-fill icons-css"></i>
-                                    <span class="messageCart">Cart</span>
-                                </a>
+                                    <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
+                                        asp-action="Favourite" asp-controller="BuyerDashboard">
+                                        <i class="bi bi-heart-fill icons-css"></i>
+                                        <span class="message profile-link">Favourites</span>
+                                    </a>
 
+                                    <a class="tagbtnCart text-white me-3 text-decoration-none profile-link position-relative"
+                                        asp-action="Cart" asp-controller="BuyerDashboard">
+                                        <i class="bi bi-basket-fill icons-css"></i>
+                                        <span class="messageCart">Cart</span>
+                                    </a>
+
+                                }
 
                                 <a asp-action="EditProfile" asp-controller="Dashboard"
-                                    class="text-white me-3 text-decoration-none ">
+                                    class="text-white me-3 text-decoration-none tagbtnAbout ">
                                     <span class="profile-link d-none d-lg-flex">@Model.BaseEmail</span>
 
+                                    <span class="messageAbout">About</span>
                                     <i class="bi bi-person-circle icons-css mt-1 profile-link d-flex d-lg-none"></i>
                                 </a>
 

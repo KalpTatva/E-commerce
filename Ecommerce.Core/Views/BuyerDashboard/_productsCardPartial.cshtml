@@ -30,7 +30,7 @@
                             }
                             else if (p.offer.OfferType == (int)OfferTypeEnum.FixedPrice)
                             {
-                                <span class="text-danger">- @((p.offer.DiscountRate ?? 0).ToString("C")) Fixed Discount</span>
+                                <span class="text-danger">- @((p.offer.DiscountRate ?? 0).ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))) Fixed Discount</span>
                             }
                             else if (p.offer.OfferType == (int)OfferTypeEnum.BOGO)
                             {
@@ -83,11 +83,11 @@
                             }
                         }
                     }
-                    <span class="display-6 fw-normal">@price.ToString("C")</span>
-                    <span class="text-muted text-decoration-line-through text-nowrap">(@p.Price.ToString("C"))</span>
+                    <span class="display-6 fw-normal">@price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
+                    <span class="text-muted text-decoration-line-through text-nowrap">(@p.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
                     <br />
                     <span class="text-danger">
-                        - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" +
+                        - @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN")) @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" +
                                         p.Discount + "%)")
             </span>
         </div>

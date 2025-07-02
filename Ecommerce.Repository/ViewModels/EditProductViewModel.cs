@@ -9,6 +9,7 @@ public class EditProductViewModel : BaseViewModel
     public int ProductId { get; set; }
 
     [Required(ErrorMessage = "product name is required")]
+    [RegularExpression(@"^[a-zA-Z0-9\s,.!+-/*#?()]+$", ErrorMessage = "product name must be alphanumeric and can contain spaces and punctuation (,.!+-/*#?)")]
     public string ProductName { get; set; } = null!;
 
     [Required(ErrorMessage = "product description is required")]

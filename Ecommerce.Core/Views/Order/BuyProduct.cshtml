@@ -29,8 +29,8 @@
             <div class="d-flex align-items-end flex-column me-5">
                 <!-- details of product Total sum-->
                 <p class="fs-3 text-success fw-bold">Pricing details</p>
-                <p class="fs-5 fw-normal text-nowrap">Total Price: @Model.objSession?.totalPrice.ToString("C")</p>
-                <p class="fs-5 fw-normal text-nowrap">Total Discount: @Model.objSession?.totalDiscount.ToString("C")</p>
+                <p class="fs-5 fw-normal text-nowrap">Total Price: @Model.objSession?.totalPrice.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</p>
+                <p class="fs-5 fw-normal text-nowrap">Total Discount: @Model.objSession?.totalDiscount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</p>
                 <p class="fs-5 fw-normal text-nowrap">Total Quantity: @Model.objSession?.totalQuantity</p>
                 <form action="POST" id="SingleOrderDetailsForm">
                     <input type="hidden" name="UserId" value="@Model.UserId">
@@ -102,11 +102,11 @@
                                     }
                                 }
                             }
-                            <span class="display-6 fw-normal">@price.ToString("C")</span>
-                            <span class="text-muted text-decoration-line-through text-nowrap">(@product.Price.ToString("C"))</span>
+                            <span class="display-6 fw-normal">@price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
+                            <span class="text-muted text-decoration-line-through text-nowrap">(@product.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
                             <br />
                             <span class="text-danger">
-                                - @discount.ToString("c") @((int)DiscountEnum.FixedAmount == product.DiscountType ? "(Fixed)" : "(%)")
+                                - @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN")) @((int)DiscountEnum.FixedAmount == product.DiscountType ? "(Fixed)" : "(%)")
                             </span>
                         </div>
 
