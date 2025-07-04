@@ -23,32 +23,39 @@ $(document).ready(function () {
         });
     });
 
-    // mthod for image showcasing
     $("#ProductImages").on("change", function (event) {
         const files = event.target.files;
         const previewContainer = $(".image-preview-container");
-
-        $("#ProductImages").after(previewContainer);
-
+        const validExtensions = ["jpg", "jpeg", "avif", "png", "svg", "bmp", "gif", "webp", "tiff", "heic", "ico", "raw", "jfif"];
         const existingImages = new Set();
-
-        Array.from(files).forEach((file) => {
-            const validExtensions = ["jpg", "jpeg", "avif","png","svg"];
+        
+        // Create a new FileList to store only valid files
+        const validFiles = Array.from(files).filter((file) => {
             const fileExtension = file.name.split(".").pop().toLowerCase();
             if (!validExtensions.includes(fileExtension)) {
-                toastr.error(`File "${file.name}" is not a valid image format. Allowed formats: jpg, jpeg, avif, svg, png.`);
-                return;
+                toastr.error(`File "${file.name}" is not a valid image format.`);
+                return false;
             }
             if (existingImages.has(file.name)) {
                 toastr.error(`Image "${file.name}" is already added.`);
-                return;
+                return false;
             }
             existingImages.add(file.name);
+            return true;
         });
-
-        Array.from(files).forEach((file) => {
-            if (!file.type.startsWith("image/")) return;  
-
+    
+        // Clear the input and set only valid files
+        const dataTransfer = new DataTransfer();
+        validFiles.forEach(file => dataTransfer.items.add(file));
+        this.files = dataTransfer.files;
+    
+        // Move previewContainer after #ProductImages
+        $("#ProductImages").after(previewContainer);
+    
+        // Process only valid files for preview
+        validFiles.forEach((file) => {
+            if (!file.type.startsWith("image/")) return;
+    
             const reader = new FileReader();
             reader.onload = function (e) {
                 const imgWrapper = $(
@@ -58,21 +65,20 @@ $(document).ready(function () {
                     '<img class="img-thumbnail" style="width: 100px; height: 100px;">'
                 );
                 img.attr("src", e.target.result);
-
+    
                 const removeBtn = $(
                     '<button class="btn btn-danger btn-sm position-absolute top-0 end-0">X</button>'
                 );
                 removeBtn.on("click", function () {
                     imgWrapper.remove();
                 });
-
+    
                 imgWrapper.append(img).append(removeBtn);
                 previewContainer.append(imgWrapper);
             };
             reader.readAsDataURL(file);
         });
     });
-
 
     // js for adding new features 
     $("#AddFeatureButton").on("click", function () {

@@ -59,45 +59,42 @@ $(document).ready(function () {
     $("#ProductImages").on("change", function (event) {
         const files = event.target.files;
         const previewContainer = $(".image-preview-container");
-
-        $("#ProductImages").after(previewContainer);
-
+        const validExtensions = ["jpg", "jpeg", "avif", "png", "svg", "bmp", "gif", "webp", "tiff", "heic", "ico", "raw", "jfif"];
         const existingImages = new Set();
-
-        Array.from(files).forEach((file) => {
-        
-            // Validate file type and check for duplicates
-            const validExtensions = ["jpg", "jpeg", "avif","png","svg"];
+    
+        // Filter valid files
+        const validFiles = Array.from(files).filter((file) => {
             const fileExtension = file.name.split(".").pop().toLowerCase();
             if (!validExtensions.includes(fileExtension)) {
-                toastr.error(`File "${file.name}" is not a valid image format. Allowed formats: jpg, jpeg, avif, svg, png.`);
-                return;
+                toastr.error(`File "${file.name}" is not a valid image format.`);
+                return false;
             }
-            
-            // Check if the image is already added
             if (existingImages.has(file.name)) {
                 toastr.error(`Image "${file.name}" is already added.`);
-                return;
+                return false;
             }
             existingImages.add(file.name);
-        
+            return true;
+        });
+    
+        // Update input with valid files
+        const dataTransfer = new DataTransfer();
+        validFiles.forEach(file => dataTransfer.items.add(file));
+        this.files = dataTransfer.files;
+    
+        // Move preview container
+        $("#ProductImages").after(previewContainer);
+    
+        // Display valid images
+        validFiles.forEach((file) => {
+            if (!file.type.startsWith("image/")) return;
+    
             const reader = new FileReader();
             reader.onload = function (e) {
-                const imgWrapper = $(
-                    '<div class="img-wrapper d-inline-block position-relative m-2"></div>'
-                );
-                const img = $(
-                    '<img class="img-thumbnail" style="width: 70px; height: 70px;">'
-                );
-                img.attr("src", e.target.result);
-        
-                const removeBtn = $(
-                    '<button class="btn btn-danger btn-sm position-absolute top-0 end-0">X</button>'
-                );
-                removeBtn.on("click", function () {
-                    imgWrapper.remove();
-                });
-        
+                const imgWrapper = $('<div class="img-wrapper d-inline-block position-relative m-2"></div>');
+                const img = $('<img class="img-thumbnail" style="width: 70px; height: 70px;">').attr("src", e.target.result);
+                const removeBtn = $('<button class="btn btn-danger btn-sm position-absolute top-0 end-0 removeImageBtn">X</button>');
+    
                 imgWrapper.append(img).append(removeBtn);
                 previewContainer.append(imgWrapper);
             };

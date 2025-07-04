@@ -28,7 +28,7 @@ public class NotificationRepository : GenericRepository<Notification>, INotifica
                     unm => unm.NotificationId,
                     n => n.NotificationId,
                     (unm, n) => n)
-                .OrderByDescending(n => n.CreatedAt)
+                .OrderBy(n => n.NotificationId)
                 .ToList();
 
             return notifications;
