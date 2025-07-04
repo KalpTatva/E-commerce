@@ -43,10 +43,12 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
-    
+        string? name = BaseValues.GetUserName(HttpContext);
+
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         };        
         return View(baseViewModel);
     }
@@ -59,10 +61,12 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
     
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         };        
         return View(baseViewModel);
     }
@@ -76,12 +80,14 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
     
         EditRegisteredUserViewModel? model = _userService.GetUserDetailsByEmail(email ?? ""); 
         if(model!=null)
         {
             model.BaseEmail = email;
             model.BaseRole = role;
+            model.BaseUserName = name;
         }   
         return View(model);
     }
@@ -119,10 +125,13 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
     
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         };        
         return View(baseViewModel);
     }
@@ -137,11 +146,13 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
 
         List<MyOrderViewModel>? model = await _orderService.GetMyOrderHistoryByEmail(email ?? ""); 
         OrderAtMyOrderViewModel result = new ();
         result.BaseEmail = email;
         result.BaseRole = role;
+        result.BaseUserName = name;
         if(model!=null)
         {
             result.myOrderViewModels = model;
@@ -157,10 +168,12 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
     
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         };        
         return View(baseViewModel);
     }
@@ -177,6 +190,7 @@ public class DashboardController : Controller
     {   
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
 
         List<SellerOrderViewModel>? model = await _orderService.GetSellerOrders(email ?? "", pageNumber, pageSize);
         int TotalOrders = _orderService.GetSellersOrderTotalCount(email ?? "");
@@ -184,6 +198,7 @@ public class DashboardController : Controller
         {
             BaseEmail = email,
             BaseRole = role,
+            BaseUserName = name,
             TotalCount = TotalOrders,
             SellerOrders = model ?? new List<SellerOrderViewModel>()
         };
@@ -200,10 +215,12 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
     
         OfferViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         };        
         return View(baseViewModel);
     }
@@ -228,10 +245,12 @@ public class DashboardController : Controller
                     TempData["SuccessMessage"] = responses.Message;
                     string? email = BaseValues.GetEmail(HttpContext);
                     string? role = BaseValues.GetRole(HttpContext);
+                    string? name = BaseValues.GetUserName(HttpContext);
 
                     OfferViewModel baseViewModel = new () {
                         BaseEmail = email,
-                        BaseRole = role
+                        BaseRole = role,
+                        BaseUserName = name
                     };   
 
                     // call hub for notification add
@@ -252,20 +271,27 @@ public class DashboardController : Controller
             
                 string? email = BaseValues.GetEmail(HttpContext);
                 string? role = BaseValues.GetRole(HttpContext);
+                string? name = BaseValues.GetUserName(HttpContext);
+
                 OfferViewModel baseViewModel = new () {
                     BaseEmail = email,
-                    BaseRole = role
+                    BaseRole = role,
+                    BaseUserName = name
                 }; 
+                return View(baseViewModel);
             }
             return View(model);
         }
         catch (Exception e)
         {   
             string? email = BaseValues.GetEmail(HttpContext);
-                    string? role = BaseValues.GetRole(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+            string? name = BaseValues.GetUserName(HttpContext);
+
             OfferViewModel baseViewModel = new () {
                 BaseEmail = email,
-                BaseRole = role
+                BaseRole = role,
+                BaseUserName = name
             }; 
             TempData["ErrorMessage"] = e.Message;
             return View(model);
@@ -282,8 +308,7 @@ public class DashboardController : Controller
         try
         {
             string? email = BaseValues.GetEmail(HttpContext);
-            string? role = BaseValues.GetRole(HttpContext);
-    
+            string? role = BaseValues.GetRole(HttpContext);    
                 
             List<ProductNameViewModel> products = _productService.GetProductsForOffer(email ?? "");
             if(products == null || products.Count == 0)
@@ -358,10 +383,13 @@ public class DashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
     
         ContactUsViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         };        
         return View(baseViewModel);
     }
@@ -378,6 +406,8 @@ public class DashboardController : Controller
         {
             string? email = BaseValues.GetEmail(HttpContext);
             string? role = BaseValues.GetRole(HttpContext);
+            string? name = BaseValues.GetUserName(HttpContext);
+
             if (ModelState.IsValid)
             {
                 
@@ -387,6 +417,7 @@ public class DashboardController : Controller
                 {
                     model.BaseEmail = email;
                     model.BaseRole = role;
+                    model.BaseUserName = name;
                     TempData["ErrorMessage"] = responses.Message;
                     return View(model);
                 }
@@ -398,18 +429,26 @@ public class DashboardController : Controller
                 
                 ContactUsViewModel baseViewModel = new () {
                     BaseEmail = email,
-                    BaseRole = role
+                    BaseRole = role,
+                    BaseUserName = name
                 };
                
                 return RedirectToAction("EditProfile", "Dashboard");
             }
             model.BaseEmail = email;
             model.BaseRole = role;
+            model.BaseUserName = name;
             TempData["ErrorMessage"] = "Invalid input. Please check your details.";
             return View(model);
         }
         catch(Exception e)
         {   
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+            string? name = BaseValues.GetUserName(HttpContext);
+            model.BaseEmail = email;
+            model.BaseRole = role;
+            model.BaseUserName = name;
             TempData["ErrorMessage"] = e.Message;
             return View(model);
         }

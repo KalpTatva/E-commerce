@@ -143,7 +143,7 @@
                         </span>
                     </div>
                     <div>
-                        @if (Model.BaseEmail != null && p.Stocks > 0 && Model.BaseRole == RoleEnum.Buyer.ToString())
+                        @if (Model.BaseEmail != null)
                         {
                              <div class="addTofavourite" data-product-id="@p.ProductId"
                                 data-is-favourite="@(Model.favourites != null && Model.favourites.Contains(p.ProductId) ? "true" : "false")">
@@ -163,7 +163,7 @@
                 </div>
 
                 <div class="mt-2 gap-2 d-flex justify-content-end w-100">
-                    @if (Model.BaseEmail != null && p.Stocks > 0 && Model.BaseRole == RoleEnum.Buyer.ToString())
+                    @if (Model.BaseEmail != null && p.Stocks > 0)
                     {
                         <button class="btn btn-warning rounded-pill AddToCart " data-product-id="@p.ProductId">Add to cart</button>
                         <button class="btn btn-success rounded-pill BuySingleProduct" data-product-id="@p.ProductId"
@@ -173,10 +173,7 @@
                     {
                         @if (Model.BaseEmail == null)
                         {
-                            <span class="text-secondary fs-5">Please login first</span>
-                        }else if(Model.BaseRole == RoleEnum.Seller.ToString())
-                        {
-                            <span class="text-danger fs-6">Seller's are not allowed to Buy, login with buyer's role</span>
+                            <span class="text-secondary fs-5">Please login to buy this product</span>
                         }
                         else
                         {
@@ -196,7 +193,7 @@ else
 {
     <div class="d-flex justify-content-center align-items-center">
         <span class="display-5">
-            No products found
+            No product available
         </span>
     </div>
 }

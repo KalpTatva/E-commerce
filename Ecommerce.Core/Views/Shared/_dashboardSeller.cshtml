@@ -26,9 +26,6 @@
                                 <aside class="asideBar bg-dark ">
                                     <div class="brand-content">
                                         <ul class="list-unstyled">
-                                            <li class="my-4"><a asp-action="Index" asp-controller="BuyerDashboard"
-                                                    class="text-success fw-bold text-decoration-none profile-link">Back to Home</a>
-                                            </li>
                                             
                                             <li class="my-4"><a asp-action="EditProfile" asp-controller="Dashboard"
                                                     class="text-success fw-bold text-decoration-none profile-link">My profile</a>
@@ -61,7 +58,8 @@
                                     </div>
                                 </aside>
                             </div>
-                            <a class="navbar-brand font-green E-commerce" style="cursor: pointer;">E-commerce <i class="bi bi-chevron-down"></i></a>
+                            <a class="navbar-brand font-green E-commerce" style="cursor: pointer;"><i class="bi bi-chevron-down"></i></a>
+                            <a class="navbar-brand font-green" style="cursor: pointer;" asp-controller="BuyerDashboard" asp-action="Index">E-Commerce</a>
                         </div>
 
                         <button class="navbar-toggler text-white bg-white" type="button" data-bs-toggle="collapse"
@@ -117,12 +115,13 @@
                                             <a class="text-danger ReadAllBtn" style="cursor: pointer;">Read all</a>
                                         </div>
                                         <div class="popup-body">
-                                            <ul id="notificationList"></ul>
+                                            <ul id="notificationList">
+                                                <li class="text-center text-muted">No new notifications.</li>
+                                            </ul>
                                         </div>
                                     </div>
                                     @if (Model.BaseRole != RoleEnum.Seller.ToString())
                                     {
-
 
                                         <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"
                                             asp-action="Favourite" asp-controller="BuyerDashboard">
@@ -140,7 +139,7 @@
 
                                     <a asp-action="EditProfile" asp-controller="Dashboard"
                                         class="tagbtnAbout text-white me-3 text-decoration-none ">
-                                        <span class="profile-link d-none d-lg-flex">@Model.BaseEmail</span>
+                                        <span class="profile-link d-none d-lg-flex">@Model.BaseUserName</span>
 
                                         <i class="bi bi-person-circle icons-css mt-1 profile-link d-flex d-lg-none"></i>
                                         <span class="messageAbout">About</span>

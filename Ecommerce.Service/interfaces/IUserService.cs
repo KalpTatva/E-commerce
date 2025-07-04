@@ -19,7 +19,7 @@ public interface IUserService
     /// <param name="role"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    ResponseTokenViewModel RefreshToken(string email, string role);
+    ResponseTokenViewModel RefreshToken(string email, string role, string UserName);
 
     /// <summary>
     /// method for generating link for reset password

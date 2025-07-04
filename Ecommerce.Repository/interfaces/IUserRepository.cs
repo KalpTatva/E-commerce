@@ -13,6 +13,7 @@ public interface IUserRepository : IGenericRepository<User>
     /// <exception cref="Exception"></exception>
     User? GetUserByEmail(string email);
 
+    User? GetUserByUserName(string UserName);
 
     /// <summary>
     /// method for getting user + profile data using email

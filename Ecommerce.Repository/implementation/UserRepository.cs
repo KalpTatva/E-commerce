@@ -31,6 +31,18 @@ public class UserRepository : GenericRepository<User> ,IUserRepository
         }
     }
 
+    public User? GetUserByUserName(string UserName)
+    {
+        try
+        {
+            string name = UserName.Trim().ToLower();
+            return _context.Users.Where(x => x.UserName.Contains(name)).FirstOrDefault();
+        }
+        catch(Exception e){
+            throw new Exception(e.Message);
+        }
+    }
+
     /// <summary>
     /// method for getting user + profile data using email
     /// </summary>

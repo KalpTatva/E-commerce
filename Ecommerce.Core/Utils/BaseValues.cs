@@ -15,4 +15,9 @@ public class BaseValues
     {
         return httpContext.User.FindFirst(ClaimTypes.Role)?.Value;
     }
+    public static string? GetUserName(HttpContext httpContext)
+    {
+        return httpContext.User.FindFirst(claim => claim.Type == ClaimTypes.Name)?.Value
+                ?? httpContext.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Name)?.Value;
+    }
 }

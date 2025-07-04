@@ -112,7 +112,7 @@ public class OrderController : Controller
         {
             string? email = BaseValues.GetEmail(HttpContext);
             string? role = BaseValues.GetRole(HttpContext);
-    
+            string? name = BaseValues.GetUserName(HttpContext);
 
             string? res = CookieUtils.GetCookie(HttpContext, sessionId);
             
@@ -137,6 +137,7 @@ public class OrderController : Controller
             result.BaseEmail = email;
             result.BaseRole = role;
             result.SessionId = sessionId;
+            result.BaseUserName = name;
             return View(result);
 
         }
@@ -166,7 +167,7 @@ public class OrderController : Controller
 
             string? email = BaseValues.GetEmail(HttpContext);
             string? role = BaseValues.GetRole(HttpContext);
-    
+            string? name = BaseValues.GetUserName(HttpContext);
             
             string? res = CookieUtils.GetCookie(HttpContext, SessionId);
             
@@ -216,7 +217,7 @@ public class OrderController : Controller
         {
             string? email = BaseValues.GetEmail(HttpContext);
             string? role = BaseValues.GetRole(HttpContext);
-    
+            string? name = BaseValues.GetUserName(HttpContext);
 
             string? res = CookieUtils.GetCookie(HttpContext, sessionId);
             
@@ -241,6 +242,7 @@ public class OrderController : Controller
             result.BaseEmail = email;
             result.BaseRole = role;
             result.SessionId = sessionId;
+            result.BaseUserName = name;
             return View(result);
         }
         catch(Exception e)

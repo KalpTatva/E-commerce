@@ -27,9 +27,12 @@ public class BuyerDashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         }; 
         return View(baseViewModel);
     }
@@ -46,11 +49,14 @@ public class BuyerDashboardController : Controller
     {
         string? email =  BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
         ProductsViewModel model = await _productService.GetProducts(search, category);
         List<int> favourites = _productService.GetFavouritesByEmail(email ?? "");
         model.BaseEmail = email;
         model.BaseRole = role;
         model.favourites = favourites;
+        model.BaseUserName = name;
         return PartialView("_productsCardPartial",model);
     }
 
@@ -64,12 +70,15 @@ public class BuyerDashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
     
         ProductsViewModel model = await _productService.GetFavouriteProducts(email ?? "");
         List<int> favourites = _productService.GetFavouritesByEmail(email ?? "");
         model.favourites = favourites;
         model.BaseEmail = email;
         model.BaseRole = role;
+        model.BaseUserName = name;
         return PartialView("_productsCardPartial",model);
     }
 
@@ -83,9 +92,12 @@ public class BuyerDashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
         productDetailsByproductIdViewModel? model  = await _productService.GetProductById(productId,email ?? "");
         model.BaseEmail = email;
         model.UserEmail = email;
+        model.BaseUserName = name;
         model.BaseRole = role;
         return View(model);
     
@@ -126,9 +138,12 @@ public class BuyerDashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
         }; 
         return View(baseViewModel);
     }
@@ -144,9 +159,12 @@ public class BuyerDashboardController : Controller
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
         BaseViewModel baseViewModel = new () {
             BaseEmail = email,
-            BaseRole = role
+            BaseRole = role,
+            BaseUserName = name
 
         }; 
         return View(baseViewModel);

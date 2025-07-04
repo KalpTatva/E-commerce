@@ -48,7 +48,7 @@ public class UserService : IUserService
                     ? DateTime.UtcNow.AddDays(30) // Token expiration time set to 30 days for persistent login
                     : DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
                 
-                string jwtToken = GenerateJwtToken(model.Email, tokenExpire, userRole ?? "");
+                string jwtToken = GenerateJwtToken(model.Email, tokenExpire, userRole ?? "", user?.UserName ?? "");
 
                 return new ResponseTokenViewModel
                 {
@@ -78,7 +78,7 @@ public class UserService : IUserService
     /// <param name="expiryTime"></param>
     /// <param name="RoleName"></param>
     /// <returns>string</returns>
-    private string GenerateJwtToken(string email, DateTime expiryTime, string RoleName)
+    private string GenerateJwtToken(string email, DateTime expiryTime, string RoleName, string UserName)
     {
         SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])
@@ -90,6 +90,7 @@ public class UserService : IUserService
             new Claim(JwtRegisteredClaimNames.Email, email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.Role, RoleName),
+            new Claim(JwtRegisteredClaimNames.Name, UserName)
         };
 
         JwtSecurityToken token = new JwtSecurityToken(
@@ -110,12 +111,12 @@ public class UserService : IUserService
     /// <param name="role"></param>
     /// <returns>ResponseTokenViewModel</returns>
     /// <exception cref="Exception"></exception>
-    public ResponseTokenViewModel RefreshToken(string email, string role)
+    public ResponseTokenViewModel RefreshToken(string email, string role, string UserName)
     {
         try
         {
             DateTime tokenExpire = DateTime.UtcNow.AddDays(30); // Or 30 days for persistent
-            string jwtToken = GenerateJwtToken(email, tokenExpire, role);
+            string jwtToken = GenerateJwtToken(email, tokenExpire, role, UserName);
             return new ResponseTokenViewModel
             {
                 token = jwtToken,
@@ -366,14 +367,26 @@ public class UserService : IUserService
         {
             // Check if user already exists
             User? existingUser = _unitOfWork.UserRepository.GetUserByEmail(model.Email);
+
             if (existingUser != null)
             {
                 return new ResponsesViewModel()
                 {
                     IsSuccess = false,
-                    Message = "User with this email already exists"
+                    Message = "User with this email already exists, please try another"
                 };
-            }  
+            } 
+
+            User? existingName = _unitOfWork.UserRepository.GetUserByUserName(model.UserName); 
+            if(existingName != null)
+            {
+               return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "User with this Username already exists, please try another"
+                }; 
+            }
+
             // Validate required fields
             if(string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.Email))
             {

@@ -38,6 +38,9 @@ public class TokenRefreshMiddleware
                 ?? context.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
             
             string? roleClaim = context.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? userNameClaim = context.User.FindFirst(claim => claim.Type == ClaimTypes.Name)?.Value
+                ?? context.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Name)?.Value;
+               
             
             string? token =  SessionUtils.GetSession(context, "auth_token") ?? CookieUtils.GetCookie(context, "auth_token");
 
@@ -49,7 +52,7 @@ public class TokenRefreshMiddleware
                     JwtSecurityToken? jwtToken = handler.ReadJwtToken(token);
                     if (jwtToken.ValidTo < DateTime.UtcNow.AddMinutes(5) || CookieUtils.ContainsKey(context.Request,"auth_token")) // Refresh if expiring soon (within 5 minutes)
                     {
-                        ResponseTokenViewModel? response = userService.RefreshToken(emailClaim, roleClaim);
+                        ResponseTokenViewModel? response = userService.RefreshToken(emailClaim, roleClaim, userNameClaim);
                         if (response.token != null)
                         {
                             if (CookieUtils.ContainsKey(context.Request,"auth_token")) // MEANING persistent connection
