@@ -224,7 +224,7 @@ public class UserRepository : IUserRepository
                                                 .ThenInclude(c => c.Country)
                                                 .ThenInclude(s => s.States)
                                                 .ThenInclude(x => x.Cities)
-                                                .Where(x => x.Email == email)
+                                                .Where(x => x.Email == (email.ToLower().Trim()))
                                                 .Select(x => new EditRegisteredUserViewModel 
                                                 {
                                                     FirstName = x.Profile.FirstName,
