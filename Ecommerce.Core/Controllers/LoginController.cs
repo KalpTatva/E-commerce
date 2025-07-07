@@ -171,6 +171,7 @@ public class LoginController : Controller
         if (model == null || string.IsNullOrEmpty(model.ToEmail))
         {
             TempData["ErrorMessage"] = "Email address is required.";
+            return View(model);
         }
         try
         {

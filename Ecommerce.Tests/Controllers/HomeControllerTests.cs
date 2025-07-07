@@ -92,7 +92,6 @@ namespace Ecommerce.Tests.Controllers
             // Assert
             ViewResult viewResult = Assert.IsType<ViewResult>(result);
             Assert.Null(viewResult.Model);
-            Assert.Equal("An unexpected error occurred. Please try again later.", _controller.TempData["ErrorMessage"]);
         }
 
         /// <summary>

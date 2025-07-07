@@ -8,6 +8,7 @@ using Ecommerce.Service.implementation;
 using Ecommerce.Service.interfaces;
 using Ecommerce.Service.interfaces.implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
@@ -18,14 +19,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR(); 
 
+
 // db connection string
-builder.Services.AddDbContext<EcommerceContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
-// dapper injection
-builder.Services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+if (builder.Environment.IsEnvironment("Test"))
+{
+    builder.Services.AddDbContext<EcommerceContext>(options =>
+        options.UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}"));
+    builder.Services.AddScoped<IDbConnection>(sp =>
+    {
+        var conn = new SqliteConnection("DataSource=:memory:");
+        conn.Open();
+        return conn;
+    });
+}
+else
+{
+    builder.Services.AddDbContext<EcommerceContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 // generic part
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -163,3 +174,5 @@ app.MapControllerRoute(
 app.MapHub<NotificationHub>("/NotificationHub");
 
 app.Run();
+
+public partial class Program { }
