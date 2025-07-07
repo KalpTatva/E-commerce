@@ -32,9 +32,8 @@ public class HomeController : Controller
     {
         try
         {
+            
             string? authToken = null;
-
-            // Check for auth token in cookies or session
             string? cookieToken = CookieUtils.GetCookie(HttpContext, "auth_token");
             if (HttpContext.Session.TryGetValue("auth_token", out byte[]? sessionToken))
             {
@@ -45,16 +44,16 @@ public class HomeController : Controller
                 authToken = cookieToken;
             }
 
-            // If no valid token or user is not authenticated, return login view
             if (string.IsNullOrEmpty(authToken) || User?.Identity?.IsAuthenticated != true)
             {
                 SessionUtils.ClearSession(HttpContext);
                 CookieUtils.ClearCookies(Response, "auth_token");
+                TempData["ErrorMessage"] = "An unexpected error occurred. Please try again later.";
                 return View();
             }
 
+
             string? role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            // Redirect based on role
             switch (role)
             {
                 case nameof(RoleEnum.Admin):
@@ -88,6 +87,12 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult Index(LoginViewModel model)
     {
+        if (model == null || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+        {
+            TempData["ErrorMessage"] = "Email and Password are required.";
+            return View(model);
+        }
+
         try
         {
             if (!ModelState.IsValid)
@@ -99,25 +104,18 @@ public class HomeController : Controller
             if (response.token != null)
             {
                 TempData["SuccessMessage"] = "User logged in successfully!";
-
-                // Store JWT token and session ID
                 if (response.isPersistent)
                 {
-                    // Store JWT in cookie (temporary solution)
                     CookieUtils.SetJwtCookie(Response, "auth_token", response.token);
-                    // Set session in HttpContext for persistent login
                     SessionUtils.SetSession(HttpContext, "auth_token", response.token);
                 }
                 else
                 {
-                    // Storing JWT in session only for non-persistent login
-                    SessionUtils.SetSession(HttpContext,"auth_token", response.token);
+                    SessionUtils.SetSession(HttpContext, "auth_token", response.token);
                 }
-
                 return RedirectToAction("Index", "Home");
             }
-
-            TempData["ErrorMessage"] = "Invalid user credentials, please try again !";
+            TempData["ErrorMessage"] = "Invalid user credentials, please try again!";
             return View(model);
         }
         catch (Exception e)
