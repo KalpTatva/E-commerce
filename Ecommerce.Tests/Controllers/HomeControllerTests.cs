@@ -11,7 +11,7 @@ using System.Security.Claims;
 using System.Text;
 
 /*
-    unit thesting for home controller
+    unit thesting for Login controller
     - unit testing works for test single unit (method) which is independent from dependencies or infrastructure - thats what integration testing are for
     - doesn't communicate with file system or data base
     - works only for the test of the code
@@ -38,15 +38,15 @@ using System.Text;
 
 namespace Ecommerce.Tests.Controllers
 {
-    public class HomeControllerTests
+    public class LoginControllerTests
     {
-        private readonly Mock<ILogger<HomeController>> _mockLogger;
+        private readonly Mock<ILogger<LoginController>> _mockLogger;
         private readonly Mock<IUserService> _mockUserService;
-        private readonly HomeController _controller;
+        private readonly LoginController _controller;
 
-        public HomeControllerTests()
+        public LoginControllerTests()
         {
-            _mockLogger = new Mock<ILogger<HomeController>>();
+            _mockLogger = new Mock<ILogger<LoginController>>();
             _mockUserService = new Mock<IUserService>();
 
             // Set up controller with a mocked HttpContext
@@ -56,7 +56,7 @@ namespace Ecommerce.Tests.Controllers
             Mock<ISession> mockSession = new Mock<ISession>();
             httpContext.Session = mockSession.Object;
 
-            _controller = new HomeController(_mockLogger.Object, _mockUserService.Object)
+            _controller = new LoginController(_mockLogger.Object, _mockUserService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -82,8 +82,8 @@ namespace Ecommerce.Tests.Controllers
 
             // Mock session to return no token
             Mock<ISession> mockSession = new Mock<ISession>();
-            byte[] sessionToken = null;
-            mockSession.Setup(s => s.TryGetValue("auth_token", out sessionToken)).Returns(false);
+            byte[] sessionToken = null!;
+            mockSession.Setup(s => s.TryGetValue("auth_token", out sessionToken!)).Returns(false);
             _controller.ControllerContext.HttpContext.Session = mockSession.Object;
 
             // Act
@@ -92,7 +92,6 @@ namespace Ecommerce.Tests.Controllers
             // Assert
             ViewResult viewResult = Assert.IsType<ViewResult>(result);
             Assert.Null(viewResult.Model);
-            Assert.Equal("An unexpected error occurred. Please try again later.", _controller.TempData["ErrorMessage"]);
         }
 
         /// <summary>
@@ -114,7 +113,7 @@ namespace Ecommerce.Tests.Controllers
             // Mock session 
             Mock<ISession> mockSession = new Mock<ISession>();
             byte[] sessionToken = Encoding.UTF8.GetBytes("valid_token");
-            mockSession.Setup(s => s.TryGetValue("auth_token", out sessionToken)).Returns(true);
+            mockSession.Setup(s => s.TryGetValue("auth_token", out sessionToken!)).Returns(true);
             _controller.ControllerContext.HttpContext.Session = mockSession.Object;
 
             // Act
@@ -135,7 +134,7 @@ namespace Ecommerce.Tests.Controllers
         public void Index_Post_NullModel_ReturnsViewWithError()
         {
             // Arrange
-            LoginViewModel model = null;
+            LoginViewModel model = null!;
 
             // Act
             IActionResult result = _controller.Index(model);
@@ -169,10 +168,10 @@ namespace Ecommerce.Tests.Controllers
 
         /// <summary>
         /// index post method : case
-        /// if login happens successfully then should redirect to home/index
+        /// if login happens successfully then should redirect to Login/index
         /// </summary>
         [Fact]
-        public void Index_Post_ValidModel_SuccessfulLogin_RedirectsToHome()
+        public void Index_Post_ValidModel_SuccessfulLogin_RedirectsToLogin()
         {
             // Arrange
             LoginViewModel model = new LoginViewModel { Email = "test@example.com", Password = "password123" };
@@ -196,7 +195,7 @@ namespace Ecommerce.Tests.Controllers
             // Assert
             RedirectToActionResult redirectResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("Index", redirectResult.ActionName);
-            Assert.Equal("Home", redirectResult.ControllerName);
+            Assert.Equal("Login", redirectResult.ControllerName);
             Assert.Equal("User logged in successfully!", _controller.TempData["SuccessMessage"]);
         }
 

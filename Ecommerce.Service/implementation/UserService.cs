@@ -162,7 +162,7 @@ public class UserService : IUserService
             
             // reset password url for email
             string BaseUrl = _configuration["UrlSettings:BaseUrl"] ?? "";
-            string ResetPasswordUrl = $"{BaseUrl}Home/ResetPassword?token={passwordResetRequest.Guidtoken}";
+            string ResetPasswordUrl = $"{BaseUrl}Login/ResetPassword?token={passwordResetRequest.Guidtoken}";
             string ResetLink = HtmlEncoder.Default.Encode(ResetPasswordUrl);
 
             string EmailBody = $@"

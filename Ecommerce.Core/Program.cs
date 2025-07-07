@@ -105,7 +105,7 @@ builder.Services.AddAuthentication(options =>
         OnAuthenticationFailed = context =>
         {
             // Redirect to login page on authentication failure
-            context.Response.Redirect("/Home/Index");
+            context.Response.Redirect("/Login/Index");
             context.Response.StatusCode = 401; // Unauthorized
             return Task.CompletedTask;
         }
@@ -118,7 +118,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Login/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
@@ -132,15 +132,15 @@ app.UseStatusCodePages(async context =>
 {
     if (context.HttpContext.Response.StatusCode == 401)
     {
-        context.HttpContext.Response.Redirect("/Home/Error401"); // Redirect to login for unauthenticated
+        context.HttpContext.Response.Redirect("/Login/Error401"); // Redirect to login for unauthenticated
     }
     else if (context.HttpContext.Response.StatusCode == 403)
     {
-        context.HttpContext.Response.Redirect("/Home/Error403"); // Custom 403 page
+        context.HttpContext.Response.Redirect("/Login/Error403"); // Custom 403 page
     }
     else if (context.HttpContext.Response.StatusCode == 404)
     {
-        context.HttpContext.Response.Redirect("/Home/Error404");
+        context.HttpContext.Response.Redirect("/Login/Error404");
     }
     await Task.CompletedTask;
 });

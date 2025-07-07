@@ -2,7 +2,7 @@ $(document).ready(function () {
     
     function GetCountries() {
         $.ajax({
-            url: '/Home/GetCountries',
+            url: '/Login/GetCountries',
             type: 'GET',
             success: function (data) {
                 $("#countrydropdown").html(data);
@@ -21,7 +21,7 @@ $(document).ready(function () {
 
         if (countryId) {
             $.ajax({
-                url: '/Home/GetStates',
+                url: '/Login/GetStates',
                 type: 'GET',
                 data: { countryId: countryId },
                 success: function (data) {
@@ -40,7 +40,7 @@ $(document).ready(function () {
         console.log(stateId, "______state",);
         if (stateId) {
             $.ajax({
-                url: '/Home/GetCities',
+                url: '/Login/GetCities',
                 type: 'GET',
                 data: { stateId: stateId },
                 success: function (data) {

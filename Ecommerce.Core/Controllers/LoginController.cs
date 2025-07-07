@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Ecommerce.Core.Controllers;
 
-public class HomeController : Controller
+public class LoginController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<LoginController> _logger;
     private readonly IUserService _userService;
-    public HomeController(ILogger<HomeController> logger, IUserService userService)
+    public LoginController(ILogger<LoginController> logger, IUserService userService)
     {
         _logger = logger;
         _userService = userService;
@@ -48,7 +48,6 @@ public class HomeController : Controller
             {
                 SessionUtils.ClearSession(HttpContext);
                 CookieUtils.ClearCookies(Response, "auth_token");
-                TempData["ErrorMessage"] = "An unexpected error occurred. Please try again later.";
                 return View();
             }
 
@@ -113,7 +112,7 @@ public class HomeController : Controller
                 {
                     SessionUtils.SetSession(HttpContext, "auth_token", response.token);
                 }
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Login");
             }
             TempData["ErrorMessage"] = "Invalid user credentials, please try again!";
             return View(model);
@@ -138,13 +137,13 @@ public class HomeController : Controller
             CookieUtils.ClearCookies(Response, "auth_token");
     
             TempData["SuccessMessage"] = "Logged out successfully!";
-            return RedirectToAction("Index", "Home"); // Redirect to login page
+            return RedirectToAction("Index", "Login"); 
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred during logout.");
             TempData["ErrorMessage"] = "An error occurred during logout. Please try again.";
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Login");
         }
     }
 
@@ -176,11 +175,11 @@ public class HomeController : Controller
         try
         {
 
-            ResponsesViewModel response = await _userService.ForgotPassword(model);
+            ResponsesViewModel response = await _userService.ForgotPassword(model!);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = response.Message;
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Login");
             }
             else
             {
@@ -211,7 +210,7 @@ public class HomeController : Controller
             if (string.IsNullOrEmpty(token))
             {
                 TempData["ErrorMessage"] = "Invalid password reset link.";
-                return RedirectToAction("ForgotPassword","Home");
+                return RedirectToAction("ForgotPassword","Login");
             }
             ResponsesViewModel response = await _userService.ValidateResetPasswordToken(token);
             if (response.IsSuccess)
@@ -222,7 +221,7 @@ public class HomeController : Controller
             {
                 TempData["ErrorMessage"] = response.Message;
                 TempData.Remove("SuccessMessage");
-                return RedirectToAction("ForgotPassword","Home");
+                return RedirectToAction("ForgotPassword","Login");
             }
 
         }
@@ -230,7 +229,7 @@ public class HomeController : Controller
         {
             _logger.LogError(ex, "An error occurred while validating the reset password token.");
             TempData["ErrorMessage"] = $"Error occurred while processing your request: {ex.Message}";
-            return RedirectToAction("ForgotPassword","Home");
+            return RedirectToAction("ForgotPassword","Login");
         }
     }
 
