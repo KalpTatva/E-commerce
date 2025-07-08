@@ -14,6 +14,7 @@ using Ecommerce.Service.interfaces;
 using Ecommerce.Service.implementation;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.implementation;
+using Ecommerce.Core.Utils;
 
 [Collection("Sequential")]
 public class LoginMethodIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
@@ -65,6 +66,13 @@ public class LoginMethodIntegrationTest : IClassFixture<WebApplicationFactory<Pr
         });
     }
 
+
+    /// <summary>
+    /// Invalid model state returns error
+    /// </summary>
+    /// <returns>
+    /// returns status code ok with error message "invalid user credentials
+    /// </returns>
     [Fact]
     public async Task Login_WithValidCredentials_ReturnsRedirect()
     {
@@ -91,6 +99,7 @@ public class LoginMethodIntegrationTest : IClassFixture<WebApplicationFactory<Pr
         {
             Email = "test@example.com",
             Password = "Password123!"
+            // invalid model fields, rememberme is missing
         });
 
         // Assert
@@ -99,6 +108,12 @@ public class LoginMethodIntegrationTest : IClassFixture<WebApplicationFactory<Pr
         Assert.Contains("Invalid user credentials", content);
     }
 
+    /// <summary>
+    /// invalid model state (remember me is not present)
+    /// </summary>
+    /// <returns>
+    /// will return status code ok with error message "invalid user credentials 
+    /// </returns>
     [Fact]
     public async Task Login_WithInvalidCredentials_ReturnsViewWithError()
     {
@@ -111,7 +126,7 @@ public class LoginMethodIntegrationTest : IClassFixture<WebApplicationFactory<Pr
 
         var client = _factory.CreateClient();
 
-        // Act
+        // Act : feild is not present in test db
         var response = await client.PostAsJsonAsync("/Login/Index", new LoginViewModel
         {
             Email = "wrong@example.com",
@@ -124,6 +139,84 @@ public class LoginMethodIntegrationTest : IClassFixture<WebApplicationFactory<Pr
         var content = await response.Content.ReadAsStringAsync();
         Assert.Contains("Invalid user credentials", content);
     }
+
+    /// <summary>
+    /// Empty email and password empty input
+    /// </summary>
+    /// <returns>
+    /// should return ok status with error message "Email & password are requrired  
+    /// </returns>
+    [Fact]
+    public async Task Login_WithEmptyCredentials_ReturnsViewWithError()
+    {
+        // Arrange
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<EcommerceContext>();
+            context.Database.EnsureCreated();
+        }
+
+        var client = _factory.CreateClient();
+        var loginModel = new LoginViewModel
+        {
+            Email = "",
+            Password = ""
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/Login/Index", loginModel);
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Email and Password are required", content);
+    }
+
+
+    /// <summary>
+    /// Valid credentials with RememberMe which enables  persistent cookie
+    /// </summary>
+    /// <returns>
+    /// returns found status code which sets the cookie with jwt token
+    /// </returns>
+    [Fact]
+    public async Task Login_WithValidCredentialsAndRememberMe_SetsPersistentCookie()
+    {
+        // Arrange
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<EcommerceContext>();
+            context.Database.EnsureCreated();
+
+            context.Users.Add(new User
+            {
+                Email = "persistent@example.com",
+                Password = BCrypt.Net.BCrypt.EnhancedHashPassword("Password123!"),
+                RoleId = (int)RoleEnum.Seller,
+                UserName = "PersistentUser"
+            });
+            await context.SaveChangesAsync();
+        }
+
+        var client = _factory.CreateClient();
+        var loginModel = new LoginViewModel
+        {
+            Email = "persistent@example.com",
+            Password = "Password123!",
+            RememberMe = true
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/Login/Index", loginModel);
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains(".AspNetCore.Antiforgery", response.Headers.GetValues("Set-Cookie").FirstOrDefault());
+    }
+
+
+
+
 }
 
 [CollectionDefinition("Sequential", DisableParallelization = true)]

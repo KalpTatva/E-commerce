@@ -28,11 +28,10 @@ public class LoginController : Controller
     /// index method for redirection based on cookie and sessions, returns login view
     /// </summary>
     /// <returns>View</returns>
-    public IActionResult Index()
+    public IActionResult Index(string? ReturnURL = null)
     {
         try
-        {
-            
+        { 
             string? authToken = null;
             string? cookieToken = CookieUtils.GetCookie(HttpContext, "auth_token");
             if (HttpContext.Session.TryGetValue("auth_token", out byte[]? sessionToken))
@@ -63,6 +62,7 @@ public class LoginController : Controller
                     return RedirectToAction("Index", "BuyerDashboard");
                 default:
                     TempData["ErrorMessage"] = "Invalid user role. Please contact support.";
+                    ViewBag.RetunURL = ReturnURL;
                     SessionUtils.ClearSession(HttpContext);
                     CookieUtils.ClearCookies(Response, "auth_token");
                     return View();
@@ -100,7 +100,7 @@ public class LoginController : Controller
                 return View(model);
             }
             ResponseTokenViewModel? response = _userService.UserLogin(model);
-            if (response.token != null)
+            if (response.token != null )
             {
                 TempData["SuccessMessage"] = "User logged in successfully!";
                 if (response.isPersistent)
@@ -111,6 +111,10 @@ public class LoginController : Controller
                 else
                 {
                     SessionUtils.SetSession(HttpContext, "auth_token", response.token);
+                }
+                if(!string.IsNullOrEmpty(model.ReturnURL) && Url.IsLocalUrl(model.ReturnURL))
+                {
+                    return Redirect(model.ReturnURL);
                 }
                 return RedirectToAction("Index", "Login");
             }

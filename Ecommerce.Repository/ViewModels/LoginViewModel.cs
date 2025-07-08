@@ -14,4 +14,6 @@ public class LoginViewModel
     [RegularExpression("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[#$^+=!*()@%&]).{8,}$", ErrorMessage = "Atleast contain 1-uppercase, 1-lowercase, 1-special charecter, 1-number  and length should be 8")]
     public string Password { get; set; } = null!;
     public bool RememberMe { get; set; } = false;
+
+    public string? ReturnURL {get;set;}
 }

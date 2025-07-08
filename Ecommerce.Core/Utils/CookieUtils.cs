@@ -26,7 +26,7 @@ public class CookieUtils
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(30)
+            Expires = DateTimeOffset.UtcNow.AddMinutes(2)
         };
         response.Cookies.Append(cokkieName, payload, cookieOptions);
     }

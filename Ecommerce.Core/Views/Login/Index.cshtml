@@ -7,6 +7,8 @@
 
         <div class="w-100 ">
             <form asp-action="Index" asp-controller="Login" method="post" class="d-flex flex-column inputlogin">
+                <input type="hidden" asp-for="ReturnURL" value="@ViewBag.ReturnURL" />
+                
                 <div class="form-floating has-validation my-2 mb-4 w-100">
                     <input type="text" class="form-control" id="email-login" placeholder="Email" asp-for="Email">
                     <span asp-validation-for="Email" class="text-danger float-start"></span>

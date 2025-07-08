@@ -73,7 +73,7 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(2);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -100,24 +100,32 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            // Try to get token from cookies first (for "Remember Me")
             context.Request.Cookies.TryGetValue("auth_token", out string? token);
-
-            //  if no cookie token
             if (string.IsNullOrEmpty(token))
             {
                 token = context.HttpContext.Session.GetString("auth_token");
             }
-
-            // If token is still null or empty, explicitly set context.Token to null
             context.Token = token;
             return Task.CompletedTask;
         },
-        OnAuthenticationFailed = context =>
+        OnChallenge = context =>
         {
-            // Redirect to login page on authentication failure
-            context.Response.Redirect("/Login/Index");
-            context.Response.StatusCode = 401; // Unauthorized
+            // Avoid default response
+            context.HandleResponse();
+
+            var req = context.HttpContext.Request;
+            var path = req.Path + req.QueryString;
+
+            // Preventing infinite loop if already on login
+            if (!req.Path.StartsWithSegments("/Login"))
+            {
+                var loginUrl = $"/Login/Index?ReturnURL={Uri.EscapeDataString(path)}";
+                context.Response.Redirect(loginUrl);
+            }
+            else
+            {
+                context.Response.Redirect("/Login/Index");
+            }
             return Task.CompletedTask;
         }
     };
@@ -139,15 +147,23 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession(); 
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<TokenRefreshMiddleware>();
+
 app.UseStatusCodePages(async context =>
 {
     if (context.HttpContext.Response.StatusCode == 401)
     {
-        context.HttpContext.Response.Redirect("/Login/Error401"); // Redirect to login for unauthenticated
+        // Optionally, capture the original URL here for return
+        var path = context.HttpContext.Request.Path + context.HttpContext.Request.QueryString;
+        var loginUrl = $"/Login/Index?ReturnURL={Uri.EscapeDataString(path)}";
+        context.HttpContext.Response.Redirect(loginUrl);
     }
     else if (context.HttpContext.Response.StatusCode == 403)
     {
-        context.HttpContext.Response.Redirect("/Login/Error403"); // Custom 403 page
+        context.HttpContext.Response.Redirect("/Login/Error403");
     }
     else if (context.HttpContext.Response.StatusCode == 404)
     {
@@ -155,13 +171,6 @@ app.UseStatusCodePages(async context =>
     }
     await Task.CompletedTask;
 });
-
-app.UseSession(); 
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<TokenRefreshMiddleware>();
-
 
 
 
