@@ -457,12 +457,47 @@ public class OrderService : IOrderService
     {
         try
         {
+            // validations for the offer 
             if (model == null)
             {
                 return new ResponsesViewModel()
                 {
                     IsSuccess = false,
-                    Message = "Offer model cannot be null"
+                    Message = "Offer model cannot be null!"
+                };
+            }
+
+            // check if the values for discount are valid or not
+            Product? product = await _unitOfWork.ProductRepository.FindAsync(x => x.ProductId == model.ProductId && x.IsDeleted == false);
+
+            if (product == null)
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "Product does not exists!"
+                };
+            }
+
+            if((int)OfferTypeEnum.Percentage == model.OfferType && (model.DiscountRate <= 0 || model.DiscountRate > 100))
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Discount must be between 0 and 100 for percentage discount type"
+                };
+            }
+
+            int prices = (int)DiscountEnum.Percentage == product.DiscountType ?
+                         (int)(product.Price * (product.Discount ?? 0) / 100) :
+                         (int)product.Price - (int)(product.Discount ?? 0) ;
+
+            if((int)OfferTypeEnum.FixedPrice == model.OfferType && (model.DiscountRate <= 0 || model.DiscountRate > prices))
+            {
+                return new ResponsesViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Discount must be greater than zero and less than or equal to price for fixed amount discount type"
                 };
             }
 
@@ -500,7 +535,6 @@ public class OrderService : IOrderService
             // that means who have produts in their favorite list
         
             // first need to make notification message 
-            Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(model.ProductId);
             string notificationMessage = $"New offer on product {product?.ProductName}: {model.Title} - {model.Description}";
             
             // next is to add this message into notification table

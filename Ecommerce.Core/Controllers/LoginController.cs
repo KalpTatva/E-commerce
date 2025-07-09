@@ -47,7 +47,12 @@ public class LoginController : Controller
             {
                 SessionUtils.ClearSession(HttpContext);
                 CookieUtils.ClearCookies(Response, "auth_token");
-                return View();
+
+                LoginViewModel model = new (){
+                    ReturnURL = ReturnURL
+                };
+
+                return View(model);
             }
 
 
@@ -61,11 +66,12 @@ public class LoginController : Controller
                 case nameof(RoleEnum.Buyer):
                     return RedirectToAction("Index", "BuyerDashboard");
                 default:
-                    TempData["ErrorMessage"] = "Invalid user role. Please contact support.";
-                    ViewBag.RetunURL = ReturnURL;
+                    LoginViewModel model = new (){
+                        ReturnURL = ReturnURL
+                    };
                     SessionUtils.ClearSession(HttpContext);
                     CookieUtils.ClearCookies(Response, "auth_token");
-                    return View();
+                    return View(model);          
             }
         }
         catch
@@ -106,16 +112,27 @@ public class LoginController : Controller
                 if (response.isPersistent)
                 {
                     CookieUtils.SetJwtCookie(Response, "auth_token", response.token);
-                    SessionUtils.SetSession(HttpContext, "auth_token", response.token);
+                    SessionUtils.SetSession(HttpContext, "auth_token", response.token);    
                 }
                 else
                 {
                     SessionUtils.SetSession(HttpContext, "auth_token", response.token);
+                    
+                    // for Return URL
+                    string? cookieToken = CookieUtils.GetCookie(HttpContext, "previous_user");
+                    if(!string.IsNullOrEmpty(cookieToken) && cookieToken == response.UserName && !string.IsNullOrEmpty(model.ReturnURL))
+                    {
+                        string decryptedUrl = AesEncryptionHelper.DecryptString(model.ReturnURL);
+                        if(Url.IsLocalUrl(decryptedUrl))
+                        {
+                            CookieUtils.SetCookie(HttpContext,"previous_user", response.UserName ?? "");
+                            return Redirect(decryptedUrl);
+                        }
+                    }
+
+                    CookieUtils.SetCookie(HttpContext,"previous_user", response.UserName ?? "");
                 }
-                if(!string.IsNullOrEmpty(model.ReturnURL) && Url.IsLocalUrl(model.ReturnURL))
-                {
-                    return Redirect(model.ReturnURL);
-                }
+                
                 return RedirectToAction("Index", "Login");
             }
             TempData["ErrorMessage"] = "Invalid user credentials, please try again!";
@@ -139,6 +156,7 @@ public class LoginController : Controller
             // Clear session and cookies
             SessionUtils.ClearSession(HttpContext);
             CookieUtils.ClearCookies(Response, "auth_token");
+            CookieUtils.ClearCookies(Response, "previous_user");
     
             TempData["SuccessMessage"] = "Logged out successfully!";
             return RedirectToAction("Index", "Login"); 

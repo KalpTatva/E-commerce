@@ -13,4 +13,5 @@ public class ResponseTokenViewModel
     public bool isPersistent { get; set;} 
     public string? Role { get; set; } 
     public string? sessionId {get;set;}
+    public string? UserName {get;set;}
 }

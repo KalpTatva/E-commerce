@@ -100,23 +100,6 @@ public class TokenRefreshMiddleware
             }
         }
 
-        else
-        {
-            // If unauthenticated or no token, clear session/cookies and redirect to login with ReturnURL
-            SessionUtils.ClearSession(context);
-            CookieUtils.ClearCookies(context.Response, "auth_token");
-
-            // Only redirect if not already on the login page
-            string? currentPath = context.Request.Path.Value;
-            if (!string.IsNullOrEmpty(currentPath) && !currentPath.StartsWith("/Login", StringComparison.OrdinalIgnoreCase))
-            {
-                string returnUrl = context.Request.Path + context.Request.QueryString;
-                string loginUrl = $"/Login/Index?ReturnURL={Uri.EscapeDataString(returnUrl)}";
-                context.Response.Redirect(loginUrl);
-                return;
-            }
-        }
-
         await _next(context);
     }
 }

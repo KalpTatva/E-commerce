@@ -237,16 +237,15 @@ public class DashboardController : Controller
     {
         try
         {
+            string? email = BaseValues.GetEmail(HttpContext);
+            string? role = BaseValues.GetRole(HttpContext);
+            string? name = BaseValues.GetUserName(HttpContext);
             if(ModelState.IsValid)
             {
                 ResponsesViewModel responses = await _orderService.AddOffer(model);
                 if(responses.IsSuccess)
                 {
                     TempData["SuccessMessage"] = responses.Message;
-                    string? email = BaseValues.GetEmail(HttpContext);
-                    string? role = BaseValues.GetRole(HttpContext);
-                    string? name = BaseValues.GetUserName(HttpContext);
-
                     OfferViewModel baseViewModel = new () {
                         BaseEmail = email,
                         BaseRole = role,
@@ -268,11 +267,6 @@ public class DashboardController : Controller
                     .ToList();
 
                 TempData["ErrorMessage"] = string.Join(", ", errorMessages);
-            
-                string? email = BaseValues.GetEmail(HttpContext);
-                string? role = BaseValues.GetRole(HttpContext);
-                string? name = BaseValues.GetUserName(HttpContext);
-
                 OfferViewModel baseViewModel = new () {
                     BaseEmail = email,
                     BaseRole = role,
@@ -280,6 +274,10 @@ public class DashboardController : Controller
                 }; 
                 return View(baseViewModel);
             }
+
+            model.BaseEmail = email;
+            model.BaseRole = role;
+            model.BaseUserName = name;
             return View(model);
         }
         catch (Exception e)

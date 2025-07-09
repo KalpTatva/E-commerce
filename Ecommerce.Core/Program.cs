@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text;
 using Ecommerce.Core.Hub;
+using Ecommerce.Core.Utils;
 using Ecommerce.Repository.implementation;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
@@ -113,13 +114,14 @@ builder.Services.AddAuthentication(options =>
             // Avoid default response
             context.HandleResponse();
 
-            var req = context.HttpContext.Request;
-            var path = req.Path + req.QueryString;
+            HttpRequest? req = context.HttpContext.Request;
+            string? path = req.Path + req.QueryString;
 
             // Preventing infinite loop if already on login
             if (!req.Path.StartsWithSegments("/Login"))
             {
-                var loginUrl = $"/Login/Index?ReturnURL={Uri.EscapeDataString(path)}";
+                string encryptedReturnUrl = AesEncryptionHelper.EncryptString(path);
+                var loginUrl = $"/Login/Index?ReturnURL={encryptedReturnUrl}";
                 context.Response.Redirect(loginUrl);
             }
             else

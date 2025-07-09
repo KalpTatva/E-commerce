@@ -1,5 +1,12 @@
 ﻿@model Ecommerce.Repository.ViewModels.LoginViewModel
-
+@{
+    string URL = "";
+    if(!string.IsNullOrEmpty(Model.ReturnURL))
+    {
+        URL = Model.ReturnURL;
+    }
+    
+}
 <div class="d-flex p-2 justify-content-center align-items-center ">
     <div class="LoginContent bg-white p-4 border  rounded-end">
         <h1 class="display-4 text-center">E-commerce </h1>
@@ -7,7 +14,8 @@
 
         <div class="w-100 ">
             <form asp-action="Index" asp-controller="Login" method="post" class="d-flex flex-column inputlogin">
-                <input type="hidden" asp-for="ReturnURL" value="@ViewBag.ReturnURL" />
+
+                <input type="hidden" asp-for="ReturnURL" value="@URL" />
                 
                 <div class="form-floating has-validation my-2 mb-4 w-100">
                     <input type="text" class="form-control" id="email-login" placeholder="Email" asp-for="Email">

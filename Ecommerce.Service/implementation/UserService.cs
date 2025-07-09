@@ -53,6 +53,7 @@ public class UserService : IUserService
                 return new ResponseTokenViewModel
                 {
                     token = jwtToken,
+                    UserName = user?.UserName ?? "",
                     isPersistent = model.RememberMe,
                     response = "Login successful"
                 };
