@@ -676,4 +676,44 @@ public class UserService : IUserService
             };
         }
     }
+
+
+    public async Task<ResponsesViewModel> ThemeChange(string theme, string email) 
+    {
+        try
+        {
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if(user!=null)
+            {
+                user.Theme = ThemeEnum.dark.ToString() == theme ? (int)ThemeEnum.dark : 
+                            ThemeEnum.light.ToString() == theme ? (int)ThemeEnum.light : 
+                            (int)ThemeEnum.system;
+                user.EditedAt = DateTime.Now;
+                await _unitOfWork.UserRepository.UpdateAsync(user);
+                
+                return new ResponsesViewModel
+                {
+                    IsSuccess = true,
+                    Message = $"Theme updated successfully!"
+                };
+
+                            
+            }
+            else
+            {
+                // theme changed whithout active user, no theme is preserved
+                return new ResponsesViewModel
+                {
+                    IsSuccess = true,
+                    Message = $"Theme updated successfully!"
+                };
+            }
+        } catch (Exception e) {
+            return new ResponsesViewModel
+            {
+                IsSuccess = false,
+                Message = $"Error in changing theme: {e.Message}"
+            };
+        }
+    }
 }

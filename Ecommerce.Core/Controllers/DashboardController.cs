@@ -451,5 +451,35 @@ public class DashboardController : Controller
             return View(model);
         }
     }
+    
 
+
+    public async Task<IActionResult> ThemeChange(string theme)
+    {
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            ResponsesViewModel res = await _userService.ThemeChange(theme, email ?? "");
+            
+            if(res.IsSuccess) {
+                return Json(new {
+                    success = true,
+                    message = res.Message
+                });
+            }
+
+            return Json(new {
+                success = false,
+                message = res.Message
+            });
+
+        }
+        catch(Exception e)
+        {
+            return Json(new {
+                success = false,
+                message = e.Message
+            });
+        }
+    }
 }

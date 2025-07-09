@@ -91,4 +91,8 @@ public interface IUserService
     /// </summary>
     /// <param name="model">ContactUsViewModel containing the contact message details</param>
     Task<ResponsesViewModel> AddContactMessage(ContactUsViewModel model);
+
+
+    Task<ResponsesViewModel> ThemeChange(string theme, string email); 
+
 }

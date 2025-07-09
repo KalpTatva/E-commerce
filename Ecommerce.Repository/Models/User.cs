@@ -25,6 +25,8 @@ public partial class User
 
     public int? DeletedById { get; set; }
 
+    public int? Theme { get; set; }
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();

@@ -50,4 +50,10 @@ public class Enums
         [Display(Name = "Buy One Get One")]
         BOGO = 3
     }
+
+    public enum ThemeEnum{
+        system = 1,
+        dark = 2,
+        light = 3
+    }
 }

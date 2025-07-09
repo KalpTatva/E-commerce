@@ -32,40 +32,48 @@
                                 <aside class="asideBar bg-dark ">
                                     <div class="brand-content">
                                         <ul class="list-unstyled">
-                                            
+
                                             <li class="my-4"><a asp-action="EditProfile" asp-controller="Dashboard"
-                                                    class="text-success fw-bold text-decoration-none profile-link">My profile</a>
+                                                    class="text-success fw-bold text-decoration-none profile-link">My
+                                                    profile</a>
                                             </li>
                                             @if (Model.BaseRole == RoleEnum.Seller.ToString())
                                             {
                                                 <li class="my-4"><a asp-action="MyProducts" asp-controller="Product"
-                                                        class="text-success fw-bold text-decoration-none profile-link">My products</a>
+                                                        class="text-success fw-bold text-decoration-none profile-link">My
+                                                        products</a>
                                                 </li>
 
                                                 <li class="my-4"><a asp-action="SellerOrderList" asp-controller="Dashboard"
-                                                        class="text-success fw-bold text-decoration-none profile-link">Orders List</a>
+                                                        class="text-success fw-bold text-decoration-none profile-link">Orders
+                                                        List</a>
                                                 </li>
 
                                                 <li class="my-4"><a asp-action="AddOffer" asp-controller="Dashboard"
-                                                        class="text-success fw-bold text-decoration-none profile-link">Add Offer</a>
+                                                        class="text-success fw-bold text-decoration-none profile-link">Add
+                                                        Offer</a>
                                                 </li>
                                             }
-                                            else if(Model.BaseRole == RoleEnum.Buyer.ToString())
+                                            else if (Model.BaseRole == RoleEnum.Buyer.ToString())
                                             {
                                                 <li class="my-4"><a asp-action="MyOrders" asp-controller="Dashboard"
-                                                        class="text-success fw-bold text-decoration-none profile-link">My Orders</a>
+                                                        class="text-success fw-bold text-decoration-none profile-link">My
+                                                        Orders</a>
                                                 </li>
                                             }
 
                                             <li class="my-4"><a asp-action="ContactUs" asp-controller="Dashboard"
-                                                    class="text-success fw-bold text-decoration-none profile-link">Contact Us</a>
+                                                    class="text-success fw-bold text-decoration-none profile-link">Contact
+                                                    Us</a>
                                             </li>
                                         </ul>
                                     </div>
                                 </aside>
                             </div>
-                            <a class="navbar-brand font-green E-commerce" style="cursor: pointer;"><i class="bi bi-chevron-down"></i></a>
-                            <a class="navbar-brand font-green" style="cursor: pointer;" asp-controller="BuyerDashboard" asp-action="Index">E-Commerce</a>
+                            <a class="navbar-brand font-green E-commerce" style="cursor: pointer;"><i
+                                    class="bi bi-chevron-down"></i></a>
+                            <a class="navbar-brand font-green" style="cursor: pointer;" asp-controller="BuyerDashboard"
+                                asp-action="Index">E-Commerce</a>
                         </div>
 
                         <button class="navbar-toggler text-white bg-white" type="button" data-bs-toggle="collapse"
@@ -73,6 +81,9 @@
                             aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
+
+
+
                         <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                             @if (Model.BaseRole != RoleEnum.Seller.ToString())
                             {
@@ -101,9 +112,14 @@
 
                                 </ul>
                             }
+
+                            <div class="theme-toggle me-3">
+                                <i class="bi bi-circle-half theme-icon active" data-theme="system"
+                                    title="System Theme"></i>
+                            </div>
                             @if (Model.BaseEmail != null)
                             {
-                                
+
                                 <div class="d-flex align-items-center justify-content-end w-100">
                                     <div class="tagbtnNotification text-white me-3 text-decoration-none profile-link position-relative"
                                         id="notificationBell" tabindex="0">
@@ -111,7 +127,7 @@
                                         <span id="notificationCount" class="position-absolute notification">
                                             @(Model.Notifications?.Count ?? 0)
                                         </span>
-                                    <span class="messageNotification">Notification</span>
+                                        <span class="messageNotification">Notification</span>
                                     </div>
 
                                     <!-- Notification Popup -->
@@ -163,6 +179,7 @@
                             }
 
 
+
                         </div>
                     </div>
                 </nav>
@@ -187,6 +204,58 @@
     <partial name="_ValidationScriptsPartial" />
     <!-- Owl Carousel JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const themes = ['system', 'light', 'dark'];
+            const icons = ['bi-circle-half', 'bi-sun', 'bi-moon'];
+            const titles = ['System Theme', 'Light Theme', 'Dark Theme'];
+            let currentTheme = localStorage.getItem('theme') || 'system';
+            setTheme(currentTheme);
+
+            function setTheme(theme) {
+                if (theme === 'system') {
+                    $('html').removeAttr('data-theme');
+                } else {
+                    $('html').attr('data-theme', theme);
+                }
+
+                const index = themes.indexOf(theme);
+                $('.theme-icon')
+                    .removeClass('bi-circle-half bi-sun bi-moon')
+                    .addClass(icons[index])
+                    .attr('data-theme', theme)
+                    .attr('title', titles[index]);
+
+                $.ajax({
+                    url: '/Dashboard/ThemeChange',
+                    type: 'POST',
+                    data: { theme: theme },
+                    success: function (data) {
+                        if (!data.success) {
+                            toastr.error(data.message, "Error", { timeOut: 4000 });
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Failed to change theme in db.', "Error", { timeOut: 4000 });
+                    }
+                });
+                localStorage.setItem('theme', theme);
+            }
+
+            $('.theme-toggle').on('click', '.theme-icon', function () {
+                const currentIndex = themes.indexOf($(this).attr('data-theme'));
+                const nextTheme = themes[(currentIndex + 1) % themes.length];
+                setTheme(nextTheme);
+            });
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (localStorage.getItem('theme') === 'system') {
+                    console.log('System theme changed to:', e.matches ? 'dark' : 'light');
+                }
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 
