@@ -10,7 +10,7 @@
                     <input type="hidden" id="OrderProductId" name="OrderProductId" value="" />
                     <input type="hidden" id="ProductId" name="ProductId" value="" />
 
-                    <div class="form-floating mb-3">
+                    @* <div class="form-floating mb-3">
                         <select class="form-select" id="RatingInput">
                             <option value="">Select Rating</option>
                             @for (int i = 1; i <= 5; i++)
@@ -19,6 +19,18 @@
                             }
                         </select>
                         <label for="Rating" class="form-label">Rating</label>
+                    </div> *@
+
+                    <div class="mb-3 d-flex justify-content-between">
+                        <input type="hidden" id="RatingInput" name="rating" value="0">
+                        <label class="form-label">Rating</label>
+                        <div class="star-rating" data-field="Rate">
+                            <i class="bi bi-star star fs-5" data-value="1"></i>
+                            <i class="bi bi-star star fs-5" data-value="2"></i>
+                            <i class="bi bi-star star fs-5" data-value="3"></i>
+                            <i class="bi bi-star star fs-5" data-value="4"></i>
+                            <i class="bi bi-star star fs-5" data-value="5"></i>
+                        </div>
                     </div>
 
                     <div class="form-floating mb-3">
@@ -28,7 +40,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" >Yse</button>
+                    <button type="submit" class="btn btn-primary">Yse</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
                 </div>
             </form>

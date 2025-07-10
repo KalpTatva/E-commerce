@@ -101,7 +101,24 @@ $(document).ready(function () {
         });
     });
 
+    // Handle star click
+    $(document).on("click", ".star-rating .star", function () {
+        var $star = $(this);
+        var value = parseInt($star.data("value"));
+        var field = $star.closest(".star-rating").data("field");
 
+        $('#RatingInput').val(value);
+    
+        // Update star visuals
+        $star.closest(".star-rating").find(".star").each(function () {
+            var starValue = parseInt($(this).data("value"));
+            if (starValue <= value) {
+                $(this).removeClass("bi-star").addClass("bi-star-fill").css("color", "#ffc107");
+            } else {
+                $(this).removeClass("bi-star-fill").addClass("bi-star").css("color", "");
+            }
+        });
+    });
 
     FetchOrders();
 });

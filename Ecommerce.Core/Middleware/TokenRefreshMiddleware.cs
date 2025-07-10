@@ -50,9 +50,9 @@ public class TokenRefreshMiddleware
                 {
                     JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
                     JwtSecurityToken? jwtToken = handler.ReadJwtToken(token);
-                    if (jwtToken.ValidTo < DateTime.UtcNow.AddMinutes(1) && CookieUtils.ContainsKey(context.Request,"auth_token")) // Refresh if expiring soon (within 5 minutes)
+                    if (jwtToken.ValidTo < DateTime.UtcNow.AddMinutes(5) && CookieUtils.ContainsKey(context.Request,"auth_token")) // Refresh if expiring soon (within 5 minutes)
                     {
-                        ResponseTokenViewModel? response = userService.RefreshToken(emailClaim, roleClaim, userNameClaim);
+                        ResponseTokenViewModel? response = userService.RefreshToken(emailClaim ?? "", roleClaim ?? "", userNameClaim ?? "");
                         if (response.token != null)
                         {
                             if (CookieUtils.ContainsKey(context.Request,"auth_token")) // MEANING persistent connection

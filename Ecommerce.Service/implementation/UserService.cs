@@ -48,11 +48,14 @@ public class UserService : IUserService
                     ? DateTime.UtcNow.AddDays(30) // Token expiration time set to 30 days for persistent login
                     : DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
                 
+                string theme = user?.Theme != null ? ((ThemeEnum)user.Theme).ToString() : "system";
+
                 string jwtToken = GenerateJwtToken(model.Email, tokenExpire, userRole ?? "", user?.UserName ?? "");
 
                 return new ResponseTokenViewModel
                 {
                     token = jwtToken,
+                    BaseTheme = theme,
                     UserName = user?.UserName ?? "",
                     isPersistent = model.RememberMe,
                     response = "Login successful"

@@ -26,7 +26,7 @@ public class CookieUtils
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(2)
+            Expires = DateTimeOffset.UtcNow.AddMinutes(60)
         };
         response.Cookies.Append(cokkieName, payload, cookieOptions);
     }
@@ -47,11 +47,20 @@ public class CookieUtils
     /// <param name="httpContext"></param>
     /// <param name="cookieName"></param>
     /// <param name="payLoad"></param>
-    public static void SetCookie(HttpContext httpContext, string cookieName, string payLoad, int expirationMinutes = 30)
+    public static void SetCookie(HttpContext httpContext, string cookieName, string payLoad, int expirationMinutes = 60)
     {
         httpContext.Response.Cookies.Append(cookieName, payLoad, new CookieOptions
         {
             HttpOnly = true,
+            IsEssential = true,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes)
+        });
+    }
+
+    public static void SetThemeCookie(HttpContext httpContext, string cookieName, string payLoad, int expirationMinutes = 60)
+    {
+        httpContext.Response.Cookies.Append(cookieName, payLoad, new CookieOptions
+        {
             IsEssential = true,
             Expires = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes)
         });

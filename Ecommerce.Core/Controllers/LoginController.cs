@@ -6,7 +6,6 @@ using Ecommerce.Service.interfaces;
 using static Ecommerce.Repository.Helpers.Enums;
 using Ecommerce.Repository.Models;
 using Ecommerce.Core.Utils;
-using System.Threading.Tasks;
 
 namespace Ecommerce.Core.Controllers;
 
@@ -132,6 +131,9 @@ public class LoginController : Controller
 
                     CookieUtils.SetCookie(HttpContext,"previous_user", response.UserName ?? "");
                 }
+
+                // setup theme cookie
+                CookieUtils.SetThemeCookie(HttpContext, "theme", response.BaseTheme ?? "system");
                 
                 return RedirectToAction("Index", "Login");
             }
@@ -157,6 +159,7 @@ public class LoginController : Controller
             SessionUtils.ClearSession(HttpContext);
             CookieUtils.ClearCookies(Response, "auth_token");
             CookieUtils.ClearCookies(Response, "previous_user");
+            CookieUtils.ClearCookies(Response,"theme");
     
             TempData["SuccessMessage"] = "Logged out successfully!";
             return RedirectToAction("Index", "Login"); 

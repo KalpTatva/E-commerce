@@ -22,23 +22,40 @@ html {
 }
 
 :root {
-  --background: #f8f9fa;
-  --text: #212529;
+  --background: #ffffff;
+  --texthover: #005b41;
+  --bgblue: #039c88;
+  --textheader: #fff;
+  --text: #f8f9fa;
+  --btn-success: #005b41;
+  --btn-success-hover: #0f0f0f;
+  --background-main: #ffffff;
   --sidebarbackgroud: #fff;
   --sidebarcolor: #888;
 }
 
 [data-theme="dark"] {
-  --background: #212529;
+  --background: #ffffff;
+  --texthover: #039c88;
+  --bgblue: #0f0f0f;
+  --textheader: #fff;
   --text: #f8f9fa;
+  --btn-success: #005b41;
+  --btn-success-hover: #0f0f0f;
+  --background-main:  #232d3fe7;
   --sidebarbackgroud: #353c42;
   --sidebarcolor: #f8f9fa;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --background: #000000;
+    --background: #ffffff;
+    --texthover: #005b41;
+    --bgblue: #008170;
     --text: #f8f9fa;
+    --btn-success: #005b41;
+    --btn-success-hover: #0f0f0f;
+    --background-main: #ffffff;
     --sidebarbackgroud: #353c42;
     --sidebarcolor: #f8f9fa;
   }
@@ -53,7 +70,7 @@ html {
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
-  transition: background-color 0.3s, transform 0.2s, opacity 0.3s;
+  transition: background-color  0.3s, transform  0.3s, opacity 0.3s;
 }
 
 .theme-icon:hover {
@@ -61,17 +78,17 @@ html {
 }
 
 .theme-icon.active {
-  color: #fff;
+  color: var(--text);
 }
 
 body {
   margin: 0;
   padding: 0;
   font-family: "Poppins", sans-serif;
-  background-color: var(--background);
-  color: var(--text);
+  background-color: var(--background-main) !important;
+  /* color: var(--text); */
   min-height: 100vh;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color  0.3s, color  0.3s;
 }
 
 .height {
@@ -84,14 +101,35 @@ body {
 
 /* colors */
 
-.btn-color {
-  background-color: #45ad82;
+.banner-color {
+  color: var(--textheader) !important;
 }
-.font-green {
-  color: #45ad82 !important;
+.banner-color:hover {
+  color: var(--texthover) !important;
 }
 .bg-lightblue {
-  background-color: #9db1c59f;
+  background-color: var(--background-main);
+}
+.btn-success {
+  background-color: var(--btn-success) !important;
+}
+.btn-success:hover {
+  background-color: var(--btn-success-hover) !important;
+}
+.navbar-bg {
+  background-color: var(--bgblue);
+  transition: background-color 0.3s, color 0.3s;
+}
+.bg-error {
+  background-color: var(--bgblue)
+}
+.text-color {
+  color: var(--texthover) !important;
+}
+
+
+.btn-color {
+  background-color: #45ad82;
 }
 
 /* overflow handler */
@@ -152,7 +190,8 @@ body {
 }
 .notification-popup .popup-header {
   padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  color: var(--text);
+  border-bottom: 1px solid var(--texthover);
   font-weight: 600;
   display: flex;
   justify-content: space-between;
@@ -236,16 +275,20 @@ body {
 }
 
 /* profile link + sidebar*/
+.profile-link {
+  color: var(--text) !important;
+}
 
 .profile-link:hover {
   cursor: pointer;
-  color: #45ad82 !important;
+  color: var(--texthover) !important;
 }
 
 .asideBar {
   width: 250px;
   border-radius: 8px;
   color: white;
+  background-color: var(--bgblue);
 }
 
 .brand {
@@ -264,17 +307,6 @@ body {
 .icons-css {
   font-size: larger;
 }
-
-.message {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.925);
-  padding: 5px 10px;
-  border-radius: 8px;
-  bottom: -35px;
-  left: -37px;
-  opacity: 0;
-}
-
 .tagbtn {
   position: relative;
 }
@@ -308,7 +340,8 @@ body {
 
 .message {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.925);
+  background-color: var(--background);
+  border: 2px solid var(--texthover);
   padding: 5px 10px;
   border-radius: 8px;
   bottom: -35px;
@@ -317,7 +350,8 @@ body {
 }
 .messageNotification {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.925);
+  background-color: var(--background);
+  border: 2px solid var(--texthover);
   padding: 5px 10px;
   border-radius: 8px;
   bottom: -35px;
@@ -327,7 +361,8 @@ body {
 
 .messageCart {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.925);
+  background-color: var(--background);
+  border: 2px solid var(--texthover);
   padding: 5px 10px;
   border-radius: 8px;
   bottom: -35px;
@@ -337,11 +372,12 @@ body {
 
 .messageAbout {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.925);
+  background-color: var(--background);
+  border: 2px solid var(--texthover);
   padding: 5px 10px;
   border-radius: 8px;
   bottom: -37px;
-  left: 44px;
+  left: 14px;
   opacity: 0;
 }
 
