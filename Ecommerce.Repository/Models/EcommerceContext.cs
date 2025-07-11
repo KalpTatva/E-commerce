@@ -580,10 +580,10 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.EditedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("edited_at");
-            entity.Property(e => e.NotificationId).HasColumnName("notification_id");
-            entity.Property(e => e.ReadAll)
+            entity.Property(e => e.IsRead)
                 .HasDefaultValue(false)
-                .HasColumnName("read_all");
+                .HasColumnName("is_read");
+            entity.Property(e => e.NotificationId).HasColumnName("notification_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Notification).WithMany(p => p.UserNotificationMappings)

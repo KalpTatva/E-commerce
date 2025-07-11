@@ -269,7 +269,7 @@ public class OrderService : IOrderService
                     {
                         UserId = product?.SellerId ?? 0,
                         NotificationId = notificationModel.NotificationId,
-                        ReadAll = false,
+                        IsRead = false,
                         CreatedAt = DateTime.Now
                     });
                 }
@@ -646,12 +646,12 @@ public class OrderService : IOrderService
                 throw new Exception("User not found");
             }
             // List<UserNotificationMapping>? notifications = _notificationRepository.GetUserNotificationMapping(user.UserId);
-            List<UserNotificationMapping>? notifications = await _unitOfWork.UserNotificationMappingRepository.FindAllAsync(unm => unm.UserId == user.UserId && unm.ReadAll == false);
+            List<UserNotificationMapping>? notifications = await _unitOfWork.UserNotificationMappingRepository.FindAllAsync(unm => unm.UserId == user.UserId && unm.IsRead == false);
             if (notifications != null && notifications.Count > 0)
             {
                 foreach (UserNotificationMapping notification in notifications)
                 {
-                    notification.ReadAll = true;
+                    notification.IsRead = true;
                     notification.EditedAt = DateTime.Now;
                 }
                 // _notificationRepository.UpdateNotificationRange(notifications);

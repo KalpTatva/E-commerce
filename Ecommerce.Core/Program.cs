@@ -1,5 +1,6 @@
 using System.Data;
 using System.Text;
+using Ecommerce.Core.BackgroundServices;
 using Ecommerce.Core.Hub;
 using Ecommerce.Core.Utils;
 using Ecommerce.Repository.implementation;
@@ -19,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR(); 
-
+builder.Services.AddHostedService<NotificationCleanupService>();
 
 // db connection string
 if (builder.Environment.IsEnvironment("Test"))

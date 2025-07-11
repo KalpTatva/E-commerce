@@ -7,7 +7,7 @@
 {
     @foreach (ProductsDeatailsViewModel p in Model.productsDetails)
     {
-        <div class="card " data-product-id="@p.ProductId">
+        <div class="card" data-product-id="@p.ProductId">
 
             @if (p.OfferAvailable)
             {
@@ -89,11 +89,11 @@
                     <span class="text-danger">
                         - @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN")) @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" +
                                         p.Discount + "%)")
-            </span>
-        </div>
-        <div class="mt-2">
-            <span class="text-success fs-5">Features </span>
-            @if (p.Features != null && p.Features.Any())
+                    </span>
+                </div>
+                <div class="mt-2">
+                    <span class="text-success fs-5">Features </span>
+                    @if (p.Features != null && p.Features.Any())
                     {
                         string features = "";
                         foreach (Feature f in p.Features)

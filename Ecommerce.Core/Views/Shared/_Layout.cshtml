@@ -10,6 +10,21 @@
     <link rel="stylesheet" href="~/Ecommerce.Core.styles.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script>
+        (function () {
+            // Get theme from cookie
+            const getCookie = (name) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                return parts.length === 2 ? parts.pop().split(';').shift() : 'system';
+            };
+            const theme = getCookie('theme');
+            // Apply theme immediately
+            if (theme !== 'system') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        })();
+    </script>
 </head>
 
 <body>
@@ -28,43 +43,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-        const themes = ['system', 'light', 'dark'];
-        const icons = ['bi-circle-half', 'bi-sun', 'bi-moon'];
-        const titles = ['System Theme', 'Light Theme', 'Dark Theme'];
-
-        setTheme(currentTheme);
-
-        function setTheme(theme) {
-
-            if (theme === 'system') {
-                $('html').removeAttr('data-theme');
-            } else {
-                $('html').attr('data-theme', theme);
-            }
-
-            const index = themes.indexOf(theme);
-
-            $('.theme-icon')
-                .removeClass('bi-circle-half bi-sun bi-moon')
-                .addClass(icons[index])
-                .attr('data-theme', theme)
-                .attr('title', titles[index]);
-
-        }
-
-        $('.theme-toggle').on('click', '.theme-icon', function () {
-            const currentIndex = themes.indexOf($(this).attr('data-theme'));
-            const nextTheme = themes[(currentIndex + 1) % themes.length];
-            setTheme(nextTheme);
-        });
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (localStorage.getItem('theme') === 'system') {
-                console.log('System theme changed to:', e.matches ? 'dark' : 'light');
-            }
-        });
-    </script>
+    <script src="~/js/theme_Script.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
 
     @await RenderSectionAsync("Scripts", required: false)

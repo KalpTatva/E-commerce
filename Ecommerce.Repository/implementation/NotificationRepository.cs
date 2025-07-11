@@ -23,7 +23,7 @@ public class NotificationRepository : GenericRepository<Notification>, INotifica
         try
         {
             List<Notification>? notifications = _context.UserNotificationMappings
-                .Where(unm => unm.UserId == userId && unm.ReadAll == false)
+                .Where(unm => unm.UserId == userId && unm.IsRead == false)
                 .Join(_context.Notifications,
                     unm => unm.NotificationId,
                     n => n.NotificationId,
@@ -51,7 +51,7 @@ public class NotificationRepository : GenericRepository<Notification>, INotifica
         try
         {
             int count = _context.UserNotificationMappings
-                .Count(unm => unm.UserId == userId && unm.ReadAll == false);
+                .Count(unm => unm.UserId == userId && unm.IsRead == false);
             return count;
         }
         catch (Exception e)
