@@ -19,29 +19,31 @@
             <div class="card-img" data-product-id="@p.ProductId">
                 <img class="imageInCard" src="@Url.Content(p?.Images?.ImageUrl)" alt="">
             </div>
-            <div class="card-body">
-                <span class="h4">
+            <div class="card-body p-0 py-4">
+                <span class="h4 d-flex flex-column justify-content-start gap-2">
                     @if (p.offer != null && p.offer.ProductId > 0)
                     {
-                        <span class="bg-warning rounded-2 px-3">
+                        <span class=" rounded-2 offers px-2">
                             @if (p.offer.OfferType == (int)OfferTypeEnum.Percentage)
                             {
-                                <span class="text-danger">-@p.offer.DiscountRate %</span>
+                                <span class="mb-3">@p.offer.DiscountRate %</span>
                             }
                             else if (p.offer.OfferType == (int)OfferTypeEnum.FixedPrice)
                             {
-                                <span class="text-danger">- @((p.offer.DiscountRate ?? 0).ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))) Fixed Discount</span>
+                                <span class="mb-3">@((p.offer.DiscountRate ?? 0).ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))) Fixed Discount</span>
                             }
                             else if (p.offer.OfferType == (int)OfferTypeEnum.BOGO)
                             {
-                                <span class="text-danger">Buy 1 Get 1 Free</span>
+                                <span class="mb-3">Buy 1 Get 1 Free</span>
                             }
                         </span>
                     }
-                    <br />
-                    @p.ProductName
+                    
+                    <span class="">
+                        @p.ProductName
+                    </span>
                 </span>
-                <div class="mt-2">
+                <div class="">
                     @{
                         decimal price = 0;
                         decimal discount = 0;

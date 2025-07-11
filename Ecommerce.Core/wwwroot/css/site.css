@@ -26,25 +26,41 @@ html {
   --texthover: #005b41;
   --bgblue: #039c88;
   --textheader: #fff;
-  --text: #f8f9fa;
+  --offercard-background: #ffc10780;
+  --text: #fff;
+  --fonts: #0c0c0c;
   --btn-success: #005b41;
-  --btn-success-hover: #0f0f0f;
+  --btn-success-hover: #005b41;
   --background-main: #ffffff;
   --sidebarbackgroud: #fff;
   --sidebarcolor: #888;
+  --description-background:#f9f9f9;
+  --description-fonts:#333;
+
+  --card-background: #fff;
+  --card-border: #000f113a;
+
+
 }
 
 [data-theme="dark"] {
   --background: #ffffff;
   --texthover: #039c88;
-  --bgblue: #0f0f0f;
+  --bgblue: #182041;
   --textheader: #fff;
   --text: #f8f9fa;
-  --btn-success: #005b41;
-  --btn-success-hover: #0f0f0f;
-  --background-main:  #232d3fe7;
+  --fonts: #f8f9fa;
+  --btn-success: #5567df;
+  --btn-success-hover: #5567df;
+  --background-main:  #0b1437;
   --sidebarbackgroud: #353c42;
   --sidebarcolor: #f8f9fa;
+  --offercard-background: #00000000;
+  --description-background:#00000000;
+  --description-fonts:#f8f9fa;
+
+  --card-background: #182041;
+  --card-border: #ffffff2a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,11 +69,18 @@ html {
     --texthover: #005b41;
     --bgblue: #008170;
     --text: #f8f9fa;
+    --fonts: #0c0c0c;
     --btn-success: #005b41;
     --btn-success-hover: #0f0f0f;
     --background-main: #ffffff;
     --sidebarbackgroud: #353c42;
     --sidebarcolor: #f8f9fa;
+    --offercard-background: #ffc10780;
+    --description-background:#f9f9f9;
+    --description-fonts:#333;
+
+    --card-background: #fff;
+    --card-border: #000f11;
   }
 }
 
@@ -112,6 +135,7 @@ body {
 }
 .btn-success {
   background-color: var(--btn-success) !important;
+  border-color: var(--btn-success-hover) !important ;
 }
 .btn-success:hover {
   background-color: var(--btn-success-hover) !important;
@@ -447,17 +471,29 @@ body {
 /* buyer dashboard */
 
 .search_bar {
+  padding: 20px;
+  border-radius: 12px;
   width: 100%;
   height: 40px;
   text-decoration: none;
-  border: none;
+  background-color: var(--card-background) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--fonts);
   z-index: 1000 !important;
 }
+
+.searchBar {
+  color: var(--text);
+  border: none;
+}
+
 
 .search_bar_img {
   position: absolute;
   top: 10px;
   right: 10px;
+  font-size: 15px;
+  color: var(--text);
 }
 
 /* offer */
@@ -488,7 +524,7 @@ body {
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 4px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .page-size-option {
@@ -502,9 +538,11 @@ body {
 
 /* cards css */
 .card {
-  background-color: #fff;
+  background-color: var(--card-background);
   padding: 10px;
   width: 400px;
+  border-radius: 14px;
+  padding: 20px;
   height: fit-content;
   display: flex;
   flex-direction: column;
@@ -512,19 +550,20 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--card-border);
 }
+
+
+    
 
 .card:hover {
   cursor: pointer;
 }
 
-.card-img {
-  width: 300px;
-  height: 300px;
-}
 
 .imageInCard {
   width: 100%;
+  border-radius: 14px;
 }
 
 .card-body {
@@ -532,6 +571,24 @@ body {
   display: flex;
   align-items: start;
   flex-direction: column;
+  color: var(--fonts);
+}
+
+.singleCard{
+  color: var(--fonts);
+}
+.table-responsive {
+  color: var(--fonts) !important;
+  border: 1px solid var(--btn-success) !important;
+}
+.tablecolor{
+  color: var(--fonts) !important;
+
+}
+.offers{
+  width: fit-content;
+  color: var(--btn-success);
+  border: 1px solid var(--btn-success);
 }
 
 /* product image class */
@@ -644,12 +701,20 @@ body {
   align-items: start;
   justify-content: center;
   width: 100%;
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
 }
 .productImageClass {
   width: 50%;
 }
 .ProductbodyClass {
   width: 50%;
+}
+
+.offercard{
+  background-color: var(--offercard-background);
+  border: 2px solid var(--btn-success-hover);
+  border-radius: 14px;
 }
 
 /* media query */
@@ -668,12 +733,21 @@ body {
 
 .description-wrapper {
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: var(--description-background);
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   font-size: 14px;
   line-height: 1.6;
-  color: #333;
+  color: var(--description-fonts) !important;
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
+}
+
+.a-spacing-mini{
+  color: var(--description-fonts) !important;
+}
+
+.a-list-item {
+  color: var(--description-fonts) !important;
+  
 }
