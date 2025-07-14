@@ -91,19 +91,25 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
                                     Discount = product.Discount,
                                     CategoryId = product.CategoryId,
                                     SellerId = product.SellerId,
-                                    Features = _context.Features.Where(f => f.ProductId == product.ProductId).ToList(),
-                                    Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
+                                    Features = _context.Features
+                                                    .Where(f => f.ProductId == product.ProductId)
+                                                    .ToList(),
+                                    Images = _context.Images
+                                                    .Where(i => i.ProductId == product.ProductId)
+                                                    .OrderBy(i => i.ImageId)
+                                                    .FirstOrDefault(),
                                     AverageRatings = _context.Reviews
-                                        .Where(r => r.ProductId == product.ProductId)
-                                        .Average(r => r.Ratings) ?? 0,
-                                    OfferAvailable = _context.Offers.Any(o => o.ProductId == product.ProductId && 
-                                                                              o.StartDate.Date <= DateTime.Now.Date && 
-                                                                              o.EndDate.Date > DateTime.Now.Date),
-                                    offer = _context.Offers
-                                        .Where(o => o.ProductId == product.ProductId && 
+                                                    .Where(r => r.ProductId == product.ProductId)
+                                                    .Average(r => r.Ratings) ?? 0,
+                                    OfferAvailable = _context.Offers
+                                                    .Any(o => o.ProductId == product.ProductId && 
                                                     o.StartDate.Date <= DateTime.Now.Date && 
-                                                    o.EndDate.Date > DateTime.Now.Date)
-                                        .FirstOrDefault()
+                                                    o.EndDate.Date > DateTime.Now.Date),
+                                    offer = _context.Offers
+                                                    .Where(o => o.ProductId == product.ProductId && 
+                                                                o.StartDate.Date <= DateTime.Now.Date && 
+                                                                o.EndDate.Date > DateTime.Now.Date)
+                                                    .FirstOrDefault()
                                 
                                 }).ToListAsync();
             return query;

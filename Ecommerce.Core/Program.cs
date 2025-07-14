@@ -122,7 +122,7 @@ builder.Services.AddAuthentication(options =>
             if (!req.Path.StartsWithSegments("/Login"))
             {
                 string encryptedReturnUrl = AesEncryptionHelper.EncryptString(path);
-                var loginUrl = $"/Login/Index?ReturnURL={encryptedReturnUrl}";
+                string loginUrl = $"/Login/Index?ReturnURL={encryptedReturnUrl}";
                 context.Response.Redirect(loginUrl);
             }
             else
@@ -140,9 +140,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Login/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    // app.UseExceptionHandler("/Login/Error");
+    // // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -151,6 +151,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession(); 
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<TokenRefreshMiddleware>();
@@ -159,9 +160,9 @@ app.UseStatusCodePages(async context =>
 {
     if (context.HttpContext.Response.StatusCode == 401)
     {
-        // Optionally, capture the original URL here for return
-        var path = context.HttpContext.Request.Path + context.HttpContext.Request.QueryString;
-        var loginUrl = $"/Login/Index?ReturnURL={Uri.EscapeDataString(path)}";
+        string path = context.HttpContext.Request.Path + context.HttpContext.Request.QueryString;
+        string encryptedReturnUrl = AesEncryptionHelper.EncryptString(path);
+        string loginUrl = $"/Login/Index?ReturnURL={encryptedReturnUrl}";
         context.HttpContext.Response.Redirect(loginUrl);
     }
     else if (context.HttpContext.Response.StatusCode == 403)
@@ -183,8 +184,7 @@ app.MapControllerRoute(
     pattern: "{controller=BuyerDashboard}/{action=Index}/{id?}");
 
 // map for hub
-app.MapHub<NotificationHub>("/NotificationHub");
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();
 
 public partial class Program { }

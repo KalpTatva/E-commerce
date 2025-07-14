@@ -4,8 +4,8 @@ using System.Text;
 
 public static class AesEncryptionHelper
 {
-    private static readonly byte[] Key = Encoding.UTF8.GetBytes("cD7wQ2FmSx9nZpRkVb8uT5sLxE1aR4qZ"); // 32 chars
-    private static readonly byte[] IV = Encoding.UTF8.GetBytes("A1b2C3d4E5f6G7h8"); // 16 chars
+    private static readonly byte[] Key = Encoding.UTF8.GetBytes("cD7wQ2FmSx9nZpRkVb8uT5sLxE1aR4qZ");
+    private static readonly byte[] IV = Encoding.UTF8.GetBytes("A1b2C3d4E5f6G7h8");
 
     public static string EncryptString(string plainText)
     {

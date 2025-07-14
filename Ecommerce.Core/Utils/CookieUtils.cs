@@ -23,9 +23,7 @@ public class CookieUtils
     {
         CookieOptions cookieOptions = new CookieOptions
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            IsEssential = true,
             Expires = DateTimeOffset.UtcNow.AddDays(30)
         };
         response.Cookies.Append(cokkieName, payload, cookieOptions);
@@ -51,7 +49,6 @@ public class CookieUtils
     {
         httpContext.Response.Cookies.Append(cookieName, payLoad, new CookieOptions
         {
-            HttpOnly = true,
             IsEssential = true,
             Expires = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes)
         });

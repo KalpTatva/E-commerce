@@ -78,6 +78,13 @@ namespace Ecommerce.Tests.Controllers
         public void Index_Get_NoAuthToken_ReturnsView()
         {
             // Arrange
+            LoginViewModel expectedModel = new LoginViewModel 
+            { 
+                Email = null, 
+                Password = null, 
+                RememberMe = false, 
+                ReturnURL = null // Expect null, not "null"
+            };
             _controller.ControllerContext.HttpContext.User = new ClaimsPrincipal();
 
             // Mock session to return no token
@@ -91,7 +98,11 @@ namespace Ecommerce.Tests.Controllers
 
             // Assert
             ViewResult viewResult = Assert.IsType<ViewResult>(result);
-            Assert.Null(viewResult.Model);
+            LoginViewModel actualModel = Assert.IsType<LoginViewModel>(viewResult.Model);
+            Assert.Equal(expectedModel.Email, actualModel.Email);
+            Assert.Equal(expectedModel.Password, actualModel.Password);
+            Assert.Equal(expectedModel.RememberMe, actualModel.RememberMe);
+            Assert.Equal(expectedModel.ReturnURL, actualModel.ReturnURL);
         }
 
         /// <summary>

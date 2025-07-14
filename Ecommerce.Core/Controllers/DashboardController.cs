@@ -454,6 +454,10 @@ public class DashboardController : Controller
     
 
 
+    /// <summary>
+    /// method to add theme change in db for persist ui for user
+    /// </summary>
+    /// <param name="theme"></param>
     public async Task<IActionResult> ThemeChange(string theme)
     {
         try

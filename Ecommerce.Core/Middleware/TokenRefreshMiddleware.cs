@@ -93,7 +93,8 @@ public class TokenRefreshMiddleware
                 if (!string.IsNullOrEmpty(currentPath) && !currentPath.StartsWith("/Login", StringComparison.OrdinalIgnoreCase))
                 {
                     string returnUrl = context.Request.Path + context.Request.QueryString;
-                    string loginUrl = $"/Login/Index?ReturnURL={Uri.EscapeDataString(returnUrl)}";
+                    string encryptedReturnUrl = AesEncryptionHelper.EncryptString(returnUrl);
+                     string loginUrl = $"/Login/Index?ReturnURL={encryptedReturnUrl}";
                     context.Response.Redirect(loginUrl);
                     return;
                 }

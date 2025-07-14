@@ -578,6 +578,12 @@ body {
   color: var(--fonts);
   opacity: 1;
 }
+
+.modal-content{
+  background-color: var(--card-background) !important;
+}
+
+
 .form-select {
   background-color: var(--card-background);
   border: 1px solid var(--card-border);

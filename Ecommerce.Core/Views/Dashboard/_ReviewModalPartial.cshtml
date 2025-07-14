@@ -2,29 +2,17 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="AddReviewModalLabel">Rate our product </h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title text-color fs-5" id="AddReviewModalLabel">Rate our product </h1>
+                <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="POST" id="AddReviewForm">
-                <div class="modal-body">
+                <div class="modal-body reviews">
                     <input type="hidden" id="OrderProductId" name="OrderProductId" value="" />
                     <input type="hidden" id="ProductId" name="ProductId" value="" />
-
-                    @* <div class="form-floating mb-3">
-                        <select class="form-select" id="RatingInput">
-                            <option value="">Select Rating</option>
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                <option value="@i">@i Star</option>
-                            }
-                        </select>
-                        <label for="Rating" class="form-label">Rating</label>
-                    </div> *@
-
                     <div class="mb-3 d-flex justify-content-between">
                         <input type="hidden" id="RatingInput" name="rating" value="0">
-                        <label class="form-label">Rating</label>
-                        <div class="star-rating" data-field="Rate">
+                        <label class="form-label labels">Rating</label>
+                        <div class="star-rating text-warning" data-field="Rate">
                             <i class="bi bi-star star fs-5" data-value="1"></i>
                             <i class="bi bi-star star fs-5" data-value="2"></i>
                             <i class="bi bi-star star fs-5" data-value="3"></i>
@@ -35,7 +23,7 @@
 
                     <div class="form-floating mb-3">
                         <textarea class="form-control" placeholder="write details" id="ReviewText" rows="3"></textarea>
-                        <label for="ReviewText" class="form-label">Review</label>
+                        <label for="ReviewText" class="form-label labels">Review</label>
                     </div>
 
                 </div>
