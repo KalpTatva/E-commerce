@@ -28,7 +28,7 @@ public class NotificationCleanupService : BackgroundService
                 _logger.LogInformation("Running notification cleanup at {time}", DateTime.Now);
                 await DeleteReadNotifications(stoppingToken);
                 _logger.LogInformation("cleanup task complete, waiting for next call");
-                await Task.Delay(_interval, stoppingToken);     // waiting for the specific interval before next call
+                await Task.Delay(_interval, stoppingToken); // waiting for the specific interval before next call
             }
             catch(Exception e)
             {

@@ -29,7 +29,7 @@ public class BuyerDashboardController : Controller
         string? role = BaseValues.GetRole(HttpContext);
         string? name = BaseValues.GetUserName(HttpContext);
 
-        BaseViewModel baseViewModel = new () {
+        SearchInputViewModel baseViewModel = new () {
             BaseEmail = email,
             BaseRole = role,
             BaseUserName = name

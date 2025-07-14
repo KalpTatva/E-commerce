@@ -120,6 +120,8 @@ body {
 
 .widthOfForms {
   min-width: 300px;
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
 }
 
 /* colors */
@@ -493,7 +495,7 @@ body {
   top: 10px;
   right: 10px;
   font-size: 15px;
-  color: var(--text);
+  color: var(--fonts);
 }
 
 /* offer */
@@ -536,6 +538,70 @@ body {
   background-color: #f0f0f0;
 }
 
+
+/* for multiple modes */
+.cart {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  color: var(--fonts);
+}
+.LoginContent {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+}
+.labels{
+  color: var(--fonts);
+}
+.form-control:disabled, .form-control[readonly] {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  color: var(--fonts);
+  opacity: 1;
+}
+.form-select:disabled {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  color: var(--fonts);
+  opacity: 1;
+}
+
+.form-control, .form-control[readonly] {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  color: var(--fonts);
+  opacity: 1;
+}
+.form-control:focus, .form-control[readonly] {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  color: var(--fonts);
+  opacity: 1;
+}
+.form-select {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  color: var(--fonts);
+  opacity: 1;
+}
+.note-frame {
+  color: var(--fonts) !important;
+} 
+.MyOrder{
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  color: var(--fonts);
+}
+.tables{
+  color: var(--fonts) !important;
+}
+.listContainer{
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+}
+.pagination {
+  color: var(--fonts) ;
+}
 /* cards css */
 .card {
   background-color: var(--card-background);

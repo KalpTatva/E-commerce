@@ -98,13 +98,13 @@
                                 : Model.offer.OfferType == (int)OfferTypeEnum.Percentage
                                 ? string.Format("{0}%", Model.offer.DiscountRate)
                                 : "Buy one Get one Free!"
-                                            )
+                                                )
                     </span>
                 </span>
             </div>
 
             <div class="text-success fs-5 mb-2">Price after adding offer</div>
-                    }
+                        }
 
 
                 <div class="mb-2">
@@ -113,73 +113,75 @@
                         Model.DiscountType == (int)DiscountEnum.FixedAmount
                         ? string.Format("{0:C}", Model.Discount)
                         : string.Format("{0}%", Model.Discount)
-                                    )
+                                        )
                 </span>
                 <span class="fs-1">@price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
-                <span class="text-muted text-decoration-line-through text-nowrap fs-5">(@Model.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
+                <span class="text-muted text-decoration-line-through text-nowrap fs-5">(@Model.Price.ToString("C",
+                                        System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
 
             </div>
 
 
-            <div class="d-flex mb-2 w-100 gap-4">
-                <div class="d-flex flex-column ">
-                    <span class="text-success fs-5 mb-2">Discount of</span>
-                    <p class="fs-4 mb-2">
-                        @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
-                    </p>
-                </div>
-
-                <div class="d-flex flex-column">
-                    <span class="text-success fs-5 mb-2">Category</span>
-                    <span class="fs-5 mb-2">
-                        @(((CategoriesEnum)Model.CategoryId).ToString())
-                    </span>
-                </div>
-                <div class="d-flex justify-content-center align-items-center">
-                    <div id="addTofavourite" data-product-id="@Model.ProductId" data-is-favourite="@Model.IsFavourite">
-                        @if (Model.IsFavourite == true)
-                            {
-                                <span><i class="bi bi-heart-fill icons-css text-danger fs-3"></i></span>
-                            }
-                            else
-                            {
-                                <span><i class="bi bi-heart icons-css text-danger fs-3"></i></span>
-                            }
-                        </div>
+                <div class="d-flex mb-2 w-100 gap-4">
+                    <div class="d-flex flex-column ">
+                        <span class="text-success fs-5 mb-2">Discount of</span>
+                        <p class="fs-4 mb-2">
+                            @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
+                        </p>
                     </div>
+
+                    <div class="d-flex flex-column">
+                        <span class="text-success fs-5 mb-2">Category</span>
+                        <span class="fs-5 mb-2">
+                            @(((CategoriesEnum)Model.CategoryId).ToString())
+                        </span>
+                    </div>
+                    @if(Model.BaseRole == RoleEnum.Buyer.ToString())
+                    {
+                        <div class="d-flex justify-content-center align-items-center">
+                            <div id="addTofavourite" data-product-id="@Model.ProductId" data-is-favourite="@Model.IsFavourite">
+                            @if (Model.IsFavourite == true)
+                                {
+                                    <span><i class="bi bi-heart-fill icons-css text-danger fs-3"></i></span>
+                                }
+                                else
+                                {
+                                    <span><i class="bi bi-heart icons-css text-danger fs-3"></i></span>
+                                }
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <span class="mb-2">
                     <span class="text-success fs-5">Seller's Email: @Model.SellerEmailId</span>
                 </span>
 
-                <span class="text-success fs-5 mb-2">Features</span>
-                <div class="w-100 mb-2 table-responsive rounded-3 ">
-                    <table class="table  text-center tablecolor">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Product Name</th>
+                @if (Model.Features != null && Model.Features.Any())
+                {
+                    <span class="text-success fs-5 mb-2">Features</span>
+                    <div class="w-100 mb-2 table-responsive rounded-3 ">
+                        <table class="table  text-center tablecolor">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product Name</th>
 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.Features != null && Model.Features.Any())
-                            {
+                                </tr>
+                            </thead>
+                            <tbody>
+
                                 @foreach (Feature feature in Model.Features)
                                 {
                                     <tr>
                                         <td>@feature.FeatureName</td>
                                         <td>@feature.Description</td>
-
                                     </tr>
                                 }
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-
+                            </tbody>
+                        </table>
+                    </div>
+                }
                 <span class="d-flex justify-content-start gap-2 align-items-center mb-2">
                     <span class="text-success fs-5">In stocks </span>
                     <span class="fs-5">@Model.Stocks quantity</span>
@@ -189,24 +191,21 @@
                 @if (Model.UserEmail != null && Model.Stocks > 0 && Model.BaseRole == RoleEnum.Buyer.ToString())
                 {
                     <div class="d-flex w-100 gap-2 mb-2">
-                        <button id="AddToCart" class="btn btn-warning rounded-pill w-50" data-product-id="@Model.ProductId">Add to
+                        <button id="AddToCart" class="btn btn-warning rounded-pill w-50" data-product-id="@Model.ProductId">Add
+                            to
                             cart</button>
-                        <button class="btn btn-success w-50 rounded-pill BuySingleProduct" 
-                            data-product-id="@Model.ProductId"
-                            data-price="@price" 
-                            data-discount="@discount" 
-                            data-quantity="@quantity"
-                            >
+                        <button class="btn btn-success w-50 rounded-pill BuySingleProduct" data-product-id="@Model.ProductId"
+                            data-price="@price" data-discount="@discount" data-quantity="@quantity">
                             Buy now</button>
                     </div>
                 }
                 else
-                {       
+                {
                     @if (Model.BaseEmail == null)
                     {
                         <span class="text-secondary fs-5">Please login first</span>
                     }
-                    else if(Model.BaseRole == RoleEnum.Seller.ToString())
+                    else if (Model.BaseRole == RoleEnum.Seller.ToString())
                     {
                         <span class="text-danger fs-6">Seller's are not allowed to Buy, login with buyer's role</span>
                     }
@@ -307,7 +306,7 @@
 
                 </span>
 
-                
+
             </span>
         }
         else

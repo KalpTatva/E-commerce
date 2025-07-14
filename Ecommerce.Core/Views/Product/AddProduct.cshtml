@@ -7,7 +7,7 @@
 
 
 <div class="d-flex justify-content-between w-100 p-3">
-    <h3>
+    <h3 class="text-color">
         Add new product
     </h3>
     <a class="btn btn-primary" id="AddProduct-btn" asp-action="MyProducts" asp-controller="Product">
@@ -17,7 +17,7 @@
 
 <div class="w-100 d-flex justify-content-center align-items-start flex-lg-row flex-column p-4">
     <div class="pe-4 mb-3">
-        <div class="bg-white border rounded p-3">
+        <div class="MyOrder p-3">
             <div class="d-flex justify-content-start align-items-center gap-2">
                 <h4 class="font-monospace text-secondary">Guidelines</h4>
                 <img src="~/images/airplane_10521415.png" alt="" height="20px" width="20px">
@@ -37,14 +37,14 @@
             </ul>
         </div>
     </div>
-    <div class="w-100 bg-white border rounded-3 widthOfForms ">
+    <div class="w-100 widthOfForms ">
         <div class="p-3">
             <form action="POST" id="AddProductForm">
                 <div class="form-floating has-validation my-2 mb-3 w-100">
                     <input type="text" class="form-control" id="ProductName" placeholder="Product Name"
                         asp-for="ProductName">
                     <span asp-validation-for="ProductName" class="text-danger float-start"></span>
-                    <label for="ProductName">product name</label>
+                    <label  class="labels"  for="ProductName">product name</label>
                 </div>
 
                 <div class="form-floating mb-3 w-100">
@@ -66,7 +66,7 @@
                 <div class="form-floating mb-3 w-100">
                     <select class="form-select" asp-for="CategoryId" id="floatingSelect" aria-label="Role"
                         asp-items="Html.GetEnumSelectList<CategoriesEnum>()"></select>
-                    <label for="floatingSelect">Category</label>
+                    <label class="labels"  for="floatingSelect">Category</label>
                     <span asp-validation-for="CategoryId" class="text-danger"></span>
                 </div>
 
@@ -75,27 +75,27 @@
                     <div class="form-floating mb-3 w-100">
                         <select class="form-select" asp-for="DiscountType" id="floatingSelect" aria-label="Role"
                             asp-items="Html.GetEnumSelectList<DiscountEnum>()"></select>
-                        <label for="floatingSelect">Discount Type</label>
+                        <label class="labels" for="floatingSelect">Discount Type</label>
                         <span asp-validation-for="DiscountType" class="text-danger"></span>
                     </div>
 
                     <div class="form-floating has-validation mb-3 w-100">
                         <input type="text" class="form-control" id="Discount" placeholder="Discount" asp-for="Discount">
                         <span asp-validation-for="Discount" class="text-danger float-start"></span>
-                        <label for="Discount">Discount</label>
+                        <label class="labels" for="Discount">Discount</label>
                     </div>
                 </div>
 
                 <div class="form-floating has-validation my-2 mb-3 w-100">
                     <input type="text" class="form-control" id="Price" placeholder="Price" asp-for="Price">
                     <span asp-validation-for="Price" class="text-danger float-start"></span>
-                    <label for="Price">Price</label>
+                    <label class="labels" for="Price">Price</label>
                 </div>
 
                 <div class="form-floating has-validation my-2 mb-3 w-100">
                     <input type="text" class="form-control" id="Stocks" placeholder="Stocks" asp-for="Stocks">
                     <span asp-validation-for="Stocks" class="text-danger float-start"></span>
-                    <label for="Stocks">Stocks</label>
+                    <label class="labels" for="Stocks">Stocks</label>
                 </div>
 
 

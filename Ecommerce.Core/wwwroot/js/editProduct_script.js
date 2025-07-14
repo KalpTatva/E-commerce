@@ -12,11 +12,11 @@ $(document).ready(function () {
             <div class="feature-item my-3 gap-3 d-flex justify-content-between">
                 <div class="form-floating w-100">
                     <input type="text" class="form-control feature-name" id="FeatureName" placeholder="Feature Name">
-                    <label for="FeatureName">Feature Name</label>
+                    <label class="labels" for="FeatureName">Feature Name</label>
                 </div>
                 <div class="form-floating w-100">
                     <input type="text" class="form-control feature-description" id="FeatureDescription" placeholder="Feature Description">
-                    <label for="FeatureDescription">Feature Description</label>
+                    <label class="labels" for="FeatureDescription">Feature Description</label>
                 </div>
                 <button type="button" class="btn btn-danger remove-feature-button"><i class="bi bi-x-lg"></i></button>
             </div>`;

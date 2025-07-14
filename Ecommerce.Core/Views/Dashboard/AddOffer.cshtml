@@ -7,7 +7,7 @@
 
 <h2 class="mt-3 text-color">Add New Offer</h2>
 <div class="d-flex p-2 justify-content-center align-items-center  mt-3 w-75 px-5">
-    <div class="LoginContent bg-white p-4 border w-100 rounded ">
+    <div class="LoginContent p-4  w-100  ">
 
         <div class="w-100 ">
             <form asp-action="AddOffer" asp-controller="Dashboard" id="AddOfferForm">
@@ -19,14 +19,14 @@
 
                         </select>
                         <span asp-validation-for="OfferType" class="text-danger"></span>
-                        <label for="OfferType">Select type of offer</label>
+                        <label class="labels" for="OfferType">Select type of offer</label>
                     </div>
                     <div class="form-floating mb-3 w-100">
                         <select class="form-select " asp-for="ProductId" id="ProductId" aria-label="ProductId"
                             placeholder="select Product">
                         </select>
                         <span asp-validation-for="ProductId" class="text-danger"></span>
-                        <label for="ProductId">Select Product</label>
+                        <label class="labels" for="ProductId">Select Product</label>
                     </div>
                 </div>
                 <div class="d-flex gap-3 ">
@@ -34,13 +34,13 @@
                         <input type="text" class="form-control" id="Title" placeholder="Enter offer name"
                             asp-for="Title">
                         <span asp-validation-for="Title" class="text-danger "></span>
-                        <label for="Title">Offer Name</label>
+                        <label class="labels" for="Title">Offer Name</label>
                     </div>
                     <div class="form-floating has-validation my-2 mb-3 w-100">
                         <input type="number" class="form-control" id="DiscountRate" placeholder="Enter discount rate"
                             asp-for="DiscountRate">
                         <span asp-validation-for="DiscountRate" class="text-danger "></span>
-                        <label for="DiscountRate">Discount Rate</label>
+                        <label class="labels" for="DiscountRate">Discount Rate</label>
                     </div>
                 </div>
 
@@ -55,13 +55,13 @@
                         <input type="date" class="form-control" id="StartDate" placeholder="Enter start date"
                             asp-for="StartDate">
                         <span asp-validation-for="StartDate" class="text-danger "></span>
-                        <label for="StartDate">Start Date</label>
+                        <label class="labels" for="StartDate">Start Date</label>
                     </div>
                     <div class="form-floating has-validation my-2 mb-3 w-100">
                         <input type="date" class="form-control" id="EndDate" placeholder="Enter end date"
                             asp-for="EndDate">
                         <span asp-validation-for="EndDate" class="text-danger "></span>
-                        <label for="EndDate">End Date</label>
+                        <label class="labels" for="EndDate">End Date</label>
                     </div>
                 </div>
 
