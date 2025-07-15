@@ -37,7 +37,7 @@
     foreach (productAtCartViewModel product in Model.ProductsAtCart)
     {
 
-        <div class=" mt-3 d-flex  flex-column flex-lg-row justify-content-center align-items-center p-3 border rounded-3 bg-white mb-4">
+        <div class=" mt-3 d-flex flex-column flex-lg-row justify-content-center align-items-center p-3 cart mb-4">
             <div class="productImageClass d-flex justify-content-center align-items-center w-100 ">
                 <img class="imageClass" src="@Url.Content(product.Images?.ImageUrl)" alt="">
             </div>
@@ -140,6 +140,6 @@
 else
 {
     <div class="w-100 d-flex justify-content-center align-items-center">
-        <span class="display-6"> Your cart is empty</span>
+        <span class="display-6 text-color"> Your cart is empty</span>
     </div>
 }

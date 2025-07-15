@@ -2,9 +2,9 @@
     Layout = "~/Views/Shared/_dashboardSeller.cshtml";
 }
 
-<h2 class="mt-3">My Orders</h2>
+<h2 class="mt-3 text-color">My Orders</h2>
 <div class="container p-3 m-3 d-flex align-items-center flex-column ">
-    <div id="OrderContainer" class="w-100 p-3 mx-3 bg-white bg-white border rounded-3">
+    <div id="OrderContainer" class="w-100 p-3 mx-3 MyOrder">
         <!-- Orders will be loaded here -->
     </div>
 
@@ -21,7 +21,6 @@
     <script>
         window.successMessage = '@TempData["SuccessMessage"]';
         window.errorMessage = '@TempData["ErrorMessage"]';
-        
     </script>
     <script src="~/js/toastr_script.js"></script>
     <script src="~/js/myOrders_script.js"></script>

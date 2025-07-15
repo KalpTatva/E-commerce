@@ -7,7 +7,7 @@ $(document).ready(function () {
     // signalR connection for real-time updates
     // hub connection 
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/notificationHub")
+        .withUrl("/NotificationHub")
         .configureLogging(signalR.LogLevel.Information)
         .build();
 
@@ -27,7 +27,6 @@ $(document).ready(function () {
     function FetchProducts(categoryInput, searchInput) {
         $(".loader3").show();
         categoryInput = new URLSearchParams(window.location.search).get('categoryId');
-        console.log(categoryInput, "input is");
         $.ajax({
             url: '/BuyerDashboard/GetProducts',
             type: 'GET',

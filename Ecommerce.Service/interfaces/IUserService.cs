@@ -19,7 +19,7 @@ public interface IUserService
     /// <param name="role"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    ResponseTokenViewModel RefreshToken(string email, string role);
+    ResponseTokenViewModel RefreshToken(string email, string role, string UserName);
 
     /// <summary>
     /// method for generating link for reset password
@@ -33,41 +33,41 @@ public interface IUserService
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    ResponsesViewModel ValidateResetPasswordToken(string token);
+    Task<ResponsesViewModel> ValidateResetPasswordToken(string token);
 
     /// <summary>
     /// resets password 
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    ResponsesViewModel ResetPassword(ForgetPasswordViewModel model);
+    Task<ResponsesViewModel> ResetPassword(ForgetPasswordViewModel model);
 
     /// <summary>
     /// method for registering a new user
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    ResponsesViewModel RegisterUser(RegisterUserViewModel model);
+    Task<ResponsesViewModel> RegisterUser(RegisterUserViewModel model);
 
     /// <summary>
     /// method for getting countrries
     /// </summary>
     /// <returns></returns>
-    List<Country>? GetCountries();
+    Task<List<Country>?> GetCountries();
 
     /// <summary>
     /// method for getting states based on country 
     /// </summary>
     /// <param name="countryId"></param>
     /// <returns></returns>
-    List<State>? GetStates(int countryId);
+    Task<List<State>?> GetStates(int countryId);
 
     /// <summary>
     /// method for getting cities based on state id
     /// </summary>
     /// <param name="stateId"></param>
     /// <returns></returns>
-    List<City>? GetCities(int stateId);
+    Task<List<City>?> GetCities(int stateId);
 
     /// <summary>
     /// method for getting user + profile data using email
@@ -81,7 +81,7 @@ public interface IUserService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>ResponsesViewModel</returns>
-    ResponsesViewModel EditUserDetails(EditRegisteredUserViewModel model);
+    Task<ResponsesViewModel> EditUserDetails(EditRegisteredUserViewModel model);
 
 
     /// <summary>
@@ -91,4 +91,8 @@ public interface IUserService
     /// </summary>
     /// <param name="model">ContactUsViewModel containing the contact message details</param>
     Task<ResponsesViewModel> AddContactMessage(ContactUsViewModel model);
+
+
+    Task<ResponsesViewModel> ThemeChange(string theme, string email); 
+
 }

@@ -65,7 +65,7 @@ public interface IOrderService
     /// <param name="orderId">ID of the order to be updated</param>
     /// <param name="status">New status for the order (e.g., "pending", "shipped", "delivered", "cancelled")</param>
     /// <returns>ResponsesViewModel indicating success or failure of the operation</returns>
-    ResponsesViewModel UpdateOrderStatus(int orderId, string status);
+    Task<ResponsesViewModel> UpdateOrderStatus(int orderId, string status);
 
     /// <summary>
     /// Method to get the total count of orders for a seller based on their email address.
@@ -80,7 +80,7 @@ public interface IOrderService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>responsesviewmodel</returns>
-    ResponsesViewModel AddOffer(OfferViewModel model);
+    Task<ResponsesViewModel> AddOffer(OfferViewModel model);
 
 
     /// <summary>
@@ -104,9 +104,9 @@ public interface IOrderService
     /// </summary>
     /// <param name="email"></param>
     /// <exception cref="Exception"></exception>
-    void MarkNotificationAsRead(string email);
+    Task MarkNotificationAsRead(string email);
 
 
-    PaymentViewModel CreatePayment(int UserId,ObjectSessionViewModel objRes);
+    Task<PaymentViewModel> CreatePayment(int UserId,ObjectSessionViewModel objRes);
 
 }

@@ -3,73 +3,13 @@ using Ecommerce.Repository.Models;
 
 namespace Ecommerce.Repository.implementation;
 
-public class FavouriteRepository : IFavouriteRepository
+public class FavouriteRepository : GenericRepository<Favourite> , IFavouriteRepository
 {
     private readonly EcommerceContext _context;
 
-    public FavouriteRepository(EcommerceContext context)
+    public FavouriteRepository(EcommerceContext context) : base (context)
     {
         _context = context;
-    }
-
-    /// <summary>
-    /// method for fetch favourites by user and product id
-    /// </summary>
-    /// <param name="UserId"></param>
-    /// <param name="ProductId"></param>
-    /// <returns>Favourite</returns>
-    /// <exception cref="Exception"></exception>
-    public Favourite? GetFavouriteByIds(int UserId,int ProductId)
-    {
-        try
-        {
-            return _context.Favourites.FirstOrDefault(f => f.UserId == UserId && f.ProductId == ProductId);
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-    /// <summary>
-    /// method for dropping favourite tupple from db
-    /// </summary>
-    /// <param name="favourite"></param>
-    /// <exception cref="Exception"></exception>
-    public void dropFavourite(Favourite favourite)
-    {
-        try
-        {
-            _context.Favourites.Remove(favourite);
-            _context.SaveChanges();
-
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-
-    /// <summary>
-    /// method for add tupple in favourite
-    /// </summary>
-    /// <param name="favourite"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddFavourite(Favourite favourite)
-    {
-        try
-        {
-            _context.Favourites.Add(favourite);
-            _context.SaveChanges();
-
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
     }
 
     /// <summary>
@@ -90,7 +30,4 @@ public class FavouriteRepository : IFavouriteRepository
             throw new Exception(e.Message);
         }
     }
-
-
-
 }

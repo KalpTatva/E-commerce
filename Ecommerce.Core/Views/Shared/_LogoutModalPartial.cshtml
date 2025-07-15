@@ -2,15 +2,15 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="LogoutModalLabel">Logout </h1>
+                <h1 class="modal-title text-color fs-5" id="LogoutModalLabel">Logout </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body d-flex justify-content-center flex-column align-items-center" >
                 <img src="~/images/toppng.com-warning-icon-2400x2400.png" height="80px" width="80px">
-                <div class=""> Are you sure you want to logout?</div>
+                <div class="text-danger fs-5"> Are you sure you want to logout?</div>
             </div>
             <div class="modal-footer">
-                <a class="btn btn-primary" asp-action="Logout" asp-controller="Home">Yse</a>
+                <a class="btn btn-primary" asp-action="Logout" asp-controller="Login">Yes</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
             </div>
         </div>

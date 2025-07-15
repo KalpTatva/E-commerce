@@ -9,11 +9,11 @@ using Ecommerce.Core.Utils;
 
 namespace Ecommerce.Core.Controllers;
 
-public class HomeController : Controller
+public class LoginController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<LoginController> _logger;
     private readonly IUserService _userService;
-    public HomeController(ILogger<HomeController> logger, IUserService userService)
+    public LoginController(ILogger<LoginController> logger, IUserService userService)
     {
         _logger = logger;
         _userService = userService;
@@ -27,13 +27,11 @@ public class HomeController : Controller
     /// index method for redirection based on cookie and sessions, returns login view
     /// </summary>
     /// <returns>View</returns>
-    public IActionResult Index()
+    public IActionResult Index(string? ReturnURL = null)
     {
         try
-        {
+        { 
             string? authToken = null;
-
-            // Check for auth token in cookies or session
             string? cookieToken = CookieUtils.GetCookie(HttpContext, "auth_token");
             if (HttpContext.Session.TryGetValue("auth_token", out byte[]? sessionToken))
             {
@@ -44,16 +42,20 @@ public class HomeController : Controller
                 authToken = cookieToken;
             }
 
-            // If no valid token or user is not authenticated, return login view
             if (string.IsNullOrEmpty(authToken) || User?.Identity?.IsAuthenticated != true)
             {
                 SessionUtils.ClearSession(HttpContext);
                 CookieUtils.ClearCookies(Response, "auth_token");
-                return View();
+
+                LoginViewModel model = new (){
+                    ReturnURL = ReturnURL
+                };
+
+                return View(model);
             }
 
+
             string? role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-            // Redirect based on role
             switch (role)
             {
                 case nameof(RoleEnum.Admin):
@@ -63,10 +65,12 @@ public class HomeController : Controller
                 case nameof(RoleEnum.Buyer):
                     return RedirectToAction("Index", "BuyerDashboard");
                 default:
-                    TempData["ErrorMessage"] = "Invalid user role. Please contact support.";
+                    LoginViewModel model = new (){
+                        ReturnURL = ReturnURL
+                    };
                     SessionUtils.ClearSession(HttpContext);
                     CookieUtils.ClearCookies(Response, "auth_token");
-                    return View();
+                    return View(model);          
             }
         }
         catch
@@ -87,6 +91,12 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult Index(LoginViewModel model)
     {
+        if (model == null || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+        {
+            TempData["ErrorMessage"] = "Email and Password are required.";
+            return View(model);
+        }
+
         try
         {
             if (!ModelState.IsValid)
@@ -95,28 +105,39 @@ public class HomeController : Controller
                 return View(model);
             }
             ResponseTokenViewModel? response = _userService.UserLogin(model);
-            if (response.token != null)
+            if (response.token != null )
             {
                 TempData["SuccessMessage"] = "User logged in successfully!";
-
-                // Store JWT token and session ID
                 if (response.isPersistent)
                 {
-                    // Store JWT in cookie (temporary solution)
                     CookieUtils.SetJwtCookie(Response, "auth_token", response.token);
-                    // Set session in HttpContext for persistent login
-                    SessionUtils.SetSession(HttpContext, "auth_token", response.token);
+                    SessionUtils.SetSession(HttpContext, "auth_token", response.token);    
                 }
                 else
                 {
-                    // Storing JWT in session only for non-persistent login
-                    SessionUtils.SetSession(HttpContext,"auth_token", response.token);
+                    SessionUtils.SetSession(HttpContext, "auth_token", response.token);
+                    
+                    // for Return URL
+                    string? cookieToken = CookieUtils.GetCookie(HttpContext, "previous_user");
+                    if(!string.IsNullOrEmpty(cookieToken) && cookieToken == response.UserName && !string.IsNullOrEmpty(model.ReturnURL))
+                    {
+                        string decryptedUrl = AesEncryptionHelper.DecryptString(model.ReturnURL);
+                        if(Url.IsLocalUrl(decryptedUrl))
+                        {
+                            CookieUtils.SetCookie(HttpContext,"previous_user", response.UserName ?? "");
+                            return Redirect(decryptedUrl);
+                        }
+                    }
+
+                    CookieUtils.SetCookie(HttpContext,"previous_user", response.UserName ?? "");
                 }
 
-                return RedirectToAction("Index", "Home");
+                // setup theme cookie
+                CookieUtils.SetThemeCookie(HttpContext, "theme", response.BaseTheme ?? "system");
+                
+                return RedirectToAction("Index", "Login");
             }
-
-            TempData["ErrorMessage"] = "Invalid user credentials, please try again !";
+            TempData["ErrorMessage"] = "Invalid user credentials, please try again!";
             return View(model);
         }
         catch (Exception e)
@@ -137,15 +158,17 @@ public class HomeController : Controller
             // Clear session and cookies
             SessionUtils.ClearSession(HttpContext);
             CookieUtils.ClearCookies(Response, "auth_token");
+            CookieUtils.ClearCookies(Response, "previous_user");
+            CookieUtils.ClearCookies(Response,"theme");
     
             TempData["SuccessMessage"] = "Logged out successfully!";
-            return RedirectToAction("Index", "Home"); // Redirect to login page
+            return RedirectToAction("Index", "Login"); 
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred during logout.");
             TempData["ErrorMessage"] = "An error occurred during logout. Please try again.";
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Login");
         }
     }
 
@@ -173,15 +196,16 @@ public class HomeController : Controller
         if (model == null || string.IsNullOrEmpty(model.ToEmail))
         {
             TempData["ErrorMessage"] = "Email address is required.";
+            return View(model);
         }
         try
         {
 
-            ResponsesViewModel response = await _userService.ForgotPassword(model);
+            ResponsesViewModel response = await _userService.ForgotPassword(model!);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = response.Message;
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Login");
             }
             else
             {
@@ -205,16 +229,16 @@ public class HomeController : Controller
     /// <param name="token"></param>
     /// <returns>redirect to forget password</returns>
     [HttpGet]
-    public ActionResult ResetPassword(string token)
+    public async Task<ActionResult> ResetPassword(string token)
     {
         try
         {
             if (string.IsNullOrEmpty(token))
             {
                 TempData["ErrorMessage"] = "Invalid password reset link.";
-                return RedirectToAction("ForgotPassword","Home");
+                return RedirectToAction("ForgotPassword","Login");
             }
-            ResponsesViewModel response = _userService.ValidateResetPasswordToken(token);
+            ResponsesViewModel response = await _userService.ValidateResetPasswordToken(token);
             if (response.IsSuccess)
             {
                 return View(new ForgetPasswordViewModel { Token = token, Email = response.Message });
@@ -223,7 +247,7 @@ public class HomeController : Controller
             {
                 TempData["ErrorMessage"] = response.Message;
                 TempData.Remove("SuccessMessage");
-                return RedirectToAction("ForgotPassword","Home");
+                return RedirectToAction("ForgotPassword","Login");
             }
 
         }
@@ -231,7 +255,7 @@ public class HomeController : Controller
         {
             _logger.LogError(ex, "An error occurred while validating the reset password token.");
             TempData["ErrorMessage"] = $"Error occurred while processing your request: {ex.Message}";
-            return RedirectToAction("ForgotPassword","Home");
+            return RedirectToAction("ForgotPassword","Login");
         }
     }
 
@@ -241,7 +265,7 @@ public class HomeController : Controller
     /// <param name="model"></param>
     /// <returns>Resset password view</returns>
     [HttpPost]
-    public IActionResult ResetPassword(ForgetPasswordViewModel model)
+    public async Task<IActionResult> ResetPassword(ForgetPasswordViewModel model)
     {
         if (model == null || string.IsNullOrEmpty(model.Token) || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
         {
@@ -250,7 +274,7 @@ public class HomeController : Controller
         }
         try
         {
-            ResponsesViewModel response = _userService.ResetPassword(model);
+            ResponsesViewModel response = await _userService.ResetPassword(model);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = response.Message;
@@ -291,7 +315,7 @@ public class HomeController : Controller
     /// <param name="model"></param>
     /// <returns>View</returns>
     [HttpPost]
-    public IActionResult RegisterUser(RegisterUserViewModel model)
+    public async Task<IActionResult> RegisterUser(RegisterUserViewModel model)
     {
         try
         {
@@ -301,7 +325,7 @@ public class HomeController : Controller
                 return View(model);
             }
 
-            ResponsesViewModel response = _userService.RegisterUser(model);
+            ResponsesViewModel response = await _userService.RegisterUser(model);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = response.Message;
@@ -327,11 +351,11 @@ public class HomeController : Controller
     /// <returns>Json</returns>
     // helpers
     [HttpGet]
-    public IActionResult GetCountries()
+    public async Task<IActionResult> GetCountries()
     {
         try
         {
-            List<Country>? countries = _userService.GetCountries();
+            List<Country>? countries = await _userService.GetCountries();
             return PartialView("_countryoptionsPartial", countries);
         }
         catch (Exception e)
@@ -346,11 +370,11 @@ public class HomeController : Controller
     /// <param name="countryId"></param>
     /// <returns>Json</returns>.
     [HttpGet]
-    public IActionResult GetStates(int countryId)
+    public async Task<IActionResult> GetStates(int countryId)
     {
         try
         {
-            List<State>? states = _userService.GetStates(countryId);
+            List<State>? states = await _userService.GetStates(countryId);
             return PartialView("_stateoptionPartial", states);
         }
         catch (Exception e)
@@ -365,11 +389,11 @@ public class HomeController : Controller
     /// <param name="stateId"></param>
     /// <returns>Json</returns>
     [HttpGet]
-    public IActionResult GetCities(int stateId)
+    public async Task<IActionResult> GetCities(int stateId)
     {
         try
         {
-            List<City>? cities = _userService.GetCities(stateId);
+            List<City>? cities = await _userService.GetCities(stateId);
             return PartialView("_cityoptionPartial", cities);
         }
         catch (Exception e)

@@ -7,7 +7,7 @@
 {
     @foreach (ProductsDeatailsViewModel p in Model.productsDetails)
     {
-        <div class="card " data-product-id="@p.ProductId">
+        <div class="card" data-product-id="@p.ProductId">
 
             @if (p.OfferAvailable)
             {
@@ -19,29 +19,37 @@
             <div class="card-img" data-product-id="@p.ProductId">
                 <img class="imageInCard" src="@Url.Content(p?.Images?.ImageUrl)" alt="">
             </div>
-            <div class="card-body">
-                <span class="h4">
+            <div class="card-body p-0 py-4">
+                <span class="h4 d-flex flex-column justify-content-start gap-2">
                     @if (p.offer != null && p.offer.ProductId > 0)
                     {
-                        <span class="bg-warning rounded-2 px-3">
+                        <span class=" rounded-2 offers px-2">
                             @if (p.offer.OfferType == (int)OfferTypeEnum.Percentage)
                             {
-                                <span class="text-danger">-@p.offer.DiscountRate %</span>
+                                <span class="mb-3">@p.offer.DiscountRate % Discount Offer</span>
                             }
                             else if (p.offer.OfferType == (int)OfferTypeEnum.FixedPrice)
                             {
+<<<<<<< HEAD
                                 <span class="text-danger">- @((p.offer.DiscountRate ?? 0).ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))) Fixed Discount</span>
                             }
+=======
+                                <span class="mb-3">@((p.offer.DiscountRate ?? 0).ToString("C",
+                                                        System.Globalization.CultureInfo.GetCultureInfo("en-IN"))) Fixed Discount</span>
+                                }
+>>>>>>> beta-genericRepository
                             else if (p.offer.OfferType == (int)OfferTypeEnum.BOGO)
                             {
-                                <span class="text-danger">Buy 1 Get 1 Free</span>
+                                <span class="mb-3">Buy 1 Get 1 Free</span>
                             }
                         </span>
                     }
-                    <br />
-                    @p.ProductName
+
+                    <span class="">
+                        @p.ProductName
+                    </span>
                 </span>
-                <div class="mt-2">
+                <div class="">
                     @{
                         decimal price = 0;
                         decimal discount = 0;
@@ -83,6 +91,7 @@
                             }
                         }
                     }
+<<<<<<< HEAD
                     <span class="display-6 fw-normal">@price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
                     <span class="text-muted text-decoration-line-through text-nowrap">(@p.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
                     <br />
@@ -94,76 +103,91 @@
         <div class="mt-2">
             <span class="text-success fs-5">Features </span>
             @if (p.Features != null && p.Features.Any())
+=======
+                    <span class="display-6 fw-normal">@price.ToString("C",
+                                        System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
+                    <span class="text-muted text-decoration-line-through text-nowrap">(@p.Price.ToString("C",
+                                System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
+                    <br />
+                    <span class="text-danger">
+                        - @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
+                    @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" +
+                                p.Discount + "%)")
+                </span>
+            </div>
+            <div class="mt-2">
+                <span class="text-success fs-5">Features </span>
+                @if (p.Features != null && p.Features.Any())
+                {
+                    string features = "";
+                    foreach (Feature f in p.Features)
+>>>>>>> beta-genericRepository
                     {
-                        string features = "";
-                        foreach (Feature f in p.Features)
-                        {
-                            features += f.FeatureName + " " + f.Description + " | ";
-                        }
-
-                        features = features.Substring(0, features.Length - 2);
-                        <span>
-                            @features
-                        </span>
+                        features += f.FeatureName + " " + f.Description + " | ";
                     }
 
-                </div>
+                    features = features.Substring(0, features.Length - 2);
+                    <span>
+                        @features
+                    </span>
+                }
+            </div>
 
-                <div class="d-flex justify-content-between gap-1 mt-2 w-100">
-                    <div>
-                        <span class="text-success fs-5">Reviews </span>
-                        <span>
-                            <span class="text-secondary fs-5 mb-2">
-                                @if (p.AverageRatings > 0)
+            <div class="d-flex justify-content-between gap-1 mt-2 w-100">
+                <div>
+                    <span class="text-success fs-5">Reviews </span>
+                    <span>
+                        <span class="text-secondary fs-5 mb-2">
+                            @if (p.AverageRatings > 0)
+                            {
+                                int fullStars = (int)p.AverageRatings;
+                                decimal fractionalStar = p.AverageRatings - fullStars;
+
+                                for (int i = 0; i < fullStars; i++)
                                 {
-                                    int fullStars = (int)p.AverageRatings;
-                                    decimal fractionalStar = p.AverageRatings - fullStars;
-
-                                    for (int i = 0; i < fullStars; i++)
-                                    {
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                    }
-
-                                    if (fractionalStar >= 0.5m)
-                                    {
-                                        <i class="bi bi-star-half text-warning"></i>
-                                    }
-
-                                    for (int i = fullStars + (fractionalStar >= 0.5m ? 1 : 0); i < 5; i++)
-                                    {
-                                        <i class="bi bi-star text-muted"></i>
-                                    }
+                                    <i class="bi bi-star-fill text-warning"></i>
                                 }
-                                else
+
+                                if (fractionalStar >= 0.5m)
                                 {
-                                    <span class="text-muted">No rating</span>
+                                    <i class="bi bi-star-half text-warning"></i>
                                 }
-                            </span>
 
+                                for (int i = fullStars + (fractionalStar >= 0.5m ? 1 : 0); i < 5; i++)
+                                {
+                                    <i class="bi bi-star text-muted"></i>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">No rating</span>
+                            }
                         </span>
-                    </div>
-                    <div>
-                        @if (Model.BaseEmail != null)
-                        {
-                             <div class="addTofavourite" data-product-id="@p.ProductId"
-                                data-is-favourite="@(Model.favourites != null && Model.favourites.Contains(p.ProductId) ? "true" : "false")">
-                                @if (Model.favourites != null && Model.favourites.Contains(p.ProductId))
-                                {
-                                    <span><i class="bi bi-heart-fill icons-css text-danger fs-4"></i></span>
-                                }
-                                else
-                                {
-                                    <span><i class="bi bi-heart icons-css text-danger fs-4"></i></span>
-                                }
-                            </div>
-                        }
-                        
 
-                    </div>
+                    </span>
                 </div>
+                <div>
+                    @if (Model.BaseEmail != null && Model.BaseRole == RoleEnum.Buyer.ToString())    
+                    {
+                        <div class="addTofavourite" data-product-id="@p.ProductId"
+                            data-is-favourite="@(Model.favourites != null && Model.favourites.Contains(p.ProductId) ? "true" : "false")">
+                            @if (Model.favourites != null && Model.favourites.Contains(p.ProductId))
+                            {
+                                <span><i class="bi bi-heart-fill icons-css text-danger fs-4"></i></span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-heart icons-css text-danger fs-4"></i></span>
+                            }
+                        </div>
+                    }
+
+
+                </div>
+            </div>
 
                 <div class="mt-2 gap-2 d-flex justify-content-end w-100">
-                    @if (Model.BaseEmail != null && p.Stocks > 0)
+                    @if (Model.BaseEmail != null && p.Stocks > 0 && Model.BaseRole == RoleEnum.Buyer.ToString())
                     {
                         <button class="btn btn-warning rounded-pill AddToCart " data-product-id="@p.ProductId">Add to cart</button>
                         <button class="btn btn-success rounded-pill BuySingleProduct" data-product-id="@p.ProductId"
@@ -175,14 +199,15 @@
                         {
                             <span class="text-secondary fs-5">Please login to buy this product</span>
                         }
+                        else if (Model.BaseRole == RoleEnum.Seller.ToString())
+                        {
+                            <span class="text-danger fs-6">Seller's are not allowed to Buy, login with buyer's role</span>
+                        }
                         else
                         {
                             <span class="text-danger fs-5">Out of stock</span>
                         }
                     }
-
-
-
                 </div>
 
             </div>
@@ -192,8 +217,8 @@
 else
 {
     <div class="d-flex justify-content-center align-items-center">
-        <span class="display-5">
-            No products found
+        <span class="display-5 text-color">
+            No product available
         </span>
     </div>
 }

@@ -15,30 +15,19 @@ namespace Ecommerce.Service.implementation;
 
 public class UserService : IUserService
 {
-
-    private readonly IUserRepository _userRepository;
-    private readonly IOrderRepository _orderRepository;
-    private readonly IProductRepository _productRepository;
     private readonly IConfiguration _configuration;
-    private readonly INotificationRepository _notificationRepository;
     private readonly IEmailService _emailService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public UserService(
-        IUserRepository userRepository,
         IConfiguration configuration,
         IEmailService emailService,
-        IOrderRepository orderRepository,
-        IProductRepository productRepository,
-        INotificationRepository notificationRepository
-        )
+        IUnitOfWork unitOfWork
+    )
     {
-        _userRepository = userRepository;
         _configuration = configuration;
         _emailService = emailService;
-        _orderRepository = orderRepository;
-        _productRepository = productRepository;
-        _notificationRepository = notificationRepository;
-
+        _unitOfWork = unitOfWork;
     }
 
     /// <summary>
@@ -46,24 +35,26 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>ResponseTokenViewModel</returns>
-   public ResponseTokenViewModel UserLogin(LoginViewModel model)
+    public ResponseTokenViewModel UserLogin(LoginViewModel model)
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(model.Email);
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(model.Email);
             if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(model.Password, user.Password))
             {
                 string? userRole = user != null && user.RoleId != 0 ? ((RoleEnum)user.RoleId).ToString() : null;
                 
-                DateTime tokenExpire = model.RememberMe 
-                    ? DateTime.UtcNow.AddDays(30) // Token expiration time set to 30 days for persistent login
-                    : DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
+                DateTime tokenExpire = DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
                 
-                string jwtToken = GenerateJwtToken(model.Email, tokenExpire, userRole ?? "");
+                string theme = user?.Theme != null ? ((ThemeEnum)user.Theme).ToString() : "system";
+
+                string jwtToken = GenerateJwtToken(model.Email, tokenExpire, userRole ?? "", user?.UserName ?? "");
 
                 return new ResponseTokenViewModel
                 {
                     token = jwtToken,
+                    BaseTheme = theme,
+                    UserName = user?.UserName ?? "",
                     isPersistent = model.RememberMe,
                     response = "Login successful"
                 };
@@ -89,7 +80,7 @@ public class UserService : IUserService
     /// <param name="expiryTime"></param>
     /// <param name="RoleName"></param>
     /// <returns>string</returns>
-    private string GenerateJwtToken(string email, DateTime expiryTime, string RoleName)
+    private string GenerateJwtToken(string email, DateTime expiryTime, string RoleName, string UserName)
     {
         SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])
@@ -101,6 +92,7 @@ public class UserService : IUserService
             new Claim(JwtRegisteredClaimNames.Email, email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.Role, RoleName),
+            new Claim(JwtRegisteredClaimNames.Name, UserName)
         };
 
         JwtSecurityToken token = new JwtSecurityToken(
@@ -121,12 +113,12 @@ public class UserService : IUserService
     /// <param name="role"></param>
     /// <returns>ResponseTokenViewModel</returns>
     /// <exception cref="Exception"></exception>
-    public ResponseTokenViewModel RefreshToken(string email, string role)
+    public ResponseTokenViewModel RefreshToken(string email, string role, string UserName)
     {
         try
         {
-            DateTime tokenExpire = DateTime.UtcNow.AddDays(30); // Or 30 days for persistent
-            string jwtToken = GenerateJwtToken(email, tokenExpire, role);
+            DateTime tokenExpire = DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
+            string jwtToken = GenerateJwtToken(email, tokenExpire, role, UserName);
             return new ResponseTokenViewModel
             {
                 token = jwtToken,
@@ -150,7 +142,7 @@ public class UserService : IUserService
     {
         try
         {
-            User? user = _userRepository.GetUserByEmail(email.ToEmail.Trim().ToLower());
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email.ToEmail ?? "");
             if (user == null)
             {
                 return new ResponsesViewModel()
@@ -168,11 +160,11 @@ public class UserService : IUserService
                 Guidtoken = Guid.NewGuid().ToString()
             };
             
-            _userRepository.AddPasswordResetRequest(passwordResetRequest);
+            await _unitOfWork.PasswordResetRequestRepository.AddAsync(passwordResetRequest);
             
             // reset password url for email
             string BaseUrl = _configuration["UrlSettings:BaseUrl"] ?? "";
-            string ResetPasswordUrl = $"{BaseUrl}Home/ResetPassword?token={passwordResetRequest.Guidtoken}";
+            string ResetPasswordUrl = $"{BaseUrl}Login/ResetPassword?token={passwordResetRequest.Guidtoken}";
             string ResetLink = HtmlEncoder.Default.Encode(ResetPasswordUrl);
 
             string EmailBody = $@"
@@ -216,7 +208,7 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="token"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel ValidateResetPasswordToken(string token)
+    public async Task<ResponsesViewModel> ValidateResetPasswordToken(string token)
     {
         try
         {
@@ -229,8 +221,8 @@ public class UserService : IUserService
                     Message = "Invalid password reset link" // when token is null or empty
                 };
             }
-
-            PasswordResetRequest? resetRequest = _userRepository.GetPasswordResetRequestByToken(token);
+            
+            PasswordResetRequest? resetRequest = await _unitOfWork.PasswordResetRequestRepository.FindAsync(x => x.Guidtoken == token);
             // check if token is not found in the database
             if (resetRequest == null)
             {
@@ -262,7 +254,9 @@ public class UserService : IUserService
             }
             
             // check if user exists for the token
-            User? user = _userRepository.GetUserById(resetRequest.Userid);
+            // User? user = _userRepository.GetUserById(resetRequest.Userid);
+            User? user = await _unitOfWork.UserRepository.GetByIdAsync(resetRequest.Userid);
+
             if (user == null)
             {
                 return new ResponsesViewModel()
@@ -294,7 +288,7 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel ResetPassword(ForgetPasswordViewModel model)
+    public async Task<ResponsesViewModel> ResetPassword(ForgetPasswordViewModel model)
     {
         try
         {
@@ -309,14 +303,14 @@ public class UserService : IUserService
             }
 
             // validate the reset password token
-            ResponsesViewModel response = ValidateResetPasswordToken(model.Token);
+            ResponsesViewModel response = await ValidateResetPasswordToken(model.Token);
             if (!response.IsSuccess)
             {
                 return response; // return error response if token is invalid
             }
 
             // get user by email
-            User? user = _userRepository.GetUserByEmail(model.Email.Trim().ToLower());
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(model.Email);
             if (user == null)
             {
                 return new ResponsesViewModel()
@@ -337,14 +331,15 @@ public class UserService : IUserService
 
             // update user password
             user.Password = BCrypt.Net.BCrypt.EnhancedHashPassword(model.Password);
-            _userRepository.UpdateUser(user);
+            await _unitOfWork.UserRepository.UpdateAsync(user);
 
             // close the reset password request
-            PasswordResetRequest? resetRequest = _userRepository.GetPasswordResetRequestByToken(model.Token);
+            PasswordResetRequest? resetRequest = await _unitOfWork.PasswordResetRequestRepository.FindAsync(x => x.Guidtoken == model.Token);
+
             if (resetRequest != null)
             {
                 resetRequest.Closedate = DateTime.Now;
-                _userRepository.UpdatePasswordResetRequest(resetRequest);
+                await _unitOfWork.PasswordResetRequestRepository.UpdateAsync(resetRequest);
             }
 
             return new ResponsesViewModel()
@@ -368,20 +363,32 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel RegisterUser(RegisterUserViewModel model)
+    public async Task<ResponsesViewModel> RegisterUser(RegisterUserViewModel model)
     {
         try
         {
             // Check if user already exists
-            User? existingUser = _userRepository.GetUserByEmail(model.Email.Trim().ToLower());
+            User? existingUser = _unitOfWork.UserRepository.GetUserByEmail(model.Email);
+
             if (existingUser != null)
             {
                 return new ResponsesViewModel()
                 {
                     IsSuccess = false,
-                    Message = "User with this email already exists"
+                    Message = "User with this email already exists, please try another"
                 };
-            }  
+            } 
+
+            User? existingName = _unitOfWork.UserRepository.GetUserByUserName(model.UserName); 
+            if(existingName != null)
+            {
+               return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = "User with this Username already exists, please try another"
+                }; 
+            }
+
             // Validate required fields
             if(string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.Email))
             {
@@ -413,7 +420,7 @@ public class UserService : IUserService
                 LastName = model.LastName,
                 CreatedAt = DateTime.Now
             };
-            _userRepository.AddProfile(profile);
+            await _unitOfWork.ProfileRepository.AddAsync(profile);
 
             // Create new user
             User newUser = new User
@@ -425,7 +432,7 @@ public class UserService : IUserService
                 ProfileId = profile.ProfileId,
                 CreatedAt = DateTime.Now
             };
-            _userRepository.AddUser(newUser);
+            await _unitOfWork.UserRepository.AddAsync(newUser);
 
             return new ResponsesViewModel()
             {
@@ -448,11 +455,11 @@ public class UserService : IUserService
     /// </summary>
     /// <returns>List<Country></returns>
     /// <exception cref="Exception"></exception>
-    public List<Country>? GetCountries()
+    public async Task<List<Country>?> GetCountries()
     {
         try
         {
-            return _userRepository.GetCountries() ?? new List<Country>();
+            return await _unitOfWork.CountryRepository.GetAllAsync() ?? new List<Country>();
         }
         catch(Exception e)
         {
@@ -467,11 +474,11 @@ public class UserService : IUserService
     /// <param name="countryId"></param>
     /// <returns> List<State></returns>
     /// <exception cref="Exception"></exception>
-    public List<State>? GetStates(int countryId)
+    public async Task<List<State>?> GetStates(int countryId)
     {
         try
         {
-            return _userRepository.GetStates(countryId) ?? new List<State>();
+            return await _unitOfWork.StateRepository.FindAllAsync(x => x.CountryId == countryId) ?? new List<State>();
         }
         catch(Exception e)
         {
@@ -485,11 +492,11 @@ public class UserService : IUserService
     /// <param name="stateId"></param>
     /// <returns>List<City>?</returns>
     /// <exception cref="Exception"></exception>
-    public List<City>? GetCities(int stateId)
+    public async Task<List<City>?> GetCities(int stateId)
     {
         try
         {
-            return _userRepository.GetCities(stateId) ?? new List<City>();
+            return await _unitOfWork.CityRepository.FindAllAsync(x => x.StateId == stateId) ?? new List<City>();
         }
         catch(Exception e)
         {
@@ -507,7 +514,7 @@ public class UserService : IUserService
     {
         try
         {
-            EditRegisteredUserViewModel? model = _userRepository.GetUserDetailsByEmail(email);
+            EditRegisteredUserViewModel? model = _unitOfWork.UserRepository.GetUserDetailsByEmail(email);
             return model ?? new EditRegisteredUserViewModel();
         }
         catch(Exception e)
@@ -521,14 +528,16 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>ResponsesViewModel</returns>
-    public ResponsesViewModel EditUserDetails(EditRegisteredUserViewModel model)
+    public async Task<ResponsesViewModel> EditUserDetails(EditRegisteredUserViewModel model)
     {
         try
         {   
             if(model!= null)
             {
-                User? user = _userRepository.GetUserById(model.UserId);
-                Profile? profile = _userRepository.GetProfileById(model.ProfileId);
+                // User? user = _userRepository.GetUserById(model.UserId);
+                User? user = await _unitOfWork.UserRepository.GetByIdAsync(model.UserId);
+                Profile? profile = user!=null ? await _unitOfWork.ProfileRepository.GetByIdAsync(user.ProfileId) : null;
+
 
                 if(user!=null && profile!=null && user.ProfileId == model.ProfileId)
                 {
@@ -541,12 +550,12 @@ public class UserService : IUserService
                     profile.PhoneNumber = model.PhoneNumber;
                     profile.EditedAt = DateTime.Now;
 
-                    _userRepository.UpdateProfile(profile);
+                    await _unitOfWork.ProfileRepository.UpdateAsync(profile);
 
                     // user update //
                     user.EditedAt = DateTime.Now;
                     
-                    _userRepository.UpdateUser(user);
+                    await _unitOfWork.UserRepository.UpdateAsync(user);
                     
                     return new ResponsesViewModel{
                         IsSuccess = true,
@@ -593,26 +602,29 @@ public class UserService : IUserService
                 };
             }
             
-            Product? product = _productRepository.GetProductById(model.ProductId);
+            Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(model.ProductId);
+
             // add notification into the database
             Notification notification = new Notification
             {
                 Notification1 = $"You have received a new contact message from {model.Name} ({model.SenderEmail}) for product {product?.ProductName}. check your email.",
                 ProductId = model.ProductId
             };
-            _notificationRepository.AddNotification(notification);
+            // _notificationRepository.AddNotification(notification);
+            await _unitOfWork.NotificationRepository.AddAsync(notification);
 
             // notification in mapping table of user and notification
             List<UserNotificationMapping> userNotificationMappings = new List<UserNotificationMapping>();
             
             userNotificationMappings.Add(new UserNotificationMapping
             {
-                UserId = _userRepository.GetUserByEmail(model.ReciverEmail)?.UserId ?? 0,
+                UserId = _unitOfWork.UserRepository.GetUserByEmail(model.ReciverEmail)?.UserId ?? 0,
                 NotificationId = notification.NotificationId,
                 CreatedAt = DateTime.Now
             });
 
-            _notificationRepository.AddUserNotificationMappingRange(userNotificationMappings);
+            await _unitOfWork.UserNotificationMappingRepository.AddRangeAsync(userNotificationMappings);
+
 
             // add contact details
             Contactu contact = new Contactu
@@ -623,7 +635,7 @@ public class UserService : IUserService
                 Subject = model.Subject,
                 Message = model.Message,
             };
-            _userRepository.AddContact(contact);
+            await _unitOfWork.ContactUsRepository.AddAsync(contact);
 
             
 
@@ -662,6 +674,46 @@ public class UserService : IUserService
             {
                 IsSuccess = false,
                 Message = $"Error in AddContactMessage: {e.Message}"
+            };
+        }
+    }
+
+
+    public async Task<ResponsesViewModel> ThemeChange(string theme, string email) 
+    {
+        try
+        {
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if(user!=null)
+            {
+                user.Theme = ThemeEnum.dark.ToString() == theme ? (int)ThemeEnum.dark : 
+                            ThemeEnum.light.ToString() == theme ? (int)ThemeEnum.light : 
+                            (int)ThemeEnum.system;
+                user.EditedAt = DateTime.Now;
+                await _unitOfWork.UserRepository.UpdateAsync(user);
+                
+                return new ResponsesViewModel
+                {
+                    IsSuccess = true,
+                    Message = $"Theme updated successfully!"
+                };
+
+                            
+            }
+            else
+            {
+                // theme changed whithout active user, no theme is preserved
+                return new ResponsesViewModel
+                {
+                    IsSuccess = true,
+                    Message = $"Theme updated successfully!"
+                };
+            }
+        } catch (Exception e) {
+            return new ResponsesViewModel
+            {
+                IsSuccess = false,
+                Message = $"Error in changing theme: {e.Message}"
             };
         }
     }

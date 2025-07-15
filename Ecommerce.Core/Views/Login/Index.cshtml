@@ -1,23 +1,33 @@
 ﻿@model Ecommerce.Repository.ViewModels.LoginViewModel
-
+@{
+    string URL = "";
+    if(!string.IsNullOrEmpty(Model.ReturnURL))
+    {
+        URL = Model.ReturnURL;
+    }
+    
+}
 <div class="d-flex p-2 justify-content-center align-items-center ">
-    <div class="LoginContent bg-white p-4 border  rounded-end">
-        <h1 class="display-4 text-center">E-commerce </h1>
-        <h3 class="display-6 mb-4 text-center">Login</h3>
+    <div class="LoginContent p-4">
+        <h1 class="display-4 text-center text-color">E-commerce </h1>
+        <h3 class="display-6 mb-4 text-center text-color">Login</h3>
 
         <div class="w-100 ">
-            <form asp-action="Index" asp-controller="Home" method="post" class="d-flex flex-column inputlogin">
+            <form asp-action="Index" asp-controller="Login" method="post" class="d-flex flex-column inputlogin">
+
+                <input type="hidden" asp-for="ReturnURL" value="@URL" />
+                
                 <div class="form-floating has-validation my-2 mb-4 w-100">
                     <input type="text" class="form-control" id="email-login" placeholder="Email" asp-for="Email">
                     <span asp-validation-for="Email" class="text-danger float-start"></span>
-                    <label for="email-login">Email</label>
+                    <label class="labels" for="email-login">Email</label>
                 </div>
 
                 <div class="has-validation my-2 mb-4 w-100">
                     <div class="position-relative password-section form-floating">
                         <input type="password" class="form-control" id="exampleInputPassword" placeholder="password"
                             asp-for="Password">
-                            <label for="exampleInputPassword">Password</label>
+                            <label class="labels" for="exampleInputPassword">Password</label>
                         <div class="eye">
                             <i class="bi bi-eye openeye eye inactive"></i>
                             <i class="bi bi-eye-slash closeeye eye active"></i>
@@ -30,10 +40,10 @@
                 <div class="d-flex justify-content-between ">
                     <div>
                         <input type="checkbox" class="form-check-input mb-4" id="rememberMe" asp-for="RememberMe">
-                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                        <label class="labels" class="form-check-label" for="rememberMe">Remember me</label>
                     </div>
                     <div>
-                        <a class="text-decoration-none" asp-action="ForgotPassword" asp-controller="Home">Forget Password?</a>
+                        <a class="text-decoration-none" asp-action="ForgotPassword" asp-controller="Login">Forget Password?</a>
                     </div>
                 </div>
 
@@ -47,8 +57,8 @@
             </form>
         </div>
         <div class="d-flex justify-content-between mt-3">
-            <a class="text-decoration-none" asp-action="UserDashboard" asp-controller="Dashboard">To Dashboard</a>
-            <a class="text-decoration-none" asp-action="RegisterUser" asp-controller="Home">To Register User</a>
+            <a class="text-decoration-none" asp-action="Index" asp-controller="BuyerDashboard">To Dashboard</a>
+            <a class="text-decoration-none" asp-action="RegisterUser" asp-controller="Login">To Register User</a>
         </div>
 
     </div>

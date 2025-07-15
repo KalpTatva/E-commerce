@@ -23,32 +23,39 @@ $(document).ready(function () {
         });
     });
 
-    // mthod for image showcasing
     $("#ProductImages").on("change", function (event) {
         const files = event.target.files;
         const previewContainer = $(".image-preview-container");
-
-        $("#ProductImages").after(previewContainer);
-
+        const validExtensions = ["jpg", "jpeg", "avif", "png", "svg", "bmp", "gif", "webp", "tiff", "heic", "ico", "raw", "jfif"];
         const existingImages = new Set();
-
-        Array.from(files).forEach((file) => {
-            const validExtensions = ["jpg", "jpeg", "avif","png","svg"];
+        
+        // Create a new FileList to store only valid files
+        const validFiles = Array.from(files).filter((file) => {
             const fileExtension = file.name.split(".").pop().toLowerCase();
             if (!validExtensions.includes(fileExtension)) {
-                toastr.error(`File "${file.name}" is not a valid image format. Allowed formats: jpg, jpeg, avif, svg, png.`);
-                return;
+                toastr.error(`File "${file.name}" is not a valid image format.`);
+                return false;
             }
             if (existingImages.has(file.name)) {
                 toastr.error(`Image "${file.name}" is already added.`);
-                return;
+                return false;
             }
             existingImages.add(file.name);
+            return true;
         });
-
-        Array.from(files).forEach((file) => {
-            if (!file.type.startsWith("image/")) return;  
-
+    
+        // Clear the input and set only valid files
+        const dataTransfer = new DataTransfer();
+        validFiles.forEach(file => dataTransfer.items.add(file));
+        this.files = dataTransfer.files;
+    
+        // Move previewContainer after #ProductImages
+        $("#ProductImages").after(previewContainer);
+    
+        // Process only valid files for preview
+        validFiles.forEach((file) => {
+            if (!file.type.startsWith("image/")) return;
+    
             const reader = new FileReader();
             reader.onload = function (e) {
                 const imgWrapper = $(
@@ -58,14 +65,14 @@ $(document).ready(function () {
                     '<img class="img-thumbnail" style="width: 100px; height: 100px;">'
                 );
                 img.attr("src", e.target.result);
-
+    
                 const removeBtn = $(
                     '<button class="btn btn-danger btn-sm position-absolute top-0 end-0">X</button>'
                 );
                 removeBtn.on("click", function () {
                     imgWrapper.remove();
                 });
-
+    
                 imgWrapper.append(img).append(removeBtn);
                 previewContainer.append(imgWrapper);
             };
@@ -73,18 +80,17 @@ $(document).ready(function () {
         });
     });
 
-
     // js for adding new features 
     $("#AddFeatureButton").on("click", function () {
         const featureItem = `
         <div class="feature-item my-3 gap-3 d-flex justify-content-between">
             <div class="form-floating w-100">
                 <input type="text" class="form-control feature-name" id="FeatureName" placeholder="Feature Name">
-                <label for="FeatureName">Feature Name</label>
+                <label class="labels" for="FeatureName">Feature Name</label>
             </div>
             <div class="form-floating w-100">
                 <input type="text" class="form-control feature-description" id="FeatureDescription" placeholder="Feature Description">
-                <label for="FeatureDescription">Feature Description</label>
+                <label class="labels" for="FeatureDescription">Feature Description</label>
             </div>
             <button type="button" class="btn btn-danger remove-feature-button"><i class="bi bi-x-lg"></i></button>
         </div>`;

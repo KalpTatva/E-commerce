@@ -11,7 +11,7 @@ public partial class UserNotificationMapping
 
     public int NotificationId { get; set; }
 
-    public bool? ReadAll { get; set; }
+    public bool? IsRead { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

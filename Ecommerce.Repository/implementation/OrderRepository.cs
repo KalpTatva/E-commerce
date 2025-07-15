@@ -7,15 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Repository.implementation;
 
-public class OrderRepository : IOrderRepository
+public class OrderRepository : GenericRepository<Order>, IOrderRepository
 {
     private readonly EcommerceContext _context;
-    private IDbConnection _dbConnection { get; }
 
-    public OrderRepository(EcommerceContext context, IDbConnection dbConnection)
+    public OrderRepository(EcommerceContext context) : base (context)
     {
         _context = context;
-        _dbConnection = dbConnection;
     }
 
 
@@ -97,64 +95,6 @@ public class OrderRepository : IOrderRepository
                 }).ToListAsync();
 
             return query;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Method to add an order to the database.
-    /// This method adds a new order to the Orders table and 
-    /// saves changes to the database.
-    /// </summary>
-    /// <param name="order"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddOrder(Order order)
-    {
-        try
-        {
-            _context.Orders.Add(order);
-            _context.SaveChanges();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Method to update an existing order in the database.
-    /// </summary>
-    /// <param name="order"></param>
-    /// <exception cref="Exception"></exception>
-    public void updateOrder(Order order)
-    {
-        try
-        {
-            _context.Orders.Update(order);
-            _context.SaveChanges();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Method to add a range of order products to the database.
-    /// This method adds multiple order products to the OrderProducts table and
-    /// saves changes to the database.
-    /// </summary>
-    /// <param name="orderProducts"></param>
-    /// <exception cref="Exception"></exception>
-    public void AddOrderProductRange(List<OrderProduct> orderProducts)
-    {
-        try
-        {
-            _context.OrderProducts.AddRange(orderProducts);
-            _context.SaveChanges();
         }
         catch (Exception e)
         {
@@ -298,65 +238,5 @@ public class OrderRepository : IOrderRepository
             throw new Exception(e.Message);
         }
     }
-
-
-    /// <summary>
-    /// Method to get an order by its ID.
-    /// This method retrieves a specific order from the OrderProducts table based on the provided order ID.
-    /// </summary>
-    /// <param name="orderId"></param>
-    /// <returns>It returns an OrderProduct object if found, otherwise null.</returns>
-    public OrderProduct? GetOrderById(int orderId)
-    {
-        try
-        {
-            OrderProduct? order = 
-                _context.OrderProducts
-                .FirstOrDefault(op => op.OrderProductId == orderId && op.IsDeleted == false);
-            return order;
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Method to update an existing order product.
-    /// This method updates the details of an order product in the OrderProducts table
-    /// and saves the changes to the database.
-    /// </summary>
-    /// <param name="order"></param>
-    public void UpdateOrderProducts(OrderProduct order)
-    {
-        try
-        {
-            _context.OrderProducts.Update(order);
-            _context.SaveChanges();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
-
-    /// <summary>
-    /// Method to add an offer to the database.
-    /// This method adds a new offer to the Offers table and saves changes to the database.
-    /// </summary>
-    public void AddOffer(Offer offer)
-    {
-        try
-        {
-            _context.Offers.Add(offer);
-            _context.SaveChanges();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
 
 }

@@ -553,6 +553,9 @@ public partial class EcommerceContext : DbContext
                 .HasColumnName("password");
             entity.Property(e => e.ProfileId).HasColumnName("profile_id");
             entity.Property(e => e.RoleId).HasColumnName("role_id");
+            entity.Property(e => e.Theme)
+                .HasDefaultValue(1)
+                .HasColumnName("theme");
             entity.Property(e => e.UserName)
                 .HasColumnType("character varying")
                 .HasColumnName("user_name");
@@ -577,10 +580,10 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.EditedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("edited_at");
-            entity.Property(e => e.NotificationId).HasColumnName("notification_id");
-            entity.Property(e => e.ReadAll)
+            entity.Property(e => e.IsRead)
                 .HasDefaultValue(false)
-                .HasColumnName("read_all");
+                .HasColumnName("is_read");
+            entity.Property(e => e.NotificationId).HasColumnName("notification_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Notification).WithMany(p => p.UserNotificationMappings)

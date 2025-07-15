@@ -32,12 +32,15 @@ public class TokenRefreshMiddleware
     
     public async Task InvokeAsync(HttpContext context, IUserService userService)
     {
-    if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+        if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
         {
             string? emailClaim = context.User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value
                 ?? context.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
             
             string? roleClaim = context.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? userNameClaim = context.User.FindFirst(claim => claim.Type == ClaimTypes.Name)?.Value
+                ?? context.User.FindFirst(claim => claim.Type == JwtRegisteredClaimNames.Name)?.Value;
+                
             
             string? token =  SessionUtils.GetSession(context, "auth_token") ?? CookieUtils.GetCookie(context, "auth_token");
 
@@ -47,9 +50,9 @@ public class TokenRefreshMiddleware
                 {
                     JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
                     JwtSecurityToken? jwtToken = handler.ReadJwtToken(token);
-                    if (jwtToken.ValidTo < DateTime.UtcNow.AddMinutes(5) || CookieUtils.ContainsKey(context.Request,"auth_token")) // Refresh if expiring soon (within 5 minutes)
+                    if (jwtToken.ValidTo < DateTime.UtcNow.AddMinutes(5) && CookieUtils.ContainsKey(context.Request,"auth_token")) // Refresh if expiring soon (within 5 minutes)
                     {
-                        ResponseTokenViewModel? response = userService.RefreshToken(emailClaim, roleClaim);
+                        ResponseTokenViewModel? response = userService.RefreshToken(emailClaim ?? "", roleClaim ?? "", userNameClaim ?? "");
                         if (response.token != null)
                         {
                             if (CookieUtils.ContainsKey(context.Request,"auth_token")) // MEANING persistent connection
@@ -64,7 +67,7 @@ public class TokenRefreshMiddleware
                                 // Clear session and cookies on token error
                                 SessionUtils.ClearSession(context);
                                 CookieUtils.ClearCookies(context.Response, "auth_token");
-                                context.Response.Redirect("/BuyerDashboard/Index");
+                                context.Response.Redirect("/Login/Index");
                                 return;
                             }
                         }
@@ -75,7 +78,7 @@ public class TokenRefreshMiddleware
                     // Clear session and cookies on token error
                     SessionUtils.ClearSession(context);
                     CookieUtils.ClearCookies(context.Response, "auth_token");
-                    context.Response.Redirect("/BuyerDashboard/Index");
+                    context.Response.Redirect("/Login/Index");
                     return;
                 }
             }
@@ -84,8 +87,17 @@ public class TokenRefreshMiddleware
                 // Clear session and cookies if no token is found
                 SessionUtils.ClearSession(context);
                 CookieUtils.ClearCookies(context.Response, "auth_token");
-                context.Response.Redirect("/BuyerDashboard/Index");
-                return;
+                
+                // Only redirect if not already on the login page
+                string? currentPath = context.Request.Path.Value;
+                if (!string.IsNullOrEmpty(currentPath) && !currentPath.StartsWith("/Login", StringComparison.OrdinalIgnoreCase))
+                {
+                    string returnUrl = context.Request.Path + context.Request.QueryString;
+                    string encryptedReturnUrl = AesEncryptionHelper.EncryptString(returnUrl);
+                     string loginUrl = $"/Login/Index?ReturnURL={encryptedReturnUrl}";
+                    context.Response.Redirect(loginUrl);
+                    return;
+                }
             }
         }
 
