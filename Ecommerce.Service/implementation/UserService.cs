@@ -35,7 +35,7 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="model"></param>
     /// <returns>ResponseTokenViewModel</returns>
-   public ResponseTokenViewModel UserLogin(LoginViewModel model)
+    public ResponseTokenViewModel UserLogin(LoginViewModel model)
     {
         try
         {
@@ -44,9 +44,7 @@ public class UserService : IUserService
             {
                 string? userRole = user != null && user.RoleId != 0 ? ((RoleEnum)user.RoleId).ToString() : null;
                 
-                DateTime tokenExpire = model.RememberMe 
-                    ? DateTime.UtcNow.AddDays(30) // Token expiration time set to 30 days for persistent login
-                    : DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
+                DateTime tokenExpire = DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
                 
                 string theme = user?.Theme != null ? ((ThemeEnum)user.Theme).ToString() : "system";
 
@@ -119,7 +117,7 @@ public class UserService : IUserService
     {
         try
         {
-            DateTime tokenExpire = DateTime.UtcNow.AddDays(30); // Or 30 days for persistent
+            DateTime tokenExpire = DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
             string jwtToken = GenerateJwtToken(email, tokenExpire, role, UserName);
             return new ResponseTokenViewModel
             {

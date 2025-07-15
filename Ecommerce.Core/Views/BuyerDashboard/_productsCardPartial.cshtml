@@ -26,7 +26,7 @@
                         <span class=" rounded-2 offers px-2">
                             @if (p.offer.OfferType == (int)OfferTypeEnum.Percentage)
                             {
-                                <span class="mb-3">@p.offer.DiscountRate %</span>
+                                <span class="mb-3">@p.offer.DiscountRate % Discount Offer</span>
                             }
                             else if (p.offer.OfferType == (int)OfferTypeEnum.FixedPrice)
                             {
@@ -90,9 +90,9 @@
                                         System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
                     <span class="text-muted text-decoration-line-through text-nowrap">(@p.Price.ToString("C",
                                 System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
-                                                                                      <br />
-                                                                                      <span class="text-danger">
-                                                                                          - @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
+                    <br />
+                    <span class="text-danger">
+                        - @discount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
                     @((int)DiscountEnum.FixedAmount == p.DiscountType ? "(Fixed)" : "(" +
                                 p.Discount + "%)")
                 </span>
