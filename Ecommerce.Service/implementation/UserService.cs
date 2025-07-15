@@ -44,7 +44,7 @@ public class UserService : IUserService
             {
                 string? userRole = user != null && user.RoleId != 0 ? ((RoleEnum)user.RoleId).ToString() : null;
                 
-                DateTime tokenExpire = DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
+                DateTime tokenExpire = model.RememberMe == true ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
                 
                 string theme = user?.Theme != null ? ((ThemeEnum)user.Theme).ToString() : "system";
 
@@ -117,7 +117,7 @@ public class UserService : IUserService
     {
         try
         {
-            DateTime tokenExpire = DateTime.UtcNow.AddMinutes(60); // Token expiration time set to 60 minutes
+            DateTime tokenExpire = DateTime.UtcNow.AddDays(30); 
             string jwtToken = GenerateJwtToken(email, tokenExpire, role, UserName);
             return new ResponseTokenViewModel
             {

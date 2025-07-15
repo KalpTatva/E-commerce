@@ -75,6 +75,7 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
     {
         try
         {
+            DateTime currentDate = DateTime.Now;
             List<ProductsDeatailsViewModel>? query = await (from product in _context.Products
                                     where product.IsDeleted == false &&
                                     (string.IsNullOrEmpty(search) || product.ProductName.ToLower().Trim().Contains(search)) &&
@@ -103,12 +104,12 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
                                                     .Average(r => r.Ratings) ?? 0,
                                     OfferAvailable = _context.Offers
                                                     .Any(o => o.ProductId == product.ProductId && 
-                                                    o.StartDate.Date <= DateTime.Now.Date && 
-                                                    o.EndDate.Date > DateTime.Now.Date),
+                                                    o.StartDate <= currentDate && 
+                                                    o.EndDate > currentDate),
                                     offer = _context.Offers
                                                     .Where(o => o.ProductId == product.ProductId && 
-                                                                o.StartDate.Date <= DateTime.Now.Date && 
-                                                                o.EndDate.Date > DateTime.Now.Date)
+                                                                o.StartDate <= currentDate && 
+                                                                o.EndDate > currentDate)
                                                     .FirstOrDefault()
                                 
                                 }).ToListAsync();
@@ -130,6 +131,7 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
     {
         try
         {
+            DateTime currentDate = DateTime.Now;
             productDetailsByproductIdViewModel? query = await (from product in _context.Products
                                 where product.IsDeleted == false && product.ProductId == productId
                                 orderby product.ProductId descending
@@ -169,8 +171,8 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
                                     Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).ToList(),
                                     offer = _context.Offers
                                         .Where(o => o.ProductId == product.ProductId && 
-                                                    o.StartDate.Date <= DateTime.Now.Date && 
-                                                    o.EndDate.Date > DateTime.Now.Date)
+                                                    o.StartDate <= currentDate && 
+                                                    o.EndDate > currentDate)
                                         .FirstOrDefault(),
                                 
                                 }).FirstOrDefaultAsync();
@@ -192,6 +194,7 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
     {
         try
         {
+            DateTime currentDate = DateTime.Now;
             List<ProductsDeatailsViewModel>? query = await (
                                 from product in _context.Products
                                 join f in _context.Favourites on product.ProductId equals f.ProductId
@@ -213,8 +216,8 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
                                         .Where(r => r.ProductId == product.ProductId)
                                         .Average(r => r.Ratings) ?? 0,
                                     OfferAvailable = _context.Offers.Any(o => o.ProductId == product.ProductId && 
-                                            o.StartDate.Date <= DateTime.Now.Date && 
-                                            o.EndDate.Date > DateTime.Now.Date)
+                                            o.StartDate <= currentDate && 
+                                            o.EndDate > currentDate)
                                 }).ToListAsync();
             return query;
         }

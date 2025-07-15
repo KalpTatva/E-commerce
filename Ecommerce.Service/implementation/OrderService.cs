@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Threading.Tasks;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
@@ -489,7 +490,7 @@ public class OrderService : IOrderService
             }
 
             int prices = (int)DiscountEnum.Percentage == product.DiscountType ?
-                         (int)(product.Price * (product.Discount ?? 0) / 100) :
+                         (int)(product.Price - (product.Price * (product.Discount ?? 0) / 100)) :
                          (int)product.Price - (int)(product.Discount ?? 0) ;
 
             if((int)OfferTypeEnum.FixedPrice == model.OfferType && (model.DiscountRate <= 0 || model.DiscountRate > prices))
@@ -501,17 +502,39 @@ public class OrderService : IOrderService
                 };
             }
 
+            DateTime currentDate = DateTime.Now;
+
+            DateTime startDateOnly = model.StartDate;
+            string startTimeString = model.StartTime ?? "9:00 AM";
+
+            DateTime endDateOnly = model.EndDate;
+            string endTimeString = model.EndTime ?? "9:00 PM";
+
+            DateTime startTimePart = DateTime.ParseExact(startTimeString, "h:mm tt",CultureInfo.InvariantCulture);
+            DateTime finalStartTime = startDateOnly.Date.AddHours(startTimePart.Hour).AddMinutes(startTimePart.Minute);
+
+            DateTime endTimePart = DateTime.ParseExact(endTimeString, "h:mm tt",CultureInfo.InvariantCulture);
+            DateTime finalEndTime = endDateOnly.Date.AddHours(endTimePart.Hour).AddMinutes(endTimePart.Minute);
+
+            if(finalStartTime >= finalEndTime) 
+            {
+                return new ResponsesViewModel()
+                {
+                    IsSuccess = false,
+                    Message = @$"offer eding time can not be bigger than offer's start time"
+                };
+            }
+
             Offer? offer1 = await _unitOfWork.OfferRepository.FindAsync(
                 o => o.ProductId == model.ProductId 
-                && o.StartDate.Date <= DateTime.Now.Date 
-                && o.EndDate.Date > DateTime.Now.Date);
+                && ((o.StartDate <= finalStartTime && o.EndDate > finalStartTime) || (finalStartTime < o.EndDate)));
 
             if (offer1 != null)
             {
                 return new ResponsesViewModel()
                 {
                     IsSuccess = false,
-                    Message = "Offer already exists for this product"
+                    Message = @$"Offer already exists for this product in time frame of {offer1.StartDate} to {offer1.EndDate} "
                 };
             }
 
@@ -522,8 +545,8 @@ public class OrderService : IOrderService
                 DiscountRate = model.DiscountRate ?? 0,
                 Title = model.Title,
                 Description = model.Description,
-                StartDate = model.StartDate.Date.AddTicks(-1), // Start of the day
-                EndDate = model.EndDate.Date.AddDays(1).AddTicks(-1), // End of the day
+                StartDate = finalStartTime, 
+                EndDate = finalEndTime
             };
             
             // Add the offer to the repository
@@ -533,9 +556,9 @@ public class OrderService : IOrderService
 
             // add notification to the users who are interested in this product
             // that means who have produts in their favorite list
-        
+            string productName = product.ProductName.Length > 20 ? product.ProductName.Substring(0,20) + "..." : product.ProductName;
             // first need to make notification message 
-            string notificationMessage = $"New offer on product {product?.ProductName}: {model.Title} - {model.Description}";
+            string notificationMessage = $"New offer on product {productName}: {model.Title} - {model.Description} starts from {startDateOnly} at {startTimeString} and ends at {endDateOnly} at {endTimeString} hurry up do not miss the chance!";
             
             // next is to add this message into notification table
             Notification notification = new Notification()
@@ -567,7 +590,6 @@ public class OrderService : IOrderService
                 }
             }
             await _unitOfWork.UserNotificationMappingRepository.AddRangeAsync(userNotificationMapping);
-
 
             return new ResponsesViewModel()
             {

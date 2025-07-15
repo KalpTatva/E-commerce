@@ -29,6 +29,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     {
         try
         {
+            DateTime currentDate = DateTime.Now;
+
             List<productAtOrderViewModel>? query = await (
                 from product in _context.Products
                 join cart in _context.Carts on product.ProductId equals cart.ProductId
@@ -46,8 +48,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                     Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
                     Offer = _context.Offers
                         .Where(o => o.ProductId == product.ProductId &&
-                                    o.StartDate.Date <= DateTime.Now.Date && 
-                                    o.EndDate.Date > DateTime.Now.Date)
+                                    o.StartDate <= currentDate && 
+                                    o.EndDate > currentDate)
                         .FirstOrDefault()
                 }).ToListAsync();
             
@@ -73,6 +75,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     {
         try
         {
+            DateTime currentDate = DateTime.Now;
             List<productAtOrderViewModel>? query = await (
                 from product in _context.Products
                 where product.IsDeleted == false && product.ProductId == productId.First()
@@ -89,8 +92,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                     Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
                     Offer = _context.Offers
                         .Where(o => o.ProductId == product.ProductId &&
-                                    o.StartDate.Date <= DateTime.Now.Date && 
-                                    o.EndDate.Date > DateTime.Now.Date)
+                                    o.StartDate <= currentDate && 
+                                    o.EndDate > currentDate)
                         .FirstOrDefault()
                 }).ToListAsync();
 

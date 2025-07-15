@@ -24,7 +24,6 @@ $(document).ready(function(){
         });
     }
 
-
     $(document).on('click','.product-delete-btn',function(){
         var product = $(this).data('product-id');
         $('#deleteProductId').val(product);
@@ -39,11 +38,11 @@ $(document).ready(function(){
             data: $(this).serialize(),
             success: function (response) {
                 if (response.success) {
-                    toastr.success(response.message);
+                    toastr.success(response.message,"Success",{timeOut:5000});
                     FetchProductsDetails();
                     deleteProductModal.hide();
                 } else {
-                    toastr.error(response.message);
+                    toastr.error(response.message,"Error",{timeOut:5000});
                 }
             },
             error: function (xhr, status, error) {

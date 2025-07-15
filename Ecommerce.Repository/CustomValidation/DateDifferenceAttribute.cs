@@ -25,7 +25,7 @@ namespace Ecommerce.Repository.CustomValidation
             var endDate = (DateTime)endDateValue;
 
             if (startDate > endDate)
-                return new ValidationResult("Start date should not be after end date.");
+                return new ValidationResult("Start date can not be after end date.");
 
             return ValidationResult.Success;
         }

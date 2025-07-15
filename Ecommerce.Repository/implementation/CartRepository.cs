@@ -18,6 +18,7 @@ public class CartRepository : GenericRepository<Cart>, ICartRepository
     {
         try
         {
+            DateTime currentDate = DateTime.Now;
             List<productAtCartViewModel> query = await (
                 from product in _context.Products
                 join cart in _context.Carts on product.ProductId equals cart.ProductId
@@ -36,8 +37,8 @@ public class CartRepository : GenericRepository<Cart>, ICartRepository
                     Images = _context.Images.Where(i => i.ProductId == product.ProductId).OrderBy(i => i.ImageId).FirstOrDefault(),
                     Offer = _context.Offers
                         .Where(o => o.ProductId == product.ProductId && 
-                                    o.StartDate.Date <= DateTime.Now.Date && 
-                                    o.EndDate.Date > DateTime.Now.Date)
+                                    o.StartDate <= currentDate && 
+                                    o.EndDate > currentDate)
                         .FirstOrDefault()
                 }).ToListAsync();
             

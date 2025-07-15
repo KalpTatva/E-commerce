@@ -36,6 +36,10 @@ public class OfferViewModel : BaseViewModel
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? EditedAt { get; set; }
+
+    public string? StartTime {get;set;}
+    
+    public string? EndTime {get;set;}
 }
 
 

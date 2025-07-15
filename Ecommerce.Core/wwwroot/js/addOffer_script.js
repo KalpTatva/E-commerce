@@ -21,9 +21,23 @@ $(document).ready(function () {
         });
     }
 
+    // time picker
+    $('.timepicker').timepicker({
+        timeFormat: 'h:mm p',
+        interval: 30,
+        minTime: '6:00am',
+        maxTime: '11:00pm',
+        defaultTime: '9:00am',
+        StartTime: '6:00am',
+        dynamic: false,
+        dropdown: true,
+        scrollbar: true
+    });
+
+
     // summer note
     $('#Description').summernote({
-        height: 200,
+        height: 100,
         placeholder: 'Type your description here...it should be detailed and informative which can make impact on customer',
         toolbar: [
           ['style', ['bold', 'italic', 'underline', 'clear']],

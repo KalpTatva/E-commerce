@@ -197,6 +197,18 @@ public class ProductService : IProductService
             
             Product? product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
 
+            // check weather it into the cart of user or not if into the cart then return
+
+            Cart? existingInCart = await _unitOfWork.CartRepository.FindAsync(x => x.ProductId == product.ProductId && x.IsDeleted == false);
+            if(existingInCart!=null)
+            {
+                return new ResponsesViewModel 
+                {
+                    IsSuccess = false,
+                    Message = "This product cannot be deleted while it's in a user's shopping cart."
+                };
+            }
+
             if(product!=null)
             {   
                 // soft delete of product

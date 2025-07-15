@@ -140,7 +140,7 @@ public class ProductController : Controller
             {
                 return Json(new { success = true, message = response.Message });
             }
-            return Json(new { success = false, message = "error occured while delete product!" });
+            return Json(new { success = false, message = response.Message });
         }
         catch(Exception e)
         {
