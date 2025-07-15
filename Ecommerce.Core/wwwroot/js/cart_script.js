@@ -2,6 +2,27 @@ $(".loader3").show();
 $('#CartContainer').hide();
 $(document).ready(function () {
 
+    // signalR connection for real-time updates
+    // hub connection 
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notificationHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    // start connection
+    connection.start()
+        .then(() => console.log("SignalR Connected"))
+        .catch(err => {
+            console.error(err);
+            setTimeout(() => connection.start(), 5000); 
+        });
+
+    // receive notification
+    connection.on("ReceiveNotification", function (message) {
+        //fetcch carts
+        FetchCartDetails();
+    });
+
     function FetchCartDetails() {
         $.ajax({
             url: '/BuyerDashboard/GetCart',
