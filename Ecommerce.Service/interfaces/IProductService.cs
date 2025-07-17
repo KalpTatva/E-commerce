@@ -1,5 +1,6 @@
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace Ecommerce.Service.interfaces;
 
@@ -148,4 +149,7 @@ public interface IProductService
     /// <returns>List<ProductNameViewModel></returns>
     /// <exception cref="Exception"></exception>
     List<ProductNameViewModel> GetProductsForOffer(string email);
+
+
+    Task<ResponsesViewModel> UploadProducts(IFormFile file, string email);
 }

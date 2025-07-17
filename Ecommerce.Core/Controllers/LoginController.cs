@@ -59,7 +59,7 @@ public class LoginController : Controller
             switch (role)
             {
                 case nameof(RoleEnum.Admin):
-                    return RedirectToAction("Index", "BuyerDashboard");
+                    return RedirectToAction("Admin", "Dashboard");
                 case nameof(RoleEnum.Seller):
                     return RedirectToAction("UserDashboard", "Dashboard");
                 case nameof(RoleEnum.Buyer):

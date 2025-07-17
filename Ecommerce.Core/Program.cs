@@ -9,6 +9,8 @@ using Ecommerce.Repository.Models;
 using Ecommerce.Service.implementation;
 using Ecommerce.Service.interfaces;
 using Ecommerce.Service.interfaces.implementation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -38,8 +40,14 @@ if (builder.Environment.IsEnvironment("Test"))
 else
 {
     builder.Services.AddDbContext<EcommerceContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));    
 }
+
+// builder.Services.AddHangfire(config => config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+// builder.Services.AddHangfireServer();
+
+//excel
+OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
 // generic part
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -69,7 +77,8 @@ builder.Services.AddScoped<IContactUsRepository, ContactUsRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IGrantOfferPermissionRepository, GrantOfferPermissionRepository>();
 
 
 // Add session services

@@ -109,4 +109,6 @@ public interface IOrderService
 
     Task<PaymentViewModel> CreatePayment(int UserId,ObjectSessionViewModel objRes);
 
+    Task<ResponsesViewModel> CheckOfferExpire(ObjectSessionViewModel objectCart, string email);
+
 }

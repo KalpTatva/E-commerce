@@ -134,6 +134,7 @@ $(document).ready(function () {
             return $(this).data("cart-id");
         }).get();
 
+    
         // Serialize to JSON
         var obj = {
             orders: cartIds,
@@ -144,25 +145,42 @@ $(document).ready(function () {
         };
 
         $.ajax({
-            url:"/Order/SetSessionForOrder",
-            type:"POST",
+            url:"/Order/CheckOfferExpire",
+            type:"GET",
             data:{objectCart:JSON.stringify(obj)},
             success:function(data){
-                if(data.success)
-                {
-                    window.location.href = '/Order/Index?sessionId='+data.message;
-                }
-                else
+                if(data.success === false)
                 {
                     toastr.error(data.message, "Error", { timeOut: 4000 });
+                }
+                else 
+                {
+                    $.ajax({
+                        url:"/Order/SetSessionForOrder",
+                        type:"POST",
+                        data:{objectCart:JSON.stringify(obj)},
+                        success:function(data){
+                            if(data.success)
+                            {
+                                window.location.href = '/Order/Index?sessionId='+data.message;
+                            }
+                            else
+                            {
+                                toastr.error(data.message, "Error", { timeOut: 4000 });
+                            }
+                        },error: function(){
+                            toastr.error('An error occurred while setting up order', "Error", { timeOut: 4000 });
+                        }
+                    })
                 }
             },error: function(){
                 toastr.error('An error occurred while setting up order', "Error", { timeOut: 4000 });
             }
         })
 
-        
-
     });
+
+
+
     FetchCartDetails();
 });

@@ -1,0 +1,68 @@
+@model Ecommerce.Repository.ViewModels.SellersViewModel;
+@using Ecommerce.Repository.ViewModels;
+@using Ecommerce.Repository.Models;
+
+
+@if (Model.users != null && Model.users.Any())
+{
+    <div class="MyOrder p-3 rounded-3 overflow-auto">
+        <table class="table tables ">
+            <thead>
+                <tr class="text-nowrap">
+                    <th>Seller ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Grant Permission</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (UserViewmodel user in Model.users)
+                {
+                    <tr class="">
+                        <td>@user.UserId</td>
+                        <td>@user.UserName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-warning dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Select Categories
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @if (Model.categories != null && Model.categories.Any())
+                                    {
+                                        @foreach (Category c in Model.categories)
+                                        {
+                                            bool check = false;
+                                            @foreach (GrantOfferPermission g in user.grantOfferPermissions)
+                                            {
+                                                if (c.CategoryId == g.CategoryId)
+                                                {
+                                                    check = true;
+                                                }
+                                            }
+                                            <li>
+                                                <span class="dropdown-item d-flex justify-content-between">
+                                                    @c.CategoryName
+                                                    <input type="checkbox" @(check == true ? "checked" : "") data-user-id="@user.UserId"
+                                                        data-category-id="@c.CategoryId" />
+                                                </span>
+                                            </li>
+                                        }
+                                        <button class="m-3 btn btn-danger grant-permission" data-user-id="@user.UserId">Grant permission</button>
+
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <span class="text-color fs-5 ">No sellers found</span>
+}
+

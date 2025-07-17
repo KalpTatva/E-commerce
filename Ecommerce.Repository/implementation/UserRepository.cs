@@ -1,7 +1,10 @@
+using System.Text;
+using System.Threading.Tasks;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
 using Ecommerce.Repository.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using static Ecommerce.Repository.Helpers.Enums;
 
 namespace Ecommerce.Repository.implementation;
 
@@ -110,5 +113,25 @@ public class UserRepository : GenericRepository<User> ,IUserRepository
             throw new Exception("An error occurred while fetching users by product ID.", e);
         }
     }
-    
+
+
+    public async Task<List<UserViewmodel>> GetSellersGrant()
+    {
+        try
+        {
+            return await _context.Users.Where(x => x.RoleId == (int)RoleEnum.Seller)
+                                .OrderBy(x => x.UserId)
+                                .Select(x => new UserViewmodel{
+                                    UserId = x.UserId,
+                                    UserName = x.UserName,
+                                    Email = x.Email,
+                                    grantOfferPermissions = _context.GrantOfferPermissions.Where(g => g.UserId == x.UserId).ToList()
+                                }).ToListAsync();   
+        }
+        catch (Exception e)
+        {
+            throw new Exception("An error occurred while fetching sellers.", e);
+        }
+    }
+  
 }

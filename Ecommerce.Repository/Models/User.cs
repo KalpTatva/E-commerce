@@ -31,6 +31,8 @@ public partial class User
 
     public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
 
+    public virtual ICollection<GrantOfferPermission> GrantOfferPermissions { get; set; } = new List<GrantOfferPermission>();
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual Profile Profile { get; set; } = null!;

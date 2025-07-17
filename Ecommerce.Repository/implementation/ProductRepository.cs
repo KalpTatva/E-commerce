@@ -236,8 +236,10 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
     {
         try
         {
+            List<int> grants = _context.GrantOfferPermissions.Where(x => userId == x.UserId).Select(x => x.CategoryId).ToList();
+            
             List<ProductNameViewModel> products = _context.Products
-                .Where(p => p.SellerId == userId && p.IsDeleted == false)
+                .Where(p => p.SellerId == userId && p.IsDeleted == false && grants.Contains(p.CategoryId))
                 .OrderByDescending(p => p.ProductId)
                 .Select(p => new ProductNameViewModel
                 {

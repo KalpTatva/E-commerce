@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 using static Ecommerce.Repository.Helpers.Enums;
 
 namespace Ecommerce.Core.Controllers;
@@ -484,6 +485,55 @@ public class DashboardController : Controller
                 success = false,
                 message = e.Message
             });
+        }
+    }
+
+
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public IActionResult Admin()
+    {
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext);
+
+        BaseViewModel baseViewModel = new () {
+            BaseEmail = email,
+            BaseRole = role,
+            BaseUserName = name
+        }; 
+        return View(baseViewModel);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetSellers()
+    {
+        SellersViewModel res = await _userService.GetSellers();
+        return PartialView("_SellerOfferGrantListPartial",res);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> GrantPermission(string obj)
+    {
+        try
+        {
+            List<GrantOfferPermission>? result = string.IsNullOrEmpty(obj) 
+                ? new List<GrantOfferPermission>() 
+                : JsonConvert.DeserializeObject<List<GrantOfferPermission>>(obj);
+
+            ResponsesViewModel res = await _userService.GrantOFferService(result ?? new List<GrantOfferPermission>());
+            if(res.IsSuccess == true)
+            {
+                await _notificationHub.Clients.All.SendAsync("ReceiveNotification", $"offer permissions changes.");
+                return Json(new {success=true,message=res.Message});
+            }
+            return Json(new {success=false,message=res.Message});
+        }
+        catch (Exception e)
+        {
+            return Json(new {success=false,message=e.Message});
         }
     }
 }

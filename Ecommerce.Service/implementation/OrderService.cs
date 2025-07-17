@@ -764,4 +764,102 @@ public class OrderService : IOrderService
             };
         }
     }
+
+
+    public async Task<ResponsesViewModel> CheckOfferExpire(ObjectSessionViewModel objectCart, string email)
+    {
+        try
+        {
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            
+            List<productAtOrderViewModel>? orderList = await  _unitOfWork.OrderRepository.GetDetailsForOrders(objectCart.orders ?? new List<int>());
+            
+            if (orderList != null)
+            {
+                // Add order details in orderproduct
+                List<OrderProduct> orderProducts = new();
+                foreach (productAtOrderViewModel model in orderList)
+                {
+                    decimal price = model.Price;
+                    decimal discount = 0;
+                    int quantity = model.Quantity;
+                    
+                    if (model.DiscountType == (int)DiscountEnum.FixedAmount)
+                    {
+                        discount = (model.Discount ?? 0) * model.Quantity;
+                        price = (model.Price * model.Quantity) - (model.Discount ?? 0);
+                    }
+                    else if (model.DiscountType == (int)DiscountEnum.Percentage)
+                    {
+                        discount = (model.Price * (model.Discount ?? 0) * model.Quantity) / 100;
+                        price = (model.Price * model.Quantity) - discount;
+                    }
+
+
+                    // If there's an offer, apply it
+                    if (model.Offer != null && model.Offer.DiscountRate != null)
+                    {
+
+                        switch (model.Offer.OfferType)
+                        {
+                            case (int)OfferTypeEnum.Percentage:
+                                price -= (price * (model.Offer.DiscountRate??0) * model.Quantity) / 100;
+                                discount += (model.Price * (model.Offer.DiscountRate??0 ) * model.Quantity) / 100;
+                            break;
+                            case (int)OfferTypeEnum.FixedPrice:
+                                price -= (model.Offer.DiscountRate ?? 0) * model.Quantity;
+                                discount += (model.Offer.DiscountRate ?? 0) * model.Quantity;
+                            break; 
+                            case (int)OfferTypeEnum.BOGO:
+                                quantity = model.Quantity * 2;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    orderProducts.Add(new OrderProduct()
+                    {
+                        OrderId = 0,
+                        ProductId = model.ProductId,
+                        Quantity = quantity,
+                        PriceWithDiscount = price
+                    });
+                }
+
+                decimal totalPrice = 0; 
+                foreach(OrderProduct orderProduct in orderProducts)
+                {
+                    totalPrice += orderProduct.PriceWithDiscount;
+                }
+
+                if(totalPrice == objectCart.totalPrice)
+                {
+                    return new ResponsesViewModel{
+                        IsSuccess = true,
+                        Message = "offer is valid, user can order cart lists!"
+                    };
+                }
+                else
+                {
+                    throw new Exception("offers are expired please refresh the page for updated values");
+                }
+            }
+            else{
+                throw new Exception("no cart item found");
+            }     
+        }
+        catch(Exception e)
+        {
+            return new ResponsesViewModel{
+                IsSuccess=false,
+                Message=e.Message
+            };
+        }
+    }
+
 }

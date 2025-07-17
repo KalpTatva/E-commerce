@@ -75,7 +75,19 @@
                                                         class=" fw-bold text-decoration-none profile-link">My
                                                         Orders</a>
                                                 </li>
+                                            }else if(Model.BaseRole == RoleEnum.Admin.ToString())
+                                            {
+                                                <li class="my-4"><a asp-action="Admin" asp-controller="Dashboard"
+                                                        class=" fw-bold text-decoration-none profile-link">Admin</a>
+                                                </li>
+                                                <li class="my-4"><a asp-action="BulkUpload" asp-controller="Product"
+                                                        class=" fw-bold text-decoration-none profile-link">Add Bulk Products</a>
+                                                </li>
                                             }
+                                            else {
+                                                <span></span>
+                                            }
+
 
                                             <li class="my-4"><a asp-action="ContactUs" asp-controller="Dashboard"
                                                     class="text-success fw-bold text-decoration-none profile-link">Contact
@@ -100,7 +112,7 @@
 
 
                         <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                            @if (Model.BaseRole != RoleEnum.Seller.ToString())
+                            @if (Model.BaseRole == RoleEnum.Buyer.ToString())
                             {
                                 <ul class="navbar-nav flex-grow-1">
                                     <li class="nav-item">
@@ -157,7 +169,7 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    @if (Model.BaseRole != RoleEnum.Seller.ToString())
+                                    @if (Model.BaseRole == RoleEnum.Buyer.ToString())
                                     {
 
                                         <a class="tagbtn text-white me-3 text-decoration-none profile-link mt-1 position-relative"

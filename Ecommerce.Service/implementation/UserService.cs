@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -717,4 +718,95 @@ public class UserService : IUserService
             };
         }
     }
+
+
+    public async Task<SellersViewModel> GetSellers()
+    {
+        try
+        {
+            List<UserViewmodel> users = await _unitOfWork.UserRepository.GetSellersGrant();
+            List<Category> categories = await _unitOfWork.categoryRepository.GetAllAsync();
+            SellersViewModel sellersViewModel = new ();
+            if(users.Any())
+            {
+                sellersViewModel.users = users;
+                sellersViewModel.categories = categories;
+            }
+            return sellersViewModel;
+        }
+        catch
+        {
+            return new SellersViewModel();
+        }
+    }
+
+    public async Task<ResponsesViewModel> GrantOFferService(List<GrantOfferPermission> ids)
+    {
+        try
+        {
+            //find all the permission granted to the seller
+            int userid = ids[0].UserId;
+            List<GrantOfferPermission>? permissions = await _unitOfWork.grantOfferPermissionRepository.FindAllAsync(x => x.UserId == userid);
+            if(ids[0].CategoryId == 0)
+            {
+                await _unitOfWork.grantOfferPermissionRepository.DeleteRangeAsync(permissions);
+            }
+            else
+            {
+                //check which category ids are present in ids but not in grants
+                List<int> permissionCategoryIds = permissions.Select(x => x.CategoryId).ToList();
+                List<GrantOfferPermission>? newGrantPermissions = ids.Where(x => !permissionCategoryIds.Contains(x.CategoryId)).ToList();
+                // add the new one
+                if(newGrantPermissions != null && newGrantPermissions.Any())
+                {
+                    await _unitOfWork.grantOfferPermissionRepository.AddRangeAsync(newGrantPermissions);
+                }
+
+                //check which category ids are present in grants but not in ids
+                List<int> categoryIds = ids.Select(x => x.CategoryId).ToList();
+                List<GrantOfferPermission>? noPermissions = permissions.Where(x => !categoryIds.Contains(x.CategoryId)).ToList();
+                // delete the not selected one
+                if(permissions!=null && permissions.Any())
+                {
+                    await _unitOfWork.grantOfferPermissionRepository.DeleteRangeAsync(noPermissions);
+                }
+            }
+            
+
+
+            // added notification
+            string? NotifyPermissions = await _unitOfWork.grantOfferPermissionRepository.GetGrantedCategoryString(userid);
+            if(string.IsNullOrEmpty(NotifyPermissions))
+            {
+                NotifyPermissions = "No";
+            }
+            string NotificationMessage = $"We've updated your permissions. You're now authorized to add offers in {NotifyPermissions} categories.";
+            
+            Notification notification = new Notification()
+            {
+                Notification1 = NotificationMessage,
+                ProductId = 0,
+                CreatedAt = DateTime.Now
+            };
+            await _unitOfWork.NotificationRepository.AddAsync(notification);
+            UserNotificationMapping UMapping = new UserNotificationMapping()
+            {
+                UserId = userid,
+                NotificationId = notification.NotificationId
+            };
+            await _unitOfWork.UserNotificationMappingRepository.AddAsync(UMapping);
+            return new ResponsesViewModel{
+                IsSuccess = true,
+                Message = "Permission for selected category offers granted successfully to the seller!"
+            };
+        }
+        catch (Exception e)
+        {
+            return new ResponsesViewModel{
+                IsSuccess = false,
+                Message = e.Message
+            }; 
+        }
+    }
+
 }

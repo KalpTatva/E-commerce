@@ -20,5 +20,7 @@ public interface IUnitOfWork : IDisposable
     IOrderRepository OrderRepository {get;set;}
     IReviewRepository ReviewRepository {get;set;}
     IOrderProductRepository OrderProductRepository {get;set;}
+    ICategoryRepository categoryRepository {get;set;}
+    IGrantOfferPermissionRepository grantOfferPermissionRepository {get;set;}
     Task<int> SaveChanges();
 }

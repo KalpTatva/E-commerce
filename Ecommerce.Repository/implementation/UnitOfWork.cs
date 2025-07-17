@@ -24,6 +24,8 @@ public class UnitOfWork : IUnitOfWork
     public IOrderRepository OrderRepository {get;set;}
     public IOrderProductRepository OrderProductRepository {get;set;}
     public IPasswordResetRequestRepository PasswordResetRequestRepository {get;set;}
+    public ICategoryRepository categoryRepository {get;set;}
+    public IGrantOfferPermissionRepository grantOfferPermissionRepository {get;set;}
 
     public UnitOfWork(EcommerceContext context)
     {
@@ -46,6 +48,8 @@ public class UnitOfWork : IUnitOfWork
         ReviewRepository = new ReviewRepository(_context);
         OrderRepository = new OrderRepository(_context);
         OrderProductRepository = new OrderProductRepository(_context);
+        categoryRepository = new CategoryRepository(_context);
+        grantOfferPermissionRepository = new GrantOfferPermissionRepository(_context);
     }
 
     public async Task<int> SaveChanges(){

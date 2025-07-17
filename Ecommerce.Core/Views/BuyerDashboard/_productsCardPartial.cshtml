@@ -40,11 +40,11 @@
                         </span>
                     }
 
-                    <span class="">
+                    <span class="card-img" data-product-id="@p.ProductId">
                         @p.ProductName
                     </span>
                 </span>
-                <div class="">
+                <div class="card-img" data-product-id="@p.ProductId">
                     @{
                         decimal price = 0;
                         decimal discount = 0;
@@ -87,7 +87,7 @@
                         }
                     }
                     <span class="display-6 fw-normal">@price.ToString("C",
-                                        System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
+                                System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</span>
                     <span class="text-muted text-decoration-line-through text-nowrap">(@p.Price.ToString("C",
                                 System.Globalization.CultureInfo.GetCultureInfo("en-IN")))</span>
                     <br />
@@ -97,7 +97,7 @@
                                 p.Discount + "%)")
                 </span>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 card-img" data-product-id="@p.ProductId">
                 <span class="text-success fs-5">Features </span>
                 @if (p.Features != null && p.Features.Any())
                 {
@@ -115,7 +115,7 @@
             </div>
 
             <div class="d-flex justify-content-between gap-1 mt-2 w-100">
-                <div>
+                <div class="card-img" data-product-id="@p.ProductId">
                     <span class="text-success fs-5">Reviews </span>
                     <span>
                         <span class="text-secondary fs-5 mb-2">
@@ -167,7 +167,7 @@
                 </div>
             </div>
 
-                <div class="mt-2 gap-2 d-flex justify-content-end w-100">
+                <div class="mt-2 gap-2 d-flex justify-content-end w-100 card-img" data-product-id="@p.ProductId">
                     @if (Model.BaseEmail != null && p.Stocks > 0 && Model.BaseRole == RoleEnum.Buyer.ToString())
                     {
                         <button class="btn btn-warning rounded-pill AddToCart " data-product-id="@p.ProductId">Add to cart</button>
@@ -180,9 +180,9 @@
                         {
                             <span class="text-secondary fs-5">Please login to buy this product</span>
                         }
-                        else if (Model.BaseRole == RoleEnum.Seller.ToString())
+                        else if (Model.BaseRole == RoleEnum.Seller.ToString() || Model.BaseRole == RoleEnum.Admin.ToString())
                         {
-                            <span class="text-danger fs-6">Seller's are not allowed to Buy, login with buyer's role</span>
+                            <span class="text-danger fs-6">Sellers and admins are not allowed to Buy, login with buyer's role</span>
                         }
                         else
                         {

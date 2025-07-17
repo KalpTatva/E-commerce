@@ -1,0 +1,79 @@
+@{
+    Layout = "~/Views/Shared/_dashboardSeller.cshtml";
+}
+
+<h2 class="mt-3 text-color">Admin dashboard</h2>
+
+<div class="container p-3">
+    <div id="SellersList"></div>
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        window.successMessage = '@TempData["SuccessMessage"]';
+        window.errorMessage = '@TempData["ErrorMessage"]';
+        $(document).ready(function () {
+
+            function fetchSellers() {
+                $.ajax({
+                    url: "/Dashboard/GetSellers",
+                    type: "GET",
+                    success: function (data) {
+                        $("#SellersList").html(data);
+                    }, error: function () {
+                        toastr.error('An error occurred while setting up order', "Error", { timeOut: 4000 });
+                    }
+                });
+            }
+
+            $(document).on('click','.grant-permission', function (e) {
+                e.stopPropagation();
+                var selectedPermissions = [];
+
+                $(this).closest('.dropdown-menu').find('input[type="checkbox"]:checked').each(function () {
+                    var userId = $(this).data('user-id');
+                    var categoryId = $(this).data('category-id');
+
+                    selectedPermissions.push({
+                        userId: userId,
+                        categoryId: categoryId
+                    });
+                });
+
+                if (selectedPermissions.length === 0) {
+                    var userId = $(this).data('user-id');
+                    var categoryId = 0;
+                    selectedPermissions.push({
+                        userId: userId,
+                        categoryId: categoryId
+                    });
+                }
+
+
+                $.ajax({
+                    url: '/Dashboard/GrantPermission',
+                    type: 'POST',
+                    data: {obj:JSON.stringify(selectedPermissions)},
+                    success: function (response) {
+                        if(response.success)
+                        { 
+                            toastr.success(response.message,"Success",{timeOut:5000});
+                        }
+                        else
+                        {
+                            toastr.error('Error granting permissions', "Error", { timeOut: 5000 });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        toastr.error('Error granting permissions', "Error", { timeOut: 5000 });
+                    }
+                });
+
+            });
+
+            fetchSellers();
+        })
+    </script>
+    <script src="~/js/toastr_script.js"></script>
+}

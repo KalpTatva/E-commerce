@@ -4,7 +4,8 @@ namespace Ecommerce.Repository.Helpers;
 
 public class Enums
 {
-    public enum RoleEnum{
+    public enum RoleEnum
+    {
         Admin = 1,
         Buyer = 2,
         Seller = 3
@@ -19,6 +20,7 @@ public class Enums
 
     public enum RegisterRoleEnum
     {
+        Admin = 1,
         Buyer = 2,
         Seller = 3
     }

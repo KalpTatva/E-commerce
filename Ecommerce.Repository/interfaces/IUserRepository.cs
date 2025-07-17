@@ -27,5 +27,8 @@ public interface IUserRepository : IGenericRepository<User>
     /// </summary>
     /// <param name="productId"></param>
     /// <returns>List<User></returns>
-    List<User>? GetUsersByProductIdFromFavourite(int productId);    
+    List<User>? GetUsersByProductIdFromFavourite(int productId);  
+
+    Task<List<UserViewmodel>> GetSellersGrant();  
+
 }

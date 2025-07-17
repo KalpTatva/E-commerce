@@ -825,3 +825,8 @@ body {
   color: var(--description-fonts) !important;
   
 }
+
+.form-switch .form-check-input {
+  width: 2.8em !important;
+  height: 1.5em !important;
+}

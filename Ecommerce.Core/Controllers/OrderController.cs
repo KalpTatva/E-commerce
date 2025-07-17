@@ -5,6 +5,7 @@ using Ecommerce.Core.Hub;
 using Ecommerce.Core.Utils;
 using Ecommerce.Repository.ViewModels;
 using Ecommerce.Service.interfaces;
+using Hangfire.PostgreSql.Properties;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -357,5 +358,35 @@ public class OrderController : Controller
     
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> CheckOfferExpire(string objectCart)
+    {
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            ObjectSessionViewModel? res = string.IsNullOrEmpty(objectCart) 
+                ? new ObjectSessionViewModel() 
+                : JsonConvert.DeserializeObject<ObjectSessionViewModel>(objectCart);
+            if (res == null)
+            {
+                return Json(new {
+                    success = false,
+                    message = "error while setting up cookie while creating order"
+                }); 
+            }
+
+            ResponsesViewModel response = await _orderService.CheckOfferExpire(res, email ?? "");
+            if(response.IsSuccess)
+            {
+                return Json(new {success = true, message = response.Message});
+            }
+            return Json(new {success = false, message = response.Message});
+        }
+        catch(Exception e)
+        {
+            return Json(new {success = false, message = "Error occured while offer expire checking!"});
+        }
+    }
 
 }

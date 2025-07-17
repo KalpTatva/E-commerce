@@ -9,6 +9,7 @@ using Ecommerce.Service.interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using OfficeOpenXml;
 using static Ecommerce.Repository.Helpers.Enums;
 
 namespace Ecommerce.Service.implementation;
@@ -476,6 +477,217 @@ public class ProductService : IProductService
             throw new Exception(e.Message);
         }
     }
+
+
+    public async Task<ResponsesViewModel> UploadProducts(IFormFile file, string email)
+    {
+        try
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                using (ExcelPackage package = new ExcelPackage(stream))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension?.Rows ?? 0;
+
+                    // 1. check for valid headers
+                    string[] expectedHeaders = new[] { "Product Name", "Description", "Category", "Discount type", "Discount Rate", "Price", "Stock", "Features" };
+                    for (int col = 1; col <= expectedHeaders.Length; col++)
+                    {
+                        string sname = worksheet.Cells[21, col].Text.Trim().ToLower();
+                        string pname = expectedHeaders[col - 1].Trim().ToLower();
+                        if (sname != pname)
+                        {
+                            return new ResponsesViewModel{IsSuccess = false, Message = $"Invalid header at column {col}. Expected '{expectedHeaders[col - 1]}'." };
+                        }
+                    }
+
+                    // 2. Add products into product list while validating each product
+                    List<Product> products = new List<Product>();
+                    List<string> errors = new List<string>();
+                    string[] validCategories = new[] { "laptops", "computers", "accessories" };
+                    string[] validDiscountTypes = new[] { "percentage", "fixed amount"};
+
+                    // validate and add products into list
+                    // if error occure then add it to error list 
+                    for(int row = 22; row <= rowCount; row++)
+                    {
+                        // stop on empty rows
+                        if (string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text))
+                            break;
+                        Product product = new Product();
+                        int col = 1;
+                        
+                        // validate product name 
+                        product.ProductName = worksheet.Cells[row,col].Text;
+                        if(string.IsNullOrWhiteSpace(product.ProductName) || !System.Text.RegularExpressions.Regex.IsMatch(product.ProductName, @"^[a-zA-Z0-9\s,.!+-/()*#?]+$"))
+                        {
+                            errors.Add($"Row {row}: Invalid Product Name.");
+                            continue;
+                        }
+                        col++;
+
+                        // validate Description
+                        product.Description = worksheet.Cells[row, col].Text;
+                        if (string.IsNullOrWhiteSpace(product.Description))
+                        {
+                            errors.Add($"Row {row}: Description is required.");
+                            continue;
+                        }
+                        col++;
+
+                        // Category (must be one of the valid categories)
+                        string category = worksheet.Cells[row, col].Text;
+                        if (!validCategories.Contains(category.ToLower()))
+                        {
+                            errors.Add($"Row {row}: Invalid Category. Must be one of: {string.Join(", ", validCategories)}.");
+                            continue;
+                        }
+                        switch (category.ToLower())
+                        {
+                            case "accessories":
+                                product.CategoryId = (int)CategoriesEnum.Accessories;
+                                break;
+                            case "computers":
+                                product.CategoryId = (int)CategoriesEnum.Computers;
+                                break;
+                            case "laptops":
+                                product.CategoryId = (int)CategoriesEnum.Laptops;
+                                break;
+                            default:
+                                errors.Add($"Row {row}: Invalid Category. Must be one of: {string.Join(", ", validCategories)}.");
+                                break;
+                        }
+                        col++;
+
+                        // discount type validation (must be one of the discount type)
+                        string DiscountType = worksheet.Cells[row, col].Text;
+                        if (!validDiscountTypes.Contains(DiscountType.ToLower()))
+                        {
+                            errors.Add($"Row {row}: Invalid Discount Type. Must be one of: {string.Join(", ", validDiscountTypes)}.");
+                            continue;
+                        }
+                        switch (DiscountType.ToLower())
+                        {
+                            case "percentage":
+                                product.DiscountType = (int)DiscountEnum.Percentage;
+                                break;
+                            case "fixed amount":
+                                product.DiscountType = (int)DiscountEnum.FixedAmount;
+                                break;
+                            default:
+                                errors.Add($"Row {row}: Invalid Discount Type. Must be one of: {string.Join(", ", validDiscountTypes)}.");
+                                break;
+                        }
+                        col++;
+
+                        // discount rate need to validate according to discount type
+                        if (!decimal.TryParse(worksheet.Cells[row, col].Text, out decimal discountRate) || discountRate < 0 || Math.Round(discountRate, 2) != discountRate)
+                        {
+                            errors.Add($"Row {row}: Invalid Discount Rate. Must be a non-negative number with up to two decimal places.");
+                            continue;
+                        }
+                        product.Discount = discountRate;
+                        col++;
+
+                        // validate price
+                        if (!decimal.TryParse(worksheet.Cells[row, col].Text, out decimal price) || price <= 0 || Math.Round(price, 2) != price)
+                        {
+                            errors.Add($"Row {row}: Invalid Price. Must be a positive number with up to two decimal places.");
+                            continue;
+                        }
+                        product.Price = price;
+                        col++; 
+                        
+                        // validate Stock 
+                        if (!int.TryParse(worksheet.Cells[row, col].Text, out int stock) || stock <= 0)
+                        {
+                            errors.Add($"Row {row}: Invalid Stock. Must be a positive integer.");
+                            continue;
+                        }
+                        product.Stocks = stock;
+                        col++;
+
+                        // features validation
+                        // need to check input string for the feature part
+                        // it should be like in format: (FeatureName1, FeatureDescription1);(FeatureName2, FeatureDescription2);...
+                        
+                        string FeaturesString = worksheet.Cells[row, col].Text;
+                        if (!string.IsNullOrWhiteSpace(FeaturesString))
+                        {
+                            List<string> featurePairs = FeaturesString.Split(';').Where(f => !string.IsNullOrWhiteSpace(f)).ToList();
+                            foreach (string feature in featurePairs)
+                            {
+                                if (!System.Text.RegularExpressions.Regex.IsMatch(feature, @"^\([^,]+,\s*[^)]+\)$"))
+                                {
+                                    errors.Add($"Row {row}: Invalid Features format. Expected: (FeatureName, FeatureDescription);...");
+                                    break;
+                                }   
+                            }
+                        }
+                        col++;
+                        User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+                        product.SellerId = user.UserId;
+                        products.Add(product);
+                    }
+
+                    // Return errors if any
+                    if (errors.Any())
+                    {
+                        return new ResponsesViewModel{ IsSuccess = false, Message = "Validation errors: " + string.Join(" ", errors) };
+                    }
+
+                    // Save product to database
+                    await _unitOfWork.ProductRepository.AddRangeAsync(products);
+
+                    // add features to the products
+                    List<Feature> features = new ();
+                    for(int row = 22; row <= rowCount; row++)
+                    {
+                        // stop on empty rows
+                        if (string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text))
+                            break;
+                            
+                        string FeaturesString = worksheet.Cells[row, 8].Text;
+                        int productId = products.Where(p => p.ProductName == worksheet.Cells[row, 1].Text).Select(p => p.ProductId).FirstOrDefault();
+                        if (!string.IsNullOrWhiteSpace(FeaturesString))
+                        {
+                            List<string> featurePairs = FeaturesString.Split(';').Where(f => !string.IsNullOrWhiteSpace(f)).ToList();
+                            foreach (string feature in featurePairs)
+                            {
+                                string FeaturName = feature.Split(',')[0].Trim();
+                                FeaturName = FeaturName.Substring(1,FeaturName.Length-1);
+
+                                string Description = feature.Split(',')[1].Trim();
+                                Description = Description.Substring(0,Description.Length-1);
+
+                                features.Add(new Feature {
+                                    FeatureName = FeaturName,
+                                    Description = Description,
+                                    ProductId = productId
+                                }); 
+                            }
+                        }
+                    }
+
+                    // save features to databese
+                    await _unitOfWork.FeatureRepository.AddRangeAsync(features);
+  
+                    return new ResponsesViewModel{ IsSuccess = true, Message = $"{products.Count} products uploaded successfully."};
+                }
+            }
+            
+        }
+        catch (Exception e)
+        {
+            return new ResponsesViewModel {
+                IsSuccess = false,
+                Message = $"An error occurred while uploading products, {e.Message}"
+            };
+        }
+    }
+
 
     #endregion
     #region Buyer's service

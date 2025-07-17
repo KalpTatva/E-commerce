@@ -17,6 +17,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Cart> Carts { get; set; }
 
+    public virtual DbSet<Category> Categories { get; set; }
+
     public virtual DbSet<City> Cities { get; set; }
 
     public virtual DbSet<Contactu> Contactus { get; set; }
@@ -26,6 +28,8 @@ public partial class EcommerceContext : DbContext
     public virtual DbSet<Favourite> Favourites { get; set; }
 
     public virtual DbSet<Feature> Features { get; set; }
+
+    public virtual DbSet<GrantOfferPermission> GrantOfferPermissions { get; set; }
 
     public virtual DbSet<Image> Images { get; set; }
 
@@ -92,6 +96,18 @@ public partial class EcommerceContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cart_user_id_fkey");
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => e.CategoryId).HasName("categories_pkey");
+
+            entity.ToTable("categories");
+
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.CategoryName)
+                .HasColumnType("character varying")
+                .HasColumnName("category_name");
         });
 
         modelBuilder.Entity<City>(entity =>
@@ -207,6 +223,27 @@ public partial class EcommerceContext : DbContext
                 .HasConstraintName("features_product_id_fkey");
         });
 
+        modelBuilder.Entity<GrantOfferPermission>(entity =>
+        {
+            entity.HasKey(e => e.GrantId).HasName("grant_offer_permission_pkey");
+
+            entity.ToTable("grant_offer_permission");
+
+            entity.Property(e => e.GrantId).HasColumnName("grant_id");
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.GrantOfferPermissions)
+                .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("grant_offer_permission_category_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.GrantOfferPermissions)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("grant_offer_permission_user_id_fkey");
+        });
+
         modelBuilder.Entity<Image>(entity =>
         {
             entity.HasKey(e => e.ImageId).HasName("image_pkey");
@@ -243,11 +280,6 @@ public partial class EcommerceContext : DbContext
                 .HasColumnType("character varying")
                 .HasColumnName("notification");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.Notifications)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("notification_product_id_fkey");
         });
 
         modelBuilder.Entity<Offer>(entity =>

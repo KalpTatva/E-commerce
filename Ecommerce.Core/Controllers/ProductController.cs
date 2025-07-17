@@ -15,9 +15,11 @@ public class ProductController : Controller
 {
 
     private readonly IProductService _productService;
-    public ProductController(IProductService productService)
+    private readonly IHostEnvironment _env;
+    public ProductController(IProductService productService, IHostEnvironment env)
     {
         _productService = productService;
+        _env = env;
     }
 
 
@@ -234,4 +236,58 @@ public class ProductController : Controller
             return View(model);
         }
     }
+
+    [Authorize(Roles ="Seller,Admin")]
+    public IActionResult DownloadTemplate()
+    {
+        string filePath = Path.Combine(_env.ContentRootPath,"wwwroot", "File\\ProductTemplate.xlsx");
+        byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+        string fileName = "ProductTemplate.xlsx";
+        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    [Authorize(Roles ="Seller,Admin")]
+    public IActionResult BulkUpload()
+    {
+        string? email = BaseValues.GetEmail(HttpContext);
+        string? role = BaseValues.GetRole(HttpContext);
+        string? name = BaseValues.GetUserName(HttpContext); 
+        BaseViewModel baseViewModel = new () {
+            BaseEmail = email,
+            BaseRole = role,
+            BaseUserName = name
+        }; 
+        return View(baseViewModel);
+    }
+
+    [Authorize(Roles = "Seller, Admin")]
+    [HttpPost]
+    public async Task<IActionResult> UploadProducts(IFormFile file)
+    {
+        if(file == null || file.Length == 0)
+        {
+            return  Json(new {success = false, message = "No file uploaded."});
+        } 
+
+        string extension = Path.GetExtension(file.FileName).ToLower();
+        if(extension != ".xlsx")
+        {
+            return Json(new { success = false, message = "Invalid file format. Please upload an .xlsx file." });
+        }
+
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            ResponsesViewModel response = await _productService.UploadProducts(file, email ?? "");
+            if(response.IsSuccess)
+            {
+                return Json(new {success = true, message = response.Message});
+            }
+            return Json(new { success = false, message = response.Message });
+        }
+        catch (Exception e)
+        {
+            return Json(new { success = false, message = e.Message });
+        }
+    } 
 }

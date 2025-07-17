@@ -95,4 +95,10 @@ public interface IUserService
 
     Task<ResponsesViewModel> ThemeChange(string theme, string email); 
 
+
+    Task<SellersViewModel> GetSellers();
+
+    
+    Task<ResponsesViewModel> GrantOFferService(List<GrantOfferPermission> ids);
+
 }

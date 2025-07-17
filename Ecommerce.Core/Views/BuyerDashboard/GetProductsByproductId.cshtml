@@ -201,9 +201,9 @@
                     {
                         <span class="text-secondary fs-5">Please login first</span>
                     }
-                    else if (Model.BaseRole == RoleEnum.Seller.ToString())
+                    else if (Model.BaseRole == RoleEnum.Seller.ToString() || Model.BaseRole == RoleEnum.Admin.ToString())
                     {
-                        <span class="text-danger fs-6">Seller's are not allowed to Buy, login with buyer's role</span>
+                        <span class="text-danger fs-6">Sellers and admins are not allowed to Buy, login with buyer's role</span>
                     }
                     else
                     {
