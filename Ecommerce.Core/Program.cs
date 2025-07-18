@@ -155,17 +155,6 @@ if (!app.Environment.IsDevelopment())
     // app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseSession(); 
-
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<TokenRefreshMiddleware>();
-
 app.UseStatusCodePages(async context =>
 {
     if (context.HttpContext.Response.StatusCode == 401)
@@ -185,6 +174,18 @@ app.UseStatusCodePages(async context =>
     }
     await Task.CompletedTask;
 });
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseSession(); 
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<TokenRefreshMiddleware>();
+
 
 
 

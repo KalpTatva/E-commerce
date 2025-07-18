@@ -164,7 +164,7 @@ public class DashboardController : Controller
     /// <summary>
     /// Method to view seller's order list
     /// </summary>
-    [Authorize(Roles = "Seller")]
+    [Authorize(Roles = "Seller,Admin")]
     public IActionResult SellerOrderList()
     {
         string? email = BaseValues.GetEmail(HttpContext);
@@ -182,7 +182,7 @@ public class DashboardController : Controller
     /// <summary>
     /// Method to get seller's orders
     /// </summary>
-    [Authorize(Roles = "Seller")]
+    [Authorize(Roles = "Seller,Admin")]
     [HttpGet]
     public async Task<IActionResult> GetSellerOrders(
         int pageNumber = 1, 
@@ -211,7 +211,7 @@ public class DashboardController : Controller
     /// Method to add an offer for a product
     /// </summary>
     /// <returns></returns>
-    [Authorize(Roles = "Seller")]
+    [Authorize(Roles = "Seller,Admin")]
     public IActionResult AddOffer()
     {
         string? email = BaseValues.GetEmail(HttpContext);
@@ -232,7 +232,7 @@ public class DashboardController : Controller
     /// </summary>
     /// <param name="model"></param>
     /// <returns>View</returns>
-    [Authorize(Roles = "Seller")]
+    [Authorize(Roles = "Seller,Admin")]
     [HttpPost]
     public async Task<IActionResult> AddOffer(OfferViewModel model)
     {

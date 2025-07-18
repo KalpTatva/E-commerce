@@ -160,7 +160,9 @@
                     <input type="hidden" asp-for="ProductId" value="@Model.ProductId">
                     <input type="hidden" id="ImageDeleteInput" asp-for="ImageDeleteInput">
 
-                    <button type="submit" class="btn btn-success ">Edit product</button>
+                    <button type="submit" class="btn btn-success ">
+                        <span class="Editproduct">Edit product</span>
+                        </button>
                 </div>
             </form>
         </div>
@@ -178,5 +180,5 @@
 
     </script>
     <script src="~/js/toastr_script.js"></script>
-    <script src="~/js/editProduct_script.js"></script>
+    <script src="~/js/editProduct_script.js" asp-append-version="true"></script>
 }

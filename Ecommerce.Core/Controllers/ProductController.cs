@@ -27,7 +27,7 @@ public class ProductController : Controller
     /// seller's products view
     /// </summary>
     /// <returns>View(baseViewModel)</returns>
-    [Authorize(Roles="Seller")]
+    [Authorize(Roles = "Seller, Admin")]
     public IActionResult MyProducts()
     {
         string? email = BaseValues.GetEmail(HttpContext);
@@ -47,7 +47,7 @@ public class ProductController : Controller
     /// seller's view for add product (get method)
     /// </summary>
     /// <returns>View(baseViewModel)</returns>
-    [Authorize(Roles ="Seller")]
+    [Authorize(Roles = "Seller, Admin")]
     public IActionResult AddProduct(){
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
@@ -67,7 +67,7 @@ public class ProductController : Controller
     /// </summary>
     /// <param name="model"></param>
     /// <returns>Json</returns>
-    [Authorize(Roles ="Seller")]
+    [Authorize(Roles = "Seller, Admin")]
     [HttpPost]
     public async Task<IActionResult> AddProduct(AddProductViewModel model)
     {
@@ -102,7 +102,7 @@ public class ProductController : Controller
     /// get method for sellers which shows the list of products which seller added
     /// </summary>
     /// <returns>Json</returns>
-    [Authorize(Roles ="Seller")]
+    [Authorize(Roles = "Seller, Admin")]
     [HttpGet]
     public async Task<IActionResult> GetSellerSpecificProducts()
     {
@@ -131,7 +131,7 @@ public class ProductController : Controller
     /// </summary>
     /// <param name="ProductId"></param>
     /// <returns>Json</returns>
-    [Authorize(Roles ="Seller")]
+    [Authorize(Roles = "Seller, Admin")]
     [HttpPut]
     public async Task<IActionResult> DeleteProduct(int ProductId)
     {
@@ -155,7 +155,7 @@ public class ProductController : Controller
     /// edit product view for seller
     /// </summary>
     /// <returns>View(model)</returns>
-    [Authorize(Roles ="Seller")]
+    [Authorize(Roles = "Seller, Admin")]
     [HttpGet]
     public IActionResult EditProduct(int productId)
     {
@@ -180,7 +180,7 @@ public class ProductController : Controller
     /// </summary>
     /// <param name="model"></param>
     /// <returns>View(model)</returns>
-    [Authorize(Roles ="Seller")]
+    [Authorize(Roles = "Seller, Admin")]
     [HttpPost]
     public async Task<IActionResult> EditProduct(EditProductViewModel model)
     {

@@ -1,4 +1,40 @@
+$(".Addproduct .loader2").hide();
+$(".Addproduct .products").show();
+$(".uploadbtn .loader2").hide();
+$(".uploadbtn .upload").show();          
+
 $(document).ready(function () {
+    $(document).on('submit','#uploadForm', function (e) {
+        $(".uploadbtn .loader2").show();
+        $(".uploadbtn .upload").hide();
+        e.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            url: '/Product/UploadProducts',
+            method: 'POST',
+            processData: false, 
+            contentType: false,
+            data: formData,
+            success: function (response) {
+                if(response.success)
+                {
+                    toastr.success(response.message,"Success",{timeOut:5000});
+                }
+                else
+                {
+                    toastr.error(response.message,"Error",{timeOut:5000})
+                }
+                $(".uploadbtn .loader2").hide();
+                $(".uploadbtn .upload").show();
+                $('#message').html('<div class="alert alert-' + (response.success ? 'success' : 'danger') + '">' + response.message + '</div>');
+            },
+            error: function (xhr) {
+                $(".uploadbtn .loader2").hide();
+                $(".uploadbtn .upload").show();
+                $('#message').html('<div class="alert alert-danger">Error: ' + (xhr.status === 401 ? 'Unauthorized access.' : 'An error occurred while uploading the file.') + '</div>');
+            }
+        });
+    });
     $(document).on("submit", "#AddProductForm", function (e) {
         e.preventDefault();
         $.ajax({

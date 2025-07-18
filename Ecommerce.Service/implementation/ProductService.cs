@@ -10,7 +10,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OfficeOpenXml;
+using OfficeOpenXml.Drawing;
+using System.Drawing.Imaging;
 using static Ecommerce.Repository.Helpers.Enums;
+
 
 namespace Ecommerce.Service.implementation;
 
@@ -485,6 +488,7 @@ public class ProductService : IProductService
         {
             using (MemoryStream stream = new MemoryStream())
             {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 await file.CopyToAsync(stream);
                 using (ExcelPackage package = new ExcelPackage(stream))
                 {
@@ -495,9 +499,9 @@ public class ProductService : IProductService
                     string[] expectedHeaders = new[] { "Product Name", "Description", "Category", "Discount type", "Discount Rate", "Price", "Stock", "Features" };
                     for (int col = 1; col <= expectedHeaders.Length; col++)
                     {
-                        string sname = worksheet.Cells[21, col].Text.Trim().ToLower();
-                        string pname = expectedHeaders[col - 1].Trim().ToLower();
-                        if (sname != pname)
+                        string currentName = worksheet.Cells[21, col].Text.Trim().ToLower();
+                        string expecteName = expectedHeaders[col - 1].Trim().ToLower();
+                        if (currentName != expecteName)
                         {
                             return new ResponsesViewModel{IsSuccess = false, Message = $"Invalid header at column {col}. Expected '{expectedHeaders[col - 1]}'." };
                         }
@@ -508,7 +512,9 @@ public class ProductService : IProductService
                     List<string> errors = new List<string>();
                     string[] validCategories = new[] { "laptops", "computers", "accessories" };
                     string[] validDiscountTypes = new[] { "percentage", "fixed amount"};
-
+                    User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+                    List<Dictionary<string, IFormFile>> images = new List<Dictionary<string, IFormFile>>();
+                    
                     // validate and add products into list
                     // if error occure then add it to error list 
                     for(int row = 22; row <= rowCount; row++)
@@ -521,7 +527,9 @@ public class ProductService : IProductService
                         
                         // validate product name 
                         product.ProductName = worksheet.Cells[row,col].Text;
-                        if(string.IsNullOrWhiteSpace(product.ProductName) || !System.Text.RegularExpressions.Regex.IsMatch(product.ProductName, @"^[a-zA-Z0-9\s,.!+-/()*#?]+$"))
+                        // for image store it in variable
+                        string imageProductName = product.ProductName.Trim();
+                        if(string.IsNullOrWhiteSpace(product.ProductName))
                         {
                             errors.Add($"Row {row}: Invalid Product Name.");
                             continue;
@@ -627,7 +635,17 @@ public class ProductService : IProductService
                             }
                         }
                         col++;
-                        User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+                            
+                        if(worksheet.Cells[row,col].Text!=null)
+                        {
+                            for (int col2 = 9; col2 <= 13; col2++)
+                            {
+                                ExcelPicture? drawing = worksheet.Drawings.FirstOrDefault(d => d.From.Row == row - 1 && d.From.Column == col2 - 1) as ExcelPicture;
+                                if (drawing?.Image?.ImageBytes == null) break;
+                                images.Add(new Dictionary<string, IFormFile> { { imageProductName, new FormFile(new MemoryStream(drawing.Image.ImageBytes), 0, drawing.Image.ImageBytes.Length, $"image_{row}_{col2}", $"image_{row}_{col2}.jpg") } });
+                            }
+                        }
+
                         product.SellerId = user.UserId;
                         products.Add(product);
                     }
@@ -648,24 +666,61 @@ public class ProductService : IProductService
                         // stop on empty rows
                         if (string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text))
                             break;
-                            
+                        
+
                         string FeaturesString = worksheet.Cells[row, 8].Text;
                         int productId = products.Where(p => p.ProductName == worksheet.Cells[row, 1].Text).Select(p => p.ProductId).FirstOrDefault();
+
+
+                        // adding images 
+                        List<IFormFile> ImageFiles = images
+                                                    .Where(d => d.ContainsKey(worksheet.Cells[row, 1].Text.Trim())) 
+                                                    .Select(d => d[worksheet.Cells[row, 1].Text.Trim()]) 
+                                                    .ToList();
+                        string imagesFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "ProductImages");
+                        if (!Directory.Exists(imagesFolderPath))
+                        {
+                            Directory.CreateDirectory(imagesFolderPath);
+                        }
+                        List<Image> productImages = new List<Image>();
+                        if (ImageFiles != null)
+                        {
+                            foreach (IFormFile f in ImageFiles)
+                            {
+                                string uniqueFileName = $"{Guid.NewGuid()}_{f.FileName}";
+                                string filePath = Path.Combine(imagesFolderPath, uniqueFileName);
+
+                                using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    f.CopyTo(fileStream);
+                                }
+
+                                productImages.Add(new Image
+                                {
+                                    ProductId = productId,
+                                    ImageUrl = $"/ProductImages/{uniqueFileName}"
+                                });
+                            }
+                            await _unitOfWork.ImageRepository.AddRangeAsync(productImages);
+                        }
+
+                        // adding features
                         if (!string.IsNullOrWhiteSpace(FeaturesString))
                         {
                             List<string> featurePairs = FeaturesString.Split(';').Where(f => !string.IsNullOrWhiteSpace(f)).ToList();
                             foreach (string feature in featurePairs)
                             {
                                 string FeaturName = feature.Split(',')[0].Trim();
-                                FeaturName = FeaturName.Substring(1,FeaturName.Length-1);
+                                FeaturName = FeaturName.Substring(1,FeaturName.Length-1).Trim();
 
                                 string Description = feature.Split(',')[1].Trim();
-                                Description = Description.Substring(0,Description.Length-1);
+                                Description = Description.Substring(0,Description.Length-1).Trim();
 
                                 features.Add(new Feature {
                                     FeatureName = FeaturName,
                                     Description = Description,
-                                    ProductId = productId
+                                    ProductId = productId,
+                                    CreatedAt = DateTime.Now
                                 }); 
                             }
                         }
