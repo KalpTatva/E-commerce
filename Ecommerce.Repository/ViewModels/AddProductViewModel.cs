@@ -38,3 +38,12 @@ public class AddProductViewModel : BaseViewModel
     [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "discount must be a valid number with up to two decimal places")]
     public decimal? Discount { get; set; }
 }
+
+
+public class ImageHelper 
+{
+    public int count {get;set;}
+    public string? productName {get;set;}
+    public string? ImageName {get;set;}
+    public string? ImagePath {get;set;}
+}

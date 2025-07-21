@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Storage;
+
 namespace Ecommerce.Repository.interfaces;
 
 public interface IUnitOfWork : IDisposable
@@ -23,4 +25,6 @@ public interface IUnitOfWork : IDisposable
     ICategoryRepository categoryRepository {get;set;}
     IGrantOfferPermissionRepository grantOfferPermissionRepository {get;set;}
     Task<int> SaveChanges();
+    Task<IDbContextTransaction> BeginTransactionAsync();
+    Task CommitAsync();
 }

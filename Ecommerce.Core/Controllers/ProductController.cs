@@ -270,9 +270,9 @@ public class ProductController : Controller
         } 
 
         string extension = Path.GetExtension(file.FileName).ToLower();
-        if(extension != ".xlsx")
+        if(extension != ".zip")
         {
-            return Json(new { success = false, message = "Invalid file format. Please upload an .xlsx file." });
+            return Json(new { success = false, message = "Invalid file format. Please upload an .zip file." });
         }
 
         try

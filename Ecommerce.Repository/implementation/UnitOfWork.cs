@@ -1,5 +1,6 @@
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Ecommerce.Repository.implementation;
 
@@ -58,5 +59,14 @@ public class UnitOfWork : IUnitOfWork
     public void Dispose()
     {
         _context.Dispose();
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
+    }
+    public async Task CommitAsync()
+    {
+        await _context.SaveChangesAsync();
     }
 }
