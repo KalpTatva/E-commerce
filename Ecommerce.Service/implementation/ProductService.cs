@@ -776,6 +776,11 @@ public class ProductService : IProductService
                 await _unitOfWork.ProductRepository.AddRangeAsync(products);
 
                 // add features, images the products
+                string imagesFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "ProductImages");
+                if (!Directory.Exists(imagesFolderPath))
+                {
+                    Directory.CreateDirectory(imagesFolderPath);
+                }
                 List<Feature> features = new ();
                 List<Image> SavedImages = new ();
                 for(int row = 2; row <= rowCount; row++)
@@ -785,7 +790,12 @@ public class ProductService : IProductService
                         break;
                     
                     string FeaturesString = worksheet.Cells[row, 9].Text;
-                    int productId = products.Where(p => p.ProductName == worksheet.Cells[row, 2].Text).Select(p => p.ProductId).FirstOrDefault();
+                    int productId = products.Where(
+                        p => p.ProductName == worksheet.Cells[row, 2].Text && 
+                        p.Discount.ToString() == worksheet.Cells[row, 6].Text &&
+                        p.Price.ToString() == worksheet.Cells[row, 7].Text &&
+                        p.Stocks.ToString() == worksheet.Cells[row, 8].Text
+                    ).Select(p => p.ProductId).FirstOrDefault();
 
                     // adding features
                     if (!string.IsNullOrWhiteSpace(FeaturesString))
@@ -809,12 +819,8 @@ public class ProductService : IProductService
                     }
 
                     // adding images 
-                    string imagesFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "ProductImages");
-                    if (!Directory.Exists(imagesFolderPath))
-                    {
-                        Directory.CreateDirectory(imagesFolderPath);
-                    }
-                    foreach(ImageHelper image in images)
+                    List<ImageHelper> productImages = images.Where(i => i.count == int.Parse(worksheet.Cells[row, 1].Text.Trim())).ToList();
+                    foreach(ImageHelper image in productImages)
                     {
                         if(image.productName == worksheet.Cells[row, 2].Text.Trim())
                         {
