@@ -547,7 +547,7 @@ public class ProductService : IProductService
                 return new ResponsesViewModel {
                     IsSuccess = false,
                     Message = response.Message
-                };
+                }; 
             }
         }
         catch (Exception e)

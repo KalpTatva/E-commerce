@@ -27,4 +27,5 @@ public interface IUnitOfWork : IDisposable
     Task<int> SaveChanges();
     Task<IDbContextTransaction> BeginTransactionAsync();
     Task CommitAsync();
+    Task RollbackAsync();
 }
