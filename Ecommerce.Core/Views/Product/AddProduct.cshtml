@@ -47,10 +47,28 @@
             </div>
             <hr />
             <ul class="ps-3">
-                <li>Inorder to add multiple product in single go, 
-                    first download the <strong>.xlxs</strong> file which is here below 👇🏻, 
-                    which will guide you to insert details into excel sheet,
-                    which you need to attach to below 👇🏻 input, only <strong>.xlxs</strong> is valid!
+                <li> <strong>Prepare a .zip File:</strong> <br/>
+
+                    <strong>1.</strong>Include a valid Excel file (.xlsx) with product details. <br/>
+                    <strong>2.</strong>Add all product images referenced in the Excel file. <br/>
+                    
+                </li>
+                <li>
+                    <strong>Excel File Requirements: </strong> <br/>
+                    Ensure the file has the following columns: <br/>
+                    <strong>1.</strong>Product Name, Description, Category, Price, Stock, Discount Type, Discount Rate, Features
+                    (optional), Image Names (optional). <br/>
+                    <strong>2.</strong>Use the Download Template button for a sample file.<br/>
+                </li>
+                <li>
+                    <strong>Upload Process:</strong><br/>
+                    <strong>1.</strong>Select the .zip file using the input field.<br/>
+                    <strong>2.</strong>Click the Upload button to start the process.<br/>
+                </li>
+                <li>
+                    <strong>Important Notes:</strong> <br/>
+                    <strong>1.</strong>Only .zip files are allowed. <br/>
+                    <strong>2.</strong>Ensure all image files listed in the Excel file are included in the .zip.
                 </li>
             </ul>
         </div>
@@ -61,7 +79,7 @@
             </a>
             <form method="post" id="uploadForm" enctype="multipart/form-data" class="d-flex flex-column gap-3">
                 <div class="form-group">
-                    <label class="text-color" for="file">Select Excel File (.xlsx)</label>
+                    <label class="text-color" for="file">Select zip file (.zip)</label>
                     <input type="file" id="file" name="file" accept=".zip" class="form-control" />
                 </div>
                 <button type="submit" class="btn  btn-success mb-3 uploadbtn">
@@ -145,7 +163,7 @@
                 <div class="image-preview-container mt-3"></div>
 
                 <div class="d-flex justify-content-end ">
-                    
+
                     <button type="submit" class="btn btn-success Addproduct">
                         <span class="loader2 " style="width: 20px; height: 20px;"></span>
                         <span class="products">Add product</span>
@@ -163,7 +181,7 @@
     <script>
         window.successMessage = '@TempData["SuccessMessage"]';
         window.errorMessage = '@TempData["ErrorMessage"]';
-        
+
     </script>
     <script src="~/js/toastr_script.js"></script>
     <script src="~/js/addProduct_script.js" asp-append-version="true"></script>

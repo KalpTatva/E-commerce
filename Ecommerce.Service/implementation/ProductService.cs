@@ -623,7 +623,8 @@ public class ProductService : IProductService
                 {
                     // stop on empty rows
                     if (string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text))
-                        break;
+                        continue;
+
                     Product product = new Product();
                     int col = 1;
                     
@@ -644,7 +645,7 @@ public class ProductService : IProductService
                         continue;
                     }
                     col++;
-
+                    
                     // validate Description
                     product.Description = worksheet.Cells[row, col].Text;
                     if (string.IsNullOrWhiteSpace(product.Description))
