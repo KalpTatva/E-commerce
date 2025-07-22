@@ -29,10 +29,8 @@
                     },
                     success: function (response) {
                         if (response.success) {
-                            console.log(response.message, "...successs");
                             window.location.href = '/Dashboard/MyOrders';
                         } else {
-                            console.log(response.message, "...error");
                             window.location.href = '/Dashboard/MyOrders';
                         }
                     },

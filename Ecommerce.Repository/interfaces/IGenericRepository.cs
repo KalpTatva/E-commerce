@@ -12,7 +12,14 @@ public interface IGenericRepository<T> where T : class
     Task AddRangeAsync(IEnumerable<T> entities);
     Task UpdateRangeAsync(IEnumerable<T> entities);
     Task DeleteRangeAsync(IEnumerable<T> entities);
+    Task<int> CountAsync(Expression<Func<T, bool>> predicate);
     Task<T?> FindAsync(Expression<Func<T, bool>> predicate);
     Task<List<T>> FindAllAsync(Expression<Func<T, bool>> predicate);
     Task<List<T>> FindAllAsync<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> orderBySelector, bool ascending = true);
+    Task<List<T>> FindAllAsync<TKey>(
+        Expression<Func<T, bool>> predicate, 
+        Expression<Func<T, TKey>> orderBySelector, 
+        bool ascending = true,
+        int currentPage = 0,
+        int pageSize = 0);
 }

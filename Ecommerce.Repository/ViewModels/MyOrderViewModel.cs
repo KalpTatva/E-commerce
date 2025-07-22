@@ -3,6 +3,7 @@ namespace Ecommerce.Repository.ViewModels;
 
 public class OrderAtMyOrderViewModel : BaseViewModel{
     public List<MyOrderViewModel>? myOrderViewModels {get;set;}
+    public int TotalCount { get; set; } = 0;
 }
 
 public class MyOrderViewModel

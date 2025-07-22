@@ -2,14 +2,25 @@ $(".loader3").show();
 $('#OrderContainer').hide();
 
 $(document).ready(function () {
-    
-    function FetchOrders() {
+    var totalItems = 0;
+    currentPage = parseInt(localStorage.getItem('currentPage')) || 1;
+    rowsPerPage = parseInt(localStorage.getItem('rowsPerPage')) || 2;
+
+    function FetchOrders(page, pageSize) {
+        $(".loader3").show();
+        $('#OrderContainer').hide();
         $.ajax({
             url: '/Dashboard/GetMyOrders',
             type: 'GET',
+            data: {
+                page: page || currentPage,
+                pageSize: pageSize || rowsPerPage
+            },
             success: function (response) {
                 $(".loader3").hide();
                 $('#OrderContainer').html(response);
+                totalItems = parseInt($("#TableContainer").attr("data-total-items")) || 0;
+                updatePagination();
                 $('#OrderContainer').show();
             },
             error: function (xhr, status, error) {
@@ -120,5 +131,85 @@ $(document).ready(function () {
         });
     });
 
-    FetchOrders();
+
+
+    // Update pagination info
+    function updatePagination() {
+        if(totalItems == 0){
+            localStorage.setItem('currentPage', 1);
+            localStorage.setItem('rowsPerPage', 2);
+            currentPage = 1;
+            rowsPerPage = 2;
+        } 
+        var totalPages = Math.ceil(totalItems / rowsPerPage);
+        var startItem = (currentPage - 1) * rowsPerPage + 1;
+        var endItem = Math.min(currentPage * rowsPerPage, totalItems);
+
+        $("#pagination-info").text(
+        `Showing ${startItem}-${endItem} of ${totalItems}`
+        );
+        $("#itemsPerPageBtn").html(
+            `${rowsPerPage} <span><i class="bi bi-chevron-down"></i></span>`
+        );
+        $(".currentPage").html(`${currentPage}`);
+        $("#prevPage").toggleClass("disabled", currentPage === 1);
+        $("#nextPage").toggleClass("disabled", currentPage >= totalPages);
+    }
+
+    // Page size change
+    $(document).on("click", ".page-size-option", function (e) {
+        e.preventDefault();
+        var newSize = parseInt($(this).data("size"));
+        if (newSize !== rowsPerPage) {
+            rowsPerPage = newSize;
+            $("#itemsPerPageBtn").html(
+                `${rowsPerPage} <span><i class="bi bi-chevron-down"></i></span>`
+            );
+            // get current page from local storage
+            currentPage = parseInt(localStorage.getItem('currentPage')) || 1;
+
+            // set row per page in local storage
+            localStorage.setItem('rowsPerPage', rowsPerPage);
+            FetchOrders(currentPage, rowsPerPage);
+        }
+        $("#itemsPerPageMenu").hide();
+    });
+
+    // Hide dropdown when clicking outside
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest("#itemsPerPageBtn, #itemsPerPageMenu").length) {
+            $("#itemsPerPageMenu").hide();
+        }
+    });
+
+    // Toggle dropdown paging
+    $("#itemsPerPageBtn").on("click", function () {
+        $("#itemsPerPageMenu").toggle();
+    });
+
+    // Previous page
+    $(document).on("click", "#prevPage", function (e) {
+        e.preventDefault();
+        if (currentPage > 1) {
+            currentPage--;
+            FetchOrders(currentPage, rowsPerPage);
+            // upadate local storage
+            localStorage.setItem('currentPage', currentPage);
+            localStorage.setItem('rowsPerPage', rowsPerPage);
+        }
+    });
+
+    // Next page
+    $(document).on("click", "#nextPage", function (e) {
+        e.preventDefault();
+        if (currentPage * rowsPerPage < totalItems) {
+            currentPage++;
+            FetchOrders(currentPage, rowsPerPage);
+            // upadate local storage
+            localStorage.setItem('currentPage', currentPage);
+            localStorage.setItem('rowsPerPage', rowsPerPage);
+        }
+    });
+
+    FetchOrders(currentPage, rowsPerPage);
 });

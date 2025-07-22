@@ -4,43 +4,44 @@
 
 @if (Model != null && Model.Any())
 {
-    <table class="table w-100 tables text-nowrap overflow-auto">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Product Name</th>
-                <th>Stock</th>
-                <th>Category</th>
-                <th>Create date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                int count = 1;
-            }
-            
-                @foreach (Product p in Model)
-                {
-
-                    <tr>
-                        <td>@count @{count++;}</td>
-                        @{
-                            string productName = p.ProductName.Length > 100 ? p.ProductName.Substring(0,100) + "..." : p.ProductName;
-                        }
-                        <td>@productName</td>
-                        <td>@p.Stocks.ToString()</td>
-                        <td>@(((CategoriesEnum)p.CategoryId).ToString())</td>
-                        <td>@p.CreatedAt</td>
-                        <td>
-                            <a class="btn btn-success" asp-route-productId="@p.ProductId" asp-controller="Product" asp-action="EditProduct"><i class="bi bi-pencil-fill"></i></a>
-                            <button class="btn btn-danger product-delete-btn" data-product-id="@p.ProductId"><i class="bi bi-trash-fill"></i></button>
-                        </td>
-                    </tr>
+    <div id="TableContainer" class=" container d-flex align-items-center flex-column" data-total-items="@ViewBag.TotalCount">
+        <table class="table w-100 tables text-nowrap overflow-auto">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Stock</th>
+                    <th>Category</th>
+                    <th>Create date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int count = 1;
                 }
+                
+                    @foreach (Product p in Model)
+                    {
+                        <tr>
+                            <td>@count @{count++;}</td>
+                            @{
+                                string productName = p.ProductName.Length > 100 ? p.ProductName.Substring(0,100) + "..." : p.ProductName;
+                            }
+                            <td>@productName</td>
+                            <td>@p.Stocks.ToString()</td>
+                            <td>@(((CategoriesEnum)p.CategoryId).ToString())</td>
+                            <td>@p.CreatedAt</td>
+                            <td>
+                                <a class="btn btn-success" asp-route-productId="@p.ProductId" asp-controller="Product" asp-action="EditProduct"><i class="bi bi-pencil-fill"></i></a>
+                                <button class="btn btn-danger product-delete-btn" data-product-id="@p.ProductId"><i class="bi bi-trash-fill"></i></button>
+                            </td>
+                        </tr>
+                    }
 
-        </tbody>
-    </table>        
+            </tbody>
+        </table>
+    </div>        
 }else{
     <div class="alert alert-info">
         <strong>No products found.</strong> Please add some products to your inventory.

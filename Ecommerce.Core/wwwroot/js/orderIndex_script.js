@@ -17,14 +17,10 @@ $(document).ready(function(){
         })
     });
 
-
-
-
     $(document).on('submit','#OrderDetailsForm',function(e){
         e.preventDefault();
         var data = $(this).serialize();
         console.log(data);
         window.location.href = '/Order/CreatePayment?'+data;
     });
-
 });

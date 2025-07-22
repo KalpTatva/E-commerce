@@ -104,13 +104,14 @@ public class ProductController : Controller
     /// <returns>Json</returns>
     [Authorize(Roles = "Seller, Admin")]
     [HttpGet]
-    public async Task<IActionResult> GetSellerSpecificProducts()
+    public async Task<IActionResult> GetSellerSpecificProducts(int pageNumber = 1, int pageSize = 5)
     {
         try
         {
             string? email = BaseValues.GetEmail(HttpContext);
         
-            List<Product>? products = await _productService.GetSellerSpecificProductsByEmail(email ?? "");
+            List<Product>? products = await _productService.GetSellerSpecificProductsByEmail(email ?? "", pageNumber, pageSize);
+            ViewBag.TotalCount = await _productService.GetSellersTotalProductsCount(email ?? "");
             if(products != null)
             {
                 return PartialView("_ListOfProductPartial", products);

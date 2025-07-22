@@ -112,7 +112,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     /// <param name="userId"></param>
     /// <returns>It returns a list of MyOrderViewModel objects containing order and item details.</returns>
     /// <exception cref="Exception"></exception>
-    public async Task<List<MyOrderViewModel>?> GetMyOrderDetails(int userId)
+    public async Task<List<MyOrderViewModel>?> GetMyOrderDetails(int userId, int pageNumber, int pageSize)
     {
         try
         {
@@ -147,6 +147,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                         })
                     .ToList()
             })
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
             return query;
@@ -156,27 +158,6 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             throw new Exception(e.Message);
         }
     }
-
-    /// <summary>
-    /// Method to get the count of orders for a seller based on their user ID.
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns>int</returns>
-    /// <exception cref="Exception"></exception>
-    public int GetSellersOrderTotalCount(int userId)
-    {
-        try
-        {
-            return _context.OrderProducts
-                .Where(op => op.Product.SellerId == userId && op.IsDeleted == false)
-                .Count();
-        }
-        catch(Exception e)
-        {
-            throw new Exception(e.Message);
-        }
-    }
-
 
     /// <summary>
     /// Method to get the seller's orders.

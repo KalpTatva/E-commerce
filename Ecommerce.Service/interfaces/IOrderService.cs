@@ -44,9 +44,10 @@ public interface IOrderService
     /// </summary>
     /// <param name="email">User's email address</param>
     /// <returns>List of MyOrderViewModel containing order history</returns>
-    Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email);
+    Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email, int? pageNumber = 1, int? pageSize = 2);
 
-
+    Task<int> GetMyOrderHistoryCount(string email);
+    
     /// <summary>
     /// Method to retrieve the seller's orders based on their email address.
     /// This method fetches the user by email, retrieves their seller orders,
@@ -73,7 +74,7 @@ public interface IOrderService
     /// <param name="email"></param>
     /// <returns>int: count of orders</returns>
     /// <exception cref="Exception"></exception>
-    int GetSellersOrderTotalCount(string email);
+    Task<int> GetSellersOrderTotalCount(string email);
 
     /// <summary>
     /// method for adding new offer to the product

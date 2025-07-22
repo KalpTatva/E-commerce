@@ -22,36 +22,73 @@ $(document).ready(function () {
         FetchProducts(categoryInput, searchInput);
     });
 
+    var pageNumber = 0;
+    var isFetching = false;
+    var isReachedToBottom = false;
+    var pendingRequests = 0; // Track the number of pending requests
+
+    $(window).scroll(function () {
+        if (!isReachedToBottom && $(window).scrollTop() + $(window).height() >= $(document).height()) {
+            // fetch more products
+            FetchProducts(categoryInput, searchInput);
+        }
+    });
 
     // function for getting product on page
     function FetchProducts(categoryInput, searchInput) {
-        $(".loader3").show();
-        categoryInput = new URLSearchParams(window.location.search).get('categoryId');
-        $.ajax({
-            url: '/BuyerDashboard/GetProducts',
-            type: 'GET',
-            data: {
-                search : searchInput,
-                category : categoryInput
-            },
-            success: function (response) {
+        if (pageNumber > -1 && !isFetching) {
+            isFetching = true; // Set fetching flag
+            pageNumber++;
+            $(".loader3").show();
+            categoryInput = new URLSearchParams(window.location.search).get('categoryId');
+
+            return $.ajax({
+                url: '/BuyerDashboard/GetProducts',
+                type: 'GET',
+                data: {
+                    search: searchInput,
+                    category: categoryInput,
+                    page: pageNumber
+                }
+            })
+            .done(function (response) {
                 $(".loader3").hide();
-                $("#ProductsContainer").html(response);
-            },
-            error: function () {
+                $("#ProductsContainer").append(response);
+            })
+            .fail(function () {
                 toastr.error('An error occurred while loading the product.');
-            }
-        })
+            })
+            .always(function () {
+                isFetching = false; // Reset fetching flag
+            });
+        }
     }
 
 
     $(document).on('input','#searchInput',function(){
         searchInput = $(this).val();
+        pageNumber = 0;
+        $("#ProductsContainer").empty();
         FetchProducts(categoryInput, searchInput);
+    });
 
-    })
 
+    // Debounce function
+    function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => func.apply(this, args), delay);    
+        };
+    }
 
+    // Search input handler with debounce
+    $(document).on('input', '#searchInput', debounce(function () {
+        searchInput = $(this).val();
+        pageNumber = 0; // Reset page number
+        $("#ProductsContainer").empty(); // Clear existing products
+        FetchProducts(categoryInput, searchInput);
+    }, 1000)); 
 
     // for redirection to the selected product
     $(document).on('click', '.card-img', function () {
@@ -88,7 +125,6 @@ $(document).ready(function () {
             }
         });
     });
-
 
     $(document).on('click', '.AddToCart', function (e) {
         e.preventDefault();

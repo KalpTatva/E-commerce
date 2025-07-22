@@ -45,13 +45,13 @@ public class BuyerDashboardController : Controller
     /// <param name="category"></param>
     /// <returns>Partial</returns>
     [HttpGet]
-    public async Task<IActionResult> GetProducts(string? search = null, int? category = null)
+    public async Task<IActionResult> GetProducts(string? search = null, int? category = null, int? page = 1)
     {
         string? email =  BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
         string? name = BaseValues.GetUserName(HttpContext);
 
-        ProductsViewModel model = await _productService.GetProducts(search, category);
+        ProductsViewModel model = await _productService.GetProducts(search, category, page);
         List<int> favourites = _productService.GetFavouritesByEmail(email ?? "");
         model.BaseEmail = email;
         model.BaseRole = role;

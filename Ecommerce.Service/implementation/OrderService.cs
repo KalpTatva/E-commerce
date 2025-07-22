@@ -234,23 +234,40 @@ public class OrderService : IOrderService
 
                 // Mark cart items as deleted
                 // await _unitOfWork.CartRepository.DeleteCartByIdsRangeAsync(objSession.orders ?? new List<int>());
-                List<Cart>? cartsToDelete = await _unitOfWork.CartRepository.FindAllAsync(c => objSession.orders != null && objSession.orders.Contains(c.CartId));
-                if(cartsToDelete != null)
+                if(!isByProductId)
                 {
-
-                    foreach (var cart in cartsToDelete)
+                    List<Cart>? cartsToDelete = await _unitOfWork.CartRepository.FindAllAsync(c => objSession.orders != null && objSession.orders.Contains(c.CartId));
+                    if(cartsToDelete != null)
                     {
-                        cart.IsDeleted = true;
-                        cart.DeletedAt = DateTime.Now;
+
+                        foreach (var cart in cartsToDelete)
+                        {
+                            cart.IsDeleted = true;
+                            cart.DeletedAt = DateTime.Now;
+                        }
+                        await _unitOfWork.CartRepository.UpdateRangeAsync(cartsToDelete);
                     }
-                    await _unitOfWork.CartRepository.UpdateRangeAsync(cartsToDelete);
+                }
+                else
+                {
+                    // If the order is by product ID, we need to delete the cart items by product ID
+                    List<Cart>? cartsToDelete = await _unitOfWork.CartRepository.FindAllAsync(c => objSession.orders != null && objSession.orders.Contains(c.ProductId));
+                    if(cartsToDelete != null)
+                    {
+                        foreach (var cart in cartsToDelete)
+                        {
+                            cart.IsDeleted = true;
+                            cart.DeletedAt = DateTime.Now;
+                        }
+                        await _unitOfWork.CartRepository.UpdateRangeAsync(cartsToDelete);
+                    }
                 }
 
                 // now adding notification for seller after placing order
                 // User? user = _userRepository.GetUserById(UserId);
                 User? user = await _unitOfWork.UserRepository.GetByIdAsync(UserId);
 
-                string notification = $"New order placed pleace check your dashboard for more details. Order ID: {order.OrderId}"; 
+                string notification = $"New order placed by {user.UserName}, please chceck the order details in your dashboard."; 
 
                 Notification notificationModel = new Notification()
                 {
@@ -258,7 +275,6 @@ public class OrderService : IOrderService
                     ProductId = orderProducts.Count > 0 ? orderProducts[0].ProductId : 0,
                     CreatedAt = DateTime.Now
                 };
-                // _notificationRepository.AddNotification(notificationModel);
                 await _unitOfWork.NotificationRepository.AddAsync(notificationModel);
 
                 // adding notification to seller at mapping table 
@@ -311,7 +327,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="email">User's email address</param>
     /// <returns>List of MyOrderViewModel containing order history</returns>
-    public async Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email)
+    public async Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email, int? pageNumber = 1, int? pageSize = 2)
     {
         try
         {
@@ -319,7 +335,7 @@ public class OrderService : IOrderService
             List<MyOrderViewModel>? myOrderViewModel = new ();
             if(user != null)
             {
-                myOrderViewModel = await _unitOfWork.OrderRepository.GetMyOrderDetails(user.UserId); 
+                myOrderViewModel = await _unitOfWork.OrderRepository.GetMyOrderDetails(user.UserId, pageNumber ?? 1 , pageSize ?? 2); 
             }
 
             return myOrderViewModel ?? new List<MyOrderViewModel>();
@@ -327,6 +343,23 @@ public class OrderService : IOrderService
         catch
         {
             return new List<MyOrderViewModel>();
+        }
+    }
+
+    public async Task<int> GetMyOrderHistoryCount(string email)
+    {
+        try
+        {
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            return await _unitOfWork.OrderRepository.CountAsync(order => order.BuyerId == user.UserId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
         }
     }
 
@@ -361,7 +394,7 @@ public class OrderService : IOrderService
     /// <param name="email"></param>
     /// <returns>int: count of orders</returns>
     /// <exception cref="Exception"></exception>
-    public int GetSellersOrderTotalCount(string email)
+    public async Task<int> GetSellersOrderTotalCount(string email)
     {
         try
         {
@@ -370,7 +403,7 @@ public class OrderService : IOrderService
             {
                 throw new Exception("User not found");
             }
-            return  _unitOfWork.OrderRepository.GetSellersOrderTotalCount(user.UserId);
+            return await _unitOfWork.OrderProductRepository.CountAsync(op => op.Product.SellerId == user.UserId && op.IsDeleted == false);
         }
         catch (Exception e)
         {

@@ -20,7 +20,7 @@ public interface IProductRepository : IGenericRepository<Product>
     /// <param name="category"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null);
+    Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null,int? page = 1);
     
     /// <summary>
     /// method for getting product details by product id

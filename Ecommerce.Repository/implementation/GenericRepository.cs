@@ -105,6 +105,20 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         }
     }
 
+
+    public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+    {
+        try
+        {
+            return await _dbSet.CountAsync(predicate);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error counting entities: {e.Message}");
+        }
+    }
+
+
     public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate)
     {
         try
@@ -135,6 +149,36 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         {
             var query = _dbSet.Where(predicate);
             query = ascending ? query.OrderBy(orderBySelector) : query.OrderByDescending(orderBySelector);
+            return await query.ToListAsync();
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error finding and ordering entities: {e.Message}");
+        }
+    }
+
+    public async Task<List<T>> FindAllAsync<TKey>(
+        Expression<Func<T, bool>> predicate, 
+        Expression<Func<T, TKey>> orderBySelector, 
+        bool ascending = true,
+        int currentPage = 1,
+        int pageSize = 5)
+    {
+        try
+        {
+            int skip = (currentPage - 1) * pageSize;
+            var query = _dbSet.Where(predicate);
+            query = ascending ? query.OrderBy(orderBySelector) : query.OrderByDescending(orderBySelector);
+            
+            if (currentPage <= 0 || pageSize <= 0)
+            {
+                query = query.Skip(0).Take(int.MaxValue); 
+            }
+            else
+            {
+                query = query.Skip(skip).Take(pageSize);
+            }
+
             return await query.ToListAsync();
         }
         catch (Exception e)

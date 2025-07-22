@@ -6,101 +6,103 @@
 
 @if (Model != null && Model.myOrderViewModels != null && Model.myOrderViewModels.Any())
 {
-    foreach (MyOrderViewModel o in Model.myOrderViewModels)
-    {
-        <div class="w-100  px-5 border rounded-3 border-success mb-4">
-            <div class="d-flex mx-3 d-flex justify-content-center w-100 mt-4">
-                <div class="w-50 d-flex flex-column">
-                    <span class="fs-3 fw-normal text-nowrap"> order id : @o.OrderId</span>
+    <div id="TableContainer" class="" data-total-items="@Model.TotalCount" >
+        @foreach (MyOrderViewModel o in Model.myOrderViewModels)
+        {
+            <div class="w-100 px-5 border rounded-3 border-success mb-4">
+                <div class="d-flex mx-3 d-flex justify-content-center w-100 mt-4">
+                    <div class="w-50 d-flex flex-column">
+                        <span class="fs-3 fw-normal text-nowrap"> order id : @o.OrderId</span>
+                    </div>
+                    <div class="w-50 d-flex mb-4 justify-content-center align-items-start flex-column">
+                        <div>
+                            <span class="fs-4"> Total : </span>
+                            <span class="fs-4 fw-normal" id="TotalPrice">
+                                @o.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
+                            </span>
+                        </div>
+                        <div>
+                            <span class="fs-4"> Discount : </span>
+                            <span class="fs-4 fw-normal text-success" id="TotalDiscount">
+                                @o.TotalDiscount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
+                            </span>
+                        </div>
+                        <div>
+                            <span class="fs-4"> Quantity : </span>
+                            <span class="fs-4 fw-normal " id="TotalQuantity">
+                                @o.TotalQuantity
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="w-50 d-flex mb-4 justify-content-center align-items-start flex-column">
-                    <div>
-                        <span class="fs-4"> Total : </span>
-                        <span class="fs-4 fw-normal" id="TotalPrice">
-                            @o.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
-                        </span>
-                    </div>
-                    <div>
-                        <span class="fs-4"> Discount : </span>
-                        <span class="fs-4 fw-normal text-success" id="TotalDiscount">
-                            @o.TotalDiscount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))
-                        </span>
-                    </div>
-                    <div>
-                        <span class="fs-4"> Quantity : </span>
-                        <span class="fs-4 fw-normal " id="TotalQuantity">
-                            @o.TotalQuantity
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="W-100 P-3 overflow-auto">
-                <table class="table table-bordered border W-100 tables">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Product Name</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Create date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                <div class="W-100 P-3 overflow-auto">
+                    <table class="table table-bordered border W-100 tables">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Create date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{int count = 1;}
-                        @if (o.OrderedItem != null && o.OrderedItem.Any())
-                        {
-                            @foreach (OrderItemsViewModel op in o.OrderedItem)
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int count = 1;}
+                            @if (o.OrderedItem != null && o.OrderedItem.Any())
                             {
-                                <tr>
-                                    <td>@count @{count++;}</td>
-                                    <td class="fs-4">@op.ProductName</td>
-                                    <td>@op.PriceWithDiscount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td>
-                                    <td>@op.Quantity</td>
-                                    <td>@op.CreatedAt</td>
-                                    <td class="">
-                                        @if (op.Status == (int)OrderStatusEnum.Pending)
-                                        {
-                                            <span class="badge p-2 bg-primary">Pending</span>
-                                        }
-                                        else if (op.Status == (int)OrderStatusEnum.Cancelled)
-                                        {
-                                            <span class="badge p-2 bg-danger">Canceled</span>
-                                        }
-                                        else if (op.Status == (int)OrderStatusEnum.Delivered)
-                                        {
-                                            <span class="badge p-2 bg-success">Delivered</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge p-2 bg-warning">Shipped</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if(op.Status != (int)OrderStatusEnum.Shipped && op.Status != (int)OrderStatusEnum.Delivered && op.Status != (int)OrderStatusEnum.Cancelled)            
-                                        {   
-                                            <button class="btn btn-danger CancelOrderBtn" data-order-id="@op.OrderProductId"
-                                            data-product-id="@op.ProductId">Cancel Order</button>
-                                        }
-                                        @if(op.Status == (int)OrderStatusEnum.Delivered)
-                                        {
-                                            <button class="btn btn-warning AddReviewBtn" 
-                                            data-order-id="@op.OrderProductId"
-                                            data-product-id="@op.ProductId"
-                                            >Add Reviews</button>
-                                        }
-                                    </td>
-                                </tr>
+                                @foreach (OrderItemsViewModel op in o.OrderedItem)
+                                {
+                                    <tr>
+                                        <td>@count @{count++;}</td>
+                                        <td class="fs-4">@op.ProductName</td>
+                                        <td>@op.PriceWithDiscount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-IN"))</td>
+                                        <td>@op.Quantity</td>
+                                        <td>@op.CreatedAt</td>
+                                        <td class="">
+                                            @if (op.Status == (int)OrderStatusEnum.Pending)
+                                            {
+                                                <span class="badge p-2 bg-primary">Pending</span>
+                                            }
+                                            else if (op.Status == (int)OrderStatusEnum.Cancelled)
+                                            {
+                                                <span class="badge p-2 bg-danger">Canceled</span>
+                                            }
+                                            else if (op.Status == (int)OrderStatusEnum.Delivered)
+                                            {
+                                                <span class="badge p-2 bg-success">Delivered</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge p-2 bg-warning">Shipped</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if(op.Status != (int)OrderStatusEnum.Shipped && op.Status != (int)OrderStatusEnum.Delivered && op.Status != (int)OrderStatusEnum.Cancelled)            
+                                            {   
+                                                <button class="btn btn-danger CancelOrderBtn" data-order-id="@op.OrderProductId"
+                                                data-product-id="@op.ProductId">Cancel Order</button>
+                                            }
+                                            @if(op.Status == (int)OrderStatusEnum.Delivered)
+                                            {
+                                                <button class="btn btn-warning AddReviewBtn" 
+                                                data-order-id="@op.OrderProductId"
+                                                data-product-id="@op.ProductId"
+                                                >Add Reviews</button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
                             }
-                        }
-                    </tbody>
+                        </tbody>
 
-                </table>
+                    </table>
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 }
 else
 {

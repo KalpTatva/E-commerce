@@ -143,17 +143,18 @@ public class DashboardController : Controller
     /// <returns>Partial view with user's order history</returns>
     [Authorize(Roles = "Buyer")]
     [HttpGet]
-    public async Task<IActionResult> GetMyOrders()
+    public async Task<IActionResult> GetMyOrders(int? pageNumber = 1, int? pageSize = 2)
     {
         string? email = BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
         string? name = BaseValues.GetUserName(HttpContext);
 
-        List<MyOrderViewModel>? model = await _orderService.GetMyOrderHistoryByEmail(email ?? ""); 
+        List<MyOrderViewModel>? model = await _orderService.GetMyOrderHistoryByEmail(email ?? "", pageNumber, pageSize); 
         OrderAtMyOrderViewModel result = new ();
         result.BaseEmail = email;
-        result.BaseRole = role;
+        result.BaseRole = role; 
         result.BaseUserName = name;
+        result.TotalCount = await _orderService.GetMyOrderHistoryCount(email ?? "");
         if(model!=null)
         {
             result.myOrderViewModels = model;
@@ -194,7 +195,7 @@ public class DashboardController : Controller
         string? name = BaseValues.GetUserName(HttpContext);
 
         List<SellerOrderViewModel>? model = await _orderService.GetSellerOrders(email ?? "", pageNumber, pageSize);
-        int TotalOrders = _orderService.GetSellersOrderTotalCount(email ?? "");
+        int TotalOrders = await _orderService.GetSellersOrderTotalCount(email ?? "");
         SellerOrderListViewModel sellerOrderListViewModel = new SellerOrderListViewModel
         {
             BaseEmail = email,

@@ -20,7 +20,8 @@ public interface IProductService
     /// </summary>
     /// <param name="email"></param>
     /// <returns></returns>
-    Task<List<Product>?> GetSellerSpecificProductsByEmail(string email);
+    Task<List<Product>?> GetSellerSpecificProductsByEmail(string email, int pageNumber = 1, int pageSize = 5);
+    Task<int> GetSellersTotalProductsCount(string email);
 
     /// <summary>
     /// soft delete of product
@@ -54,7 +55,7 @@ public interface IProductService
     /// <param name="search"></param>
     /// <param name="category"></param>
     /// <returns></returns>
-    Task<ProductsViewModel> GetProducts(string? search = null, int? category = null);
+    Task<ProductsViewModel> GetProducts(string? search = null, int? category = null, int? page = 1);
     
     /// <summary>
     /// method for getting product by product id and email 

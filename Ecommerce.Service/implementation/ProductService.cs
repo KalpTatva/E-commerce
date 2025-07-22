@@ -170,7 +170,7 @@ public class ProductService : IProductService
     /// <param name="email"></param>
     /// <returns>List<Product></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<List<Product>?> GetSellerSpecificProductsByEmail(string email)
+    public async Task<List<Product>?> GetSellerSpecificProductsByEmail(string email, int pageNumber = 1, int pageSize = 5)
     {
         try{
 
@@ -180,12 +180,32 @@ public class ProductService : IProductService
                 return await _unitOfWork.ProductRepository.FindAllAsync(
                     x => x.SellerId == user.UserId && x.IsDeleted == false,
                     x => x.ProductId,
-                    false
+                    false,
+                    pageNumber,
+                    pageSize
                 ) ?? null;
             }
             return null;
 
         }catch(Exception e){
+            throw new Exception(e.Message);
+        }
+    }
+
+
+    public async Task<int> GetSellersTotalProductsCount(string email)
+    {
+        try
+        {
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if(user!=null)
+            {
+                return await _unitOfWork.ProductRepository.CountAsync(x => x.SellerId == user.UserId && x.IsDeleted == false);
+            }
+            return 0;
+        }
+        catch(Exception e)
+        {
             throw new Exception(e.Message);
         }
     }
@@ -866,7 +886,7 @@ public class ProductService : IProductService
     /// <param name="search"></param>
     /// <param name="category"></param>
     /// <returns>ProductsViewModel</returns>
-    public async Task<ProductsViewModel> GetProducts(string? search = null, int? category = null)
+    public async Task<ProductsViewModel> GetProducts(string? search = null, int? category = null,int? page = 1)
     {
         try
         {
@@ -876,7 +896,7 @@ public class ProductService : IProductService
                 search = search.ToLower().Trim();
             }
 
-            List<ProductsDeatailsViewModel>? products = await _unitOfWork.ProductRepository.GetAllProducts(search,category);
+            List<ProductsDeatailsViewModel>? products = await _unitOfWork.ProductRepository.GetAllProducts(search,category,page);
             
             
             if(products != null && products.Any() )

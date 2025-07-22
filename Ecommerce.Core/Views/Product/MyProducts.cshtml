@@ -17,7 +17,44 @@
         <div class="d-flex justify-content-center">
             <span class="loader3" style="width: 40px; height: 40px;"></span>
         </div>
-        <div id="productDetails" class="overflow-auto "></div>
+        <div class="listContainer1">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-end align-items-center px-2 d-lg-flex d-sm-flex gap-2">
+                    <div class="d-flex align-items-center mb-1 mt-2">
+                        <span>Items per page:   </span>
+                        <div class="custom-dropdown">
+                            <button class="btn border bg-white text-black" type="button" id="itemsPerPageBtn">
+                                5 <span><i class="bi bi-chevron-down"></i></span>
+                            </button>
+                            <div class="custom-dropdown-menu" id="itemsPerPageMenu" style="display: none;">
+                                <div class="page-size-option text-black" data-size="5">5</div>
+                                <div class="page-size-option text-black" data-size="10">10</div>
+                                <div class="page-size-option text-black" data-size="15">15</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-1 mt-2 gap-2">
+                        <span id="pagination-info">Showing 1-5 of 0</span>
+                        <li class="page-item">
+                            <a class="page-link" id="prevPage" href="#">
+                                <i class="bi bi-chevron-left"></i> 
+                            </a>
+                        </li>
+                        <li>
+                            <span class="currentPage text-color"> 
+                                1
+                            </span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" id="nextPage" href="#"> 
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </div>
+                </ul>
+            </nav>
+            <div id="productDetails" class="overflow-auto "></div>
+        </div>
     </div>
 </div>
 
@@ -27,13 +64,13 @@
 @section scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-       
+
         window.successMessage = '@TempData["SuccessMessage"]';
         window.errorMessage = '@TempData["ErrorMessage"]';
 
-       
+
     </script>
     <script src="~/js/toastr_script.js"></script>
-    <script src="~/js/myProducts_script.js"></script>
-    
+    <script src="~/js/myProducts_script.js" asp-append-version="true"></script>
+
 }

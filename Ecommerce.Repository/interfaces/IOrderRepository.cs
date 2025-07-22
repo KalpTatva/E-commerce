@@ -34,7 +34,7 @@ public interface IOrderRepository : IGenericRepository<Order>
     /// <param name="userId"></param>
     /// <returns>It returns a list of MyOrderViewModel objects containing order and item details.</returns>
     /// <exception cref="Exception"></exception>
-    Task<List<MyOrderViewModel>?> GetMyOrderDetails(int userId);
+    Task<List<MyOrderViewModel>?> GetMyOrderDetails(int userId, int pageNumber, int pageSize);
 
     /// <summary>
     /// Method to get the seller's orders.
@@ -44,14 +44,5 @@ public interface IOrderRepository : IGenericRepository<Order>
     /// <returns>It returns a list of SellerOrderViewModel objects containing order and buyer details.</returns>
     /// <exception cref="Exception"></exception>
     Task<List<SellerOrderViewModel>?> GetSellerOrders(int userId, int pageNumber = 1, int pageSize = 5);
-
-    /// <summary>
-    /// Method to get the count of orders for a seller based on their user ID.
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns>int</returns>
-    /// <exception cref="Exception"></exception>
-    int GetSellersOrderTotalCount(int userId);
-
 
 }
