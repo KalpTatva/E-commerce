@@ -6,6 +6,7 @@ public class ProductsViewModel : BaseViewModel
 {
     public List<ProductsDeatailsViewModel>? productsDetails {get;set;}
     public List<int>? favourites {get;set;}
+    public int TotalCount { get; set; } = 0;
 }
 
 public class ProductsDeatailsViewModel

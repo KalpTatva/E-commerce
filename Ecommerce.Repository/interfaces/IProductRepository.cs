@@ -12,6 +12,7 @@ public interface IProductRepository : IGenericRepository<Product>
     /// <param name="productId"></param>
     /// <returns></returns>
     EditProductViewModel? GetProductDetailsById(int productId);
+    
 
     /// <summary>
     /// method for get all product with search filters
@@ -20,7 +21,7 @@ public interface IProductRepository : IGenericRepository<Product>
     /// <param name="category"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null,int? page = 1);
+    Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null, int page = 1, int pageSize = 25);
     
     /// <summary>
     /// method for getting product details by product id

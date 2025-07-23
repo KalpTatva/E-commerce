@@ -55,7 +55,8 @@ public interface IProductService
     /// <param name="search"></param>
     /// <param name="category"></param>
     /// <returns></returns>
-    Task<ProductsViewModel> GetProducts(string? search = null, int? category = null, int? page = 1);
+    Task<ProductsViewModel> GetProducts(string? search = null, int? category = null, int? page = 1, int pageSize = 25);
+    Task<int> GetTotalProductsCount();
     
     /// <summary>
     /// method for getting product by product id and email 

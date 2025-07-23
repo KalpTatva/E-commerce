@@ -22,7 +22,7 @@ $(document).ready(function () {
                 }
                 else
                 {
-                    toastr.error(response.message,"Error",{timeOut:5000})
+                    toastr.error("Some rows are invalid please check it the list of errors!","Error",{timeOut:5000})
                 }
                 $(".uploadbtn .loader2").hide();
                 $(".uploadbtn .upload").show();

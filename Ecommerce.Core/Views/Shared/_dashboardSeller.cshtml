@@ -107,8 +107,7 @@
                             </div>
                             <a class="navbar-brand banner-color E-commerce" style="cursor: pointer;"><i
                                     class="bi bi-chevron-down"></i></a>
-                            <a class="navbar-brand banner-color" style="cursor: pointer;"
-                                asp-controller="BuyerDashboard" asp-action="Index">E-Commerce</a>
+                            <a class="Ecommerce-link navbar-brand banner-color" style="cursor: pointer;">E-Commerce</a>
                         </div>
 
                         <button class="navbar-toggler text-white bg-white" type="button" data-bs-toggle="collapse"
@@ -125,27 +124,34 @@
                                 <ul class="navbar-nav flex-grow-1">
                                     <li class="nav-item">
                                         <a class="nav-link text-white profile-link Category-Link"
-                                            asp-controller="BuyerDashboard" asp-action="Index"
-                                            asp-route-categoryId="@((int)CategoriesEnum.Computers)">
+                                            data-link="@((int)(CategoriesEnum.Computers))">
                                             @((CategoriesEnum.Computers).ToString())
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link text-white profile-link Category-Link"
-                                            asp-controller="BuyerDashboard" asp-action="Index"
-                                            asp-route-categoryId="@((int)CategoriesEnum.Laptops)">
+                                            data-link="@((int)(CategoriesEnum.Laptops))">
                                             @((CategoriesEnum.Laptops).ToString())
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link text-white profile-link Category-Link"
-                                            asp-controller="BuyerDashboard" asp-action="Index"
-                                            asp-route-categoryId="@((int)CategoriesEnum.Accessories)">
+                                            data-link="@((int)(CategoriesEnum.Accessories))">
                                             @((CategoriesEnum.Accessories).ToString())
                                         </a>
                                     </li>
-
                                 </ul>
+                                <!-- search -->
+
+                                <div class="position-relative rounded w-100">
+                                    <input 
+                                    type="text" 
+                                    id="searchInput" 
+                                    placeholder="Search item here..." 
+                                    asp-for="SearchInput"
+                                    class="search_bar w-100">
+                                    <i class="bi bi-search search_bar_img"></i>
+                                </div>
                             }
 
                             <div class="d-flex align-items-center justify-content-end w-100">
@@ -228,6 +234,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function(){
+            $(document).on('click', '.Category-Link', function () {
+                var categoryId = $(this).data('link');
+                let searchInput = new URLSearchParams(window.location.search).get('search') || null;
+                if (searchInput == null) {
+                    window.location.href = '@Url.Action("Index", "BuyerDashboard")?categoryId=' + categoryId;
+                    return;
+                }
+                window.location.href = '@Url.Action("Index", "BuyerDashboard")?categoryId=' + categoryId + '&search=' + searchInput;
+            });
+            $(document).on('click',".Ecommerce-link",function(){
+                let searchInput = new URLSearchParams(window.location.search).get('search') || null;
+                if (searchInput == null ) {
+                    window.location.href = '@Url.Action("Index", "BuyerDashboard")';
+                    return;
+                }
+                window.location.href = '@Url.Action("Index", "BuyerDashboard")?search=' + searchInput;
+            });
+        });
+    </script>
     <script src="~/js/signalrDashboardSeller_Script.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <!-- Owl Carousel JS -->

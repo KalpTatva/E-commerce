@@ -22,21 +22,6 @@ $(document).ready(function() {
             .addClass(icons[index])
             .attr('data-theme', theme)
             .attr('title', titles[index]);
-
-        $.ajax({
-            url: '/Dashboard/ThemeChange',
-            type: 'POST',
-            data: { theme: theme },
-            success: function (data) {
-                if (!data.success) {
-                    toastr.error(data.message, "Error", { timeOut: 4000 });
-                }
-            },
-            error: function () {
-                toastr.error('Failed to change theme in db.', "Error", { timeOut: 4000 });
-            }
-        });
-
         updateCookie('theme', theme);
     }
 
@@ -44,20 +29,21 @@ $(document).ready(function() {
     const icons = ['bi-circle-half', 'bi-sun', 'bi-moon'];
     const titles = ['System Theme', 'Light Theme', 'Dark Theme'];
 
-    // Initialize theme
-    let currentTheme = getCookie('theme') || 'system';
-    setTheme(currentTheme);
-
+    
     $('.theme-toggle').on('click', '.theme-icon', function () {
         const currentIndex = themes.indexOf($(this).attr('data-theme'));
         const nextTheme = themes[(currentIndex + 1) % themes.length];
         setTheme(nextTheme);
     });
-
+    
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (getCookie('theme') === 'system') {
             console.log('System theme changed to:', e.matches ? 'dark' : 'light');
             setTheme('system');
         }
     });
+
+    // Initialize theme
+    let currentTheme = getCookie('theme') || 'system';
+    setTheme(currentTheme);
 });

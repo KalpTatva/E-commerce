@@ -22,7 +22,6 @@ public class BuyerDashboardController : Controller
     /// <summary>
     /// index method for all type of users (not logged in, seller, buyer)
     /// </summary>
-    /// <returns></returns>
     public IActionResult Index()
     {
         string? email = BaseValues.GetEmail(HttpContext);
@@ -45,13 +44,14 @@ public class BuyerDashboardController : Controller
     /// <param name="category"></param>
     /// <returns>Partial</returns>
     [HttpGet]
-    public async Task<IActionResult> GetProducts(string? search = null, int? category = null, int? page = 1)
+    public async Task<IActionResult> GetProducts(string? search = null, int? category = null, int? page = 1, int pageSize = 25)
     {
         string? email =  BaseValues.GetEmail(HttpContext);
         string? role = BaseValues.GetRole(HttpContext);
         string? name = BaseValues.GetUserName(HttpContext);
 
-        ProductsViewModel model = await _productService.GetProducts(search, category, page);
+        ProductsViewModel model = await _productService.GetProducts(search, category, page, pageSize);
+        model.TotalCount = await _productService.GetTotalProductsCount();
         List<int> favourites = _productService.GetFavouritesByEmail(email ?? "");
         model.BaseEmail = email;
         model.BaseRole = role;

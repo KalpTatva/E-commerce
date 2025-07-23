@@ -34,13 +34,11 @@ html {
   --background-main: #ffffff;
   --sidebarbackgroud: #fff;
   --sidebarcolor: #888;
-  --description-background:#f9f9f9;
-  --description-fonts:#333;
+  --description-background: #f9f9f9;
+  --description-fonts: #333;
 
   --card-background: #fff;
   --card-border: #000f113a;
-
-
 }
 
 [data-theme="dark"] {
@@ -52,12 +50,12 @@ html {
   --fonts: #f8f9fa;
   --btn-success: #5567df;
   --btn-success-hover: #5567df;
-  --background-main:  #0b1437;
+  --background-main: #0b1437;
   --sidebarbackgroud: #353c42;
   --sidebarcolor: #f8f9fa;
   --offercard-background: #00000000;
-  --description-background:#00000000;
-  --description-fonts:#f8f9fa;
+  --description-background: #00000000;
+  --description-fonts: #f8f9fa;
 
   --card-background: #182041;
   --card-border: #ffffff2a;
@@ -76,8 +74,8 @@ html {
     --sidebarbackgroud: #353c42;
     --sidebarcolor: #f8f9fa;
     --offercard-background: #ffc10780;
-    --description-background:#f9f9f9;
-    --description-fonts:#333;
+    --description-background: #f9f9f9;
+    --description-fonts: #333;
 
     --card-background: #fff;
     --card-border: #000f11;
@@ -93,7 +91,7 @@ html {
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
-  transition: background-color  0.3s, transform  0.3s, opacity 0.3s;
+  transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
 }
 
 .theme-icon:hover {
@@ -111,7 +109,7 @@ body {
   background-color: var(--background-main) !important;
   /* color: var(--text); */
   min-height: 100vh;
-  transition: background-color  0.3s, color  0.3s;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .height {
@@ -147,12 +145,11 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 .bg-error {
-  background-color: var(--bgblue)
+  background-color: var(--bgblue);
 }
 .text-color {
   color: var(--texthover) !important;
 }
-
 
 .btn-color {
   background-color: #45ad82;
@@ -489,7 +486,6 @@ body {
   border: none;
 }
 
-
 .search_bar_img {
   position: absolute;
   top: 10px;
@@ -538,7 +534,6 @@ body {
   background-color: #f0f0f0;
 }
 
-
 /* for multiple modes */
 .cart {
   background-color: var(--card-background);
@@ -550,10 +545,11 @@ body {
   border: 1px solid var(--card-border);
   border-radius: 14px;
 }
-.labels{
+.labels {
   color: var(--fonts);
 }
-.form-control:disabled, .form-control[readonly] {
+.form-control:disabled,
+.form-control[readonly] {
   background-color: var(--card-background);
   border: 1px solid var(--card-border);
   color: var(--fonts);
@@ -566,23 +562,24 @@ body {
   opacity: 1;
 }
 
-.form-control, .form-control[readonly] {
+.form-control,
+.form-control[readonly] {
   background-color: var(--card-background);
   border: 1px solid var(--card-border);
   color: var(--fonts);
   opacity: 1;
 }
-.form-control:focus, .form-control[readonly] {
+.form-control:focus,
+.form-control[readonly] {
   background-color: var(--card-background);
   border: 1px solid var(--card-border);
   color: var(--fonts);
   opacity: 1;
 }
 
-.modal-content{
+.modal-content {
   background-color: var(--card-background) !important;
 }
-
 
 .form-select {
   background-color: var(--card-background);
@@ -592,21 +589,21 @@ body {
 }
 .note-frame {
   color: var(--fonts) !important;
-} 
-.MyOrder{
+}
+.MyOrder {
   background-color: var(--card-background);
   border: 1px solid var(--card-border);
   color: var(--fonts);
 }
-.tables{
+.tables {
   color: var(--fonts) !important;
 }
-.listContainer{
+.listContainer {
   background-color: var(--card-background);
   border: 1px solid var(--card-border);
 }
 .pagination {
-  color: var(--fonts) ;
+  color: var(--fonts);
 }
 /* cards css */
 .card {
@@ -624,16 +621,13 @@ body {
   overflow: hidden;
   border: 1px solid var(--card-border);
 }
-.popup-body{
+.popup-body {
   color: var(--fonts);
 }
-
-    
 
 .card:hover {
   cursor: pointer;
 }
-
 
 .imageInCard {
   width: 100%;
@@ -648,18 +642,17 @@ body {
   color: var(--fonts);
 }
 
-.singleCard{
+.singleCard {
   color: var(--fonts);
 }
 .table-responsive {
   color: var(--fonts) !important;
   border: 1px solid var(--btn-success) !important;
 }
-.tablecolor{
+.tablecolor {
   color: var(--fonts) !important;
-
 }
-.offers{
+.offers {
   width: fit-content;
   color: var(--btn-success);
   border: 1px solid var(--btn-success);
@@ -785,7 +778,7 @@ body {
   width: 50%;
 }
 
-.offercard{
+.offercard {
   background-color: var(--offercard-background);
   border: 2px solid var(--btn-success-hover);
   border-radius: 14px;
@@ -817,13 +810,12 @@ body {
   overflow-wrap: break-word !important;
 }
 
-.a-spacing-mini{
+.a-spacing-mini {
   color: var(--description-fonts) !important;
 }
 
 .a-list-item {
   color: var(--description-fonts) !important;
-  
 }
 
 .form-switch .form-check-input {

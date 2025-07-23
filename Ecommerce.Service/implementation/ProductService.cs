@@ -502,7 +502,12 @@ public class ProductService : IProductService
         }
     }
 
-
+    /// <summary>
+    /// method for uploading products from zip file which contains excel file
+    /// </summary>
+    /// <param name="file"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
     public async Task<ResponsesViewModel> UploadProducts(IFormFile file, string email)
     {
         try
@@ -579,6 +584,13 @@ public class ProductService : IProductService
         }
     }
 
+    /// <summary>
+    /// method for reading excel file and adding products into database
+    /// </summary>
+    /// <param name="excelFilePath"></param>
+    /// <param name="tempPath"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
     private async Task<ResponsesViewModel> ExcelReadAndAddProducts(string excelFilePath,string tempPath, int userId)
     {
         try
@@ -586,7 +598,7 @@ public class ProductService : IProductService
             // adding transaction for adding products
             // if any error occurs then rollback the transaction
             using var transaction = await _unitOfWork.BeginTransactionAsync();
-
+            // non commercial licence 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             // Read the Excel file and add products to the database
             using (ExcelPackage package = new ExcelPackage(new FileInfo(excelFilePath)))
@@ -608,7 +620,7 @@ public class ProductService : IProductService
 
                 // 2. Add products into product list while validating each product
                 List<Product> products = new List<Product>();
-                List<string> errors = new List<string>();
+                List<Dictionary<int,string>> errors = new List<Dictionary<int,string>>();
                 List<ImageHelper> images = new List<ImageHelper>();
                 
                 string[] validCategories = new[] { "laptops", "computers", "accessories" };
@@ -616,86 +628,106 @@ public class ProductService : IProductService
                 string[] validImageExtensions = new[] { "avif", "png", "svg", "bmp", "gif", "webp", "tiff", "heic", "ico", "raw", "jfif", "jpg", "jpeg", "jpe" };
 
                 int rowCount = worksheet.Dimension.Rows;
-                int countRows = 0;
+                int countRowsSuccess = 0;
+                int totalRow = 0;
                 // validate and add products into list
                 // if error occure then add it to error list 
                 for(int row = 2; row <= rowCount; row++)
                 {
-                    // stop on empty rows
-                    if (string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text))
+                    // continue if data is empty in all column 
+                    if(
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 2].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 3].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 4].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 5].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 6].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 7].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 8].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 9].Text) &&
+                        string.IsNullOrWhiteSpace(worksheet.Cells[row, 10].Text)
+                    )
+                    {
                         continue;
-
+                    }
                     Product product = new Product();
                     int col = 1;
-                    
                     if (!int.TryParse(worksheet.Cells[row, col].Text, out int count))
                     {
-                        errors.Add($"Row {row}: Invalid or missing Product ID.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { { row, $"Row {row}: Invalid or missing ID." } });
                     }
                     col++;
-
+                    
                     // validate product name 
-                    product.ProductName = worksheet.Cells[row,col].Text;
-                    // for image store it in variable
-                    string imageProductName = product.ProductName.Trim();
-                    if(string.IsNullOrWhiteSpace(product.ProductName))
+                    string productName = worksheet.Cells[row,col].Text;
+                    // if product name is empty 
+                    if(string.IsNullOrWhiteSpace(productName))
                     {
-                        errors.Add($"Row {row}: Invalid Product Name.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { { row, $"Row {row}: Invalid Product Name." } }); 
                     }
+                    // if product name already exists 
+                    if(!string.IsNullOrWhiteSpace(productName))
+                    {
+                        string productNameLower = productName.Trim();
+                        Product? p = await _unitOfWork.ProductRepository.FindAsync(p => p.ProductName.Equals(productNameLower) && p.IsDeleted == false);
+                        if (p != null)
+                        {
+                            errors.Add(new Dictionary<int, string> { { row, $"Row {row}: Product with name '{productName}' already exists." } });
+                        }
+                    }
+                    // for image store it in variable
+                    string imageProductName = productName.Trim();
                     col++;
                     
                     // validate Description
-                    product.Description = worksheet.Cells[row, col].Text;
-                    if (string.IsNullOrWhiteSpace(product.Description))
+                    string Description = worksheet.Cells[row, col].Text;
+                    if (string.IsNullOrWhiteSpace(Description))
                     {
-                        errors.Add($"Row {row}: Description is required.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { { row, $"Row {row}: Description is required." } });
                     }
                     col++;
 
                     // Category (must be one of the valid categories)
                     string category = worksheet.Cells[row, col].Text;
+                    int CategoryId = 0;
                     if (!validCategories.Contains(category.ToLower()))
                     {
-                        errors.Add($"Row {row}: Invalid Category. Must be one of: {string.Join(", ", validCategories)}.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Invalid Category. Must be one of: {string.Join(", ", validCategories)}."} });
                     }
                     switch (category.ToLower())
                     {
                         case "accessories":
-                            product.CategoryId = (int)CategoriesEnum.Accessories;
+                            CategoryId = (int)CategoriesEnum.Accessories;
                             break;
                         case "computers":
-                            product.CategoryId = (int)CategoriesEnum.Computers;
+                            CategoryId = (int)CategoriesEnum.Computers;
                             break;
                         case "laptops":
-                            product.CategoryId = (int)CategoriesEnum.Laptops;
+                            CategoryId = (int)CategoriesEnum.Laptops;
                             break;
                         default:
-                            errors.Add($"Row {row}: Invalid Category. Must be one of: {string.Join(", ", validCategories)}.");
+                            errors.Add(new Dictionary<int, string> { {row,$"Row {row}: Invalid Category. Must be one of: {string.Join(", ", validCategories)}."} });
                             break;
                     }
                     col++;
 
                     // discount type validation (must be one of the discount type)
                     string DiscountType = worksheet.Cells[row, col].Text;
+                    int discountType = 0;
                     if (!validDiscountTypes.Contains(DiscountType.ToLower()))
                     {
-                        errors.Add($"Row {row}: Invalid Discount Type. Must be one of: {string.Join(", ", validDiscountTypes)}.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Invalid Discount Type. Must be one of: {string.Join(", ", validDiscountTypes)}."} });
                     }
                     switch (DiscountType.ToLower())
                     {
                         case "percentage":
-                            product.DiscountType = (int)DiscountEnum.Percentage;
+                            discountType = (int)DiscountEnum.Percentage;
                             break;
                         case "fixed amount":
-                            product.DiscountType = (int)DiscountEnum.FixedAmount;
+                            discountType = (int)DiscountEnum.FixedAmount;
                             break;
                         default:
-                            errors.Add($"Row {row}: Invalid Discount Type. Must be one of: {string.Join(", ", validDiscountTypes)}.");
+                            errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Invalid Discount Type. Must be one of: {string.Join(", ", validDiscountTypes)}."} });
                             break;
                     }
                     col++;
@@ -703,28 +735,22 @@ public class ProductService : IProductService
                     // discount rate need to validate according to discount type
                     if (!decimal.TryParse(worksheet.Cells[row, col].Text, out decimal discountRate) || discountRate < 0 || Math.Round(discountRate, 2) != discountRate)
                     {
-                        errors.Add($"Row {row}: Invalid Discount Rate. Must be a non-negative number with up to two decimal places.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Invalid Discount Rate. Must be a non-negative number with up to two decimal places."} });
                     }
-                    product.Discount = discountRate;
                     col++;
 
                     // validate price
                     if (!decimal.TryParse(worksheet.Cells[row, col].Text, out decimal price) || price <= 0 || Math.Round(price, 2) != price)
                     {
-                        errors.Add($"Row {row}: Invalid Price. Must be a positive number with up to two decimal places.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Invalid Price. Must be a positive number with up to two decimal places."} });
                     }
-                    product.Price = price;
                     col++; 
                     
                     // validate Stock 
                     if (!int.TryParse(worksheet.Cells[row, col].Text, out int stock) || stock <= 0)
                     {
-                        errors.Add($"Row {row}: Invalid Stock. Must be a positive integer.");
-                        continue;
+                        errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Invalid Stock. Must be a positive integer."} });
                     }
-                    product.Stocks = stock;
                     col++;
 
                     // features validation
@@ -732,6 +758,10 @@ public class ProductService : IProductService
                     // it should be like in format: (FeatureName1, FeatureDescription1);(FeatureName2, FeatureDescription2);...
                     
                     string FeaturesString = worksheet.Cells[row, col].Text;
+                    if(string.IsNullOrWhiteSpace(FeaturesString))
+                    {
+                        errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Features cannot be empty."} });
+                    }
                     if (!string.IsNullOrWhiteSpace(FeaturesString))
                     {
                         List<string> featurePairs = FeaturesString.Split(';').Where(f => !string.IsNullOrWhiteSpace(f)).ToList();
@@ -739,7 +769,7 @@ public class ProductService : IProductService
                         {
                             if (!System.Text.RegularExpressions.Regex.IsMatch(feature, @"^\([^,]+,\s*[^)]+\)$"))
                             {
-                                errors.Add($"Row {row}: Invalid Features format. Expected: (FeatureName, FeatureDescription);...");
+                                errors.Add(new Dictionary<int, string> { {row, $"Row {row}: Invalid Features format. Expected: (FeatureName, FeatureDescription);..."} });
                                 break;
                             }   
                         }
@@ -760,7 +790,7 @@ public class ProductService : IProductService
                             {
                                 if (string.IsNullOrWhiteSpace(imageName) || !validImageExtensions.Any(ext => imageName.EndsWith($".{ext}", StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    errors.Add($"Row {row}: Invalid Image Name '{imageName}'. Must be a valid image file with extensions: {string.Join(", ", validImageExtensions)}.");
+                                    // errors.Add(new Dictionary<int, string> { {row ,$"Row {row}: Invalid Image Name '{imageName}'. Must be a valid image file with extensions: {string.Join(", ", validImageExtensions)}."} });
                                     continue;
                                 }
                             }
@@ -781,93 +811,130 @@ public class ProductService : IProductService
                                         ImagePath = imagePath
                                     });
                                 }
-                                else
-                                {
-                                    errors.Add($"Row {row}: Image '{imageName}' not found in the temporary folder.");
-                                }
                             }   
                         }
                     }
-                    countRows++;
-                    product.SellerId = userId;
-                    products.Add(product);
+
+                    // check if row has errors in error object
+                    if (!errors.Any(e => e.ContainsKey(row)))
+                    {
+                        product.ProductName = productName.Trim();
+                        product.Description = Description.Trim();
+                        product.CategoryId = CategoryId;
+                        product.DiscountType = discountType;
+                        product.Discount = discountRate;
+                        product.Price = price;
+                        product.Stocks = stock;
+                        product.CreatedAt = DateTime.Now;
+                        product.SellerId = userId; 
+                        products.Add(product);
+                        countRowsSuccess++;
+                    }
+                    
+                    totalRow++;
                 }
 
                 // Save product to database
-                await _unitOfWork.ProductRepository.AddRangeAsync(products);
-
-                // add features, images the products
-                string imagesFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "ProductImages");
-                if (!Directory.Exists(imagesFolderPath))
+                if(products.Any())
                 {
-                    Directory.CreateDirectory(imagesFolderPath);
-                }
-                List<Feature> features = new ();
-                List<Image> SavedImages = new ();
-                for(int row = 2; row <= rowCount; row++)
-                {
-                    // stop on empty rows
-                    if (string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text))
-                        break;
+                    await _unitOfWork.ProductRepository.AddRangeAsync(products);
                     
-                    string FeaturesString = worksheet.Cells[row, 9].Text;
-                    int productId = products.Where(
-                        p => p.ProductName == worksheet.Cells[row, 2].Text && 
-                        p.Discount.ToString() == worksheet.Cells[row, 6].Text &&
-                        p.Price.ToString() == worksheet.Cells[row, 7].Text &&
-                        p.Stocks.ToString() == worksheet.Cells[row, 8].Text
-                    ).Select(p => p.ProductId).FirstOrDefault();
-
-                    // adding features
-                    if (!string.IsNullOrWhiteSpace(FeaturesString))
+                    // add features, images the products
+                    string imagesFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "ProductImages");
+                    if (!Directory.Exists(imagesFolderPath))
                     {
-                        List<string> featurePairs = FeaturesString.Split(';').Where(f => !string.IsNullOrWhiteSpace(f)).ToList();
-                        foreach (string feature in featurePairs)
-                        {
-                            string FeaturName = feature.Split(',')[0].Trim();
-                            FeaturName = FeaturName.Substring(1,FeaturName.Length-1).Trim();
-
-                            string Description = feature.Split(',')[1].Trim();
-                            Description = Description.Substring(0,Description.Length-1).Trim();
-
-                            features.Add(new Feature {
-                                FeatureName = FeaturName,
-                                Description = Description,
-                                ProductId = productId,
-                                CreatedAt = DateTime.Now
-                            }); 
-                        }
+                        Directory.CreateDirectory(imagesFolderPath);
                     }
-
-                    // adding images 
-                    List<ImageHelper> productImages = images.Where(i => i.count == int.Parse(worksheet.Cells[row, 1].Text.Trim())).ToList();
-                    foreach(ImageHelper image in productImages)
+                    List<Feature> features = new ();
+                    List<Image> SavedImages = new ();
+                    for(int row = 2; row <= rowCount; row++)
                     {
-                        if(image.productName == worksheet.Cells[row, 2].Text.Trim())
+                        // stop on empty rows
+                        if (string.IsNullOrWhiteSpace(worksheet.Cells[row, 1].Text))
+                            break;
+                        
+                        string FeaturesString = worksheet.Cells[row, 9].Text;
+                        int productId = products.Where(
+                            p => p.ProductName == worksheet.Cells[row, 2].Text && 
+                            p.Discount.ToString() == worksheet.Cells[row, 6].Text &&
+                            p.Price.ToString() == worksheet.Cells[row, 7].Text &&
+                            p.Stocks.ToString() == worksheet.Cells[row, 8].Text
+                        ).Select(p => p.ProductId).FirstOrDefault();
+                        
+                        // adding features
+                        if(productId > 0)
                         {
-                            // create unique file name
-                            string uniqueFileName = $"{Guid.NewGuid()}_{image.ImageName}";
-                            string filePath = Path.Combine(imagesFolderPath, uniqueFileName);
-
-                            // copy the image file to the product images folder
-                            File.Copy(image.ImagePath ?? "", filePath, true);
-
-                            // add new object of image into saveImages 
-                            SavedImages.Add(new Image
+                            if (!string.IsNullOrWhiteSpace(FeaturesString))
                             {
-                                ProductId = productId,
-                                ImageUrl = $"/ProductImages/{uniqueFileName}"
-                            }); 
+                                List<string> featurePairs = FeaturesString.Split(';').Where(f => !string.IsNullOrWhiteSpace(f)).ToList();
+                                foreach (string feature in featurePairs)
+                                {
+                                    string FeaturName = feature.Split(',')[0].Trim();
+                                    FeaturName = FeaturName.Substring(1,FeaturName.Length-1).Trim();
+
+                                    string Description = feature.Split(',')[1].Trim();
+                                    Description = Description.Substring(0,Description.Length-1).Trim();
+
+                                    features.Add(new Feature {
+                                        FeatureName = FeaturName,
+                                        Description = Description,
+                                        ProductId = productId,
+                                        CreatedAt = DateTime.Now
+                                    }); 
+                                }
+                            }
+
+                            // adding images 
+                            List<ImageHelper> productImages = images.Where(i => i.count == int.Parse(worksheet.Cells[row, 1].Text.Trim())).ToList();
+                            foreach(ImageHelper image in productImages)
+                            {
+                                if(image.productName == worksheet.Cells[row, 2].Text.Trim())
+                                {
+                                    // create unique file name
+                                    string uniqueFileName = $"{Guid.NewGuid()}_{image.ImageName}";
+                                    string filePath = Path.Combine(imagesFolderPath, uniqueFileName);
+
+                                    // copy the image file to the product images folder
+                                    File.Copy(image.ImagePath ?? "", filePath, true);
+
+                                    // add new object of image into saveImages 
+                                    SavedImages.Add(new Image
+                                    {
+                                        ProductId = productId,
+                                        ImageUrl = $"/ProductImages/{uniqueFileName}"
+                                    }); 
+                                }   
+                            }
                         }
                     }
+
+                    // adding image and features in db
+                    if(features.Any()) {await _unitOfWork.FeatureRepository.AddRangeAsync(features);}
+                    if(SavedImages.Any()) {await _unitOfWork.ImageRepository.AddRangeAsync(SavedImages);}
+                    // commit the transaction
+                    await _unitOfWork.CommitAsync();
                 }
-                // adding image and features in db
-                await _unitOfWork.FeatureRepository.AddRangeAsync(features);
-                await _unitOfWork.ImageRepository.AddRangeAsync(SavedImages);
-                // commit the transaction
-                await _unitOfWork.CommitAsync();
+
                 // return success response
-                return new ResponsesViewModel { IsSuccess = true , Message = $"Total of {countRows} added successfully!" };
+                if(errors.Any() || totalRow - countRowsSuccess > 0)
+                {
+                    string errorMessage = "";
+
+                    if(countRowsSuccess == 0) { errorMessage = $"<strong>No products were added due to errors. Total {totalRow - countRowsSuccess} rows had errors.</strong>"; }
+                    else { errorMessage = $"<strong>Total of {countRowsSuccess} products added successfully, but {totalRow - countRowsSuccess} rows had errors.</strong>"; }
+                    
+                    if (errors.Any())
+                    {
+                        errorMessage += "<ul>";
+                        foreach (Dictionary<int, string> error in errors)
+                        {
+                            errorMessage += $"<li>{error.First().Value}</li>";
+                        }
+                        errorMessage += "</ul>";
+                    }
+                    return new ResponsesViewModel { IsSuccess = false, Message = errorMessage };
+                }
+                return new ResponsesViewModel { IsSuccess = true , Message = $"Total of {countRowsSuccess} added successfully!" };
             }
         }
         catch (Exception e)
@@ -880,6 +947,21 @@ public class ProductService : IProductService
     #endregion
     #region Buyer's service
     
+    /// <summary>
+    /// method for getting total products count in the database
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<int> GetTotalProductsCount()
+    {
+        try{
+            return await _unitOfWork.ProductRepository.CountAsync(x => x.IsDeleted == false);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
 
     /// <summary>
     /// method for getting all products details
@@ -887,7 +969,7 @@ public class ProductService : IProductService
     /// <param name="search"></param>
     /// <param name="category"></param>
     /// <returns>ProductsViewModel</returns>
-    public async Task<ProductsViewModel> GetProducts(string? search = null, int? category = null,int? page = 1)
+    public async Task<ProductsViewModel> GetProducts(string? search = null, int? category = null, int? page = 1, int pageSize = 25)
     {
         try
         {
@@ -897,7 +979,7 @@ public class ProductService : IProductService
                 search = search.ToLower().Trim();
             }
 
-            List<ProductsDeatailsViewModel>? products = await _unitOfWork.ProductRepository.GetAllProducts(search,category,page);
+            List<ProductsDeatailsViewModel>? products = await _unitOfWork.ProductRepository.GetAllProducts(search, category, page ?? 1, pageSize);
             
             
             if(products != null && products.Any() )

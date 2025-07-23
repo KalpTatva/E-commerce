@@ -71,11 +71,10 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
     /// <param name="category"></param>
     /// <returns>List<ProductsDeatailsViewModel></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null, int? page = 1)
+    public async Task<List<ProductsDeatailsViewModel>?> GetAllProducts(string? search = null, int? category = null, int page = 1, int pageSize = 25)
     {
         try
         {
-            int skips = (page ?? 1) * 20;
             DateTime currentDate = DateTime.Now;
             List<ProductsDeatailsViewModel>? query = await (from product in _context.Products
                                     where product.IsDeleted == false &&
@@ -113,7 +112,7 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
                                                                 o.EndDate > currentDate)
                                                     .FirstOrDefault()
                                 
-                                }).Skip(skips).Take(20).ToListAsync();
+                                }).Skip( (page - 1) * pageSize ).Take(pageSize).ToListAsync();
             return query;
         }
         catch(Exception e)

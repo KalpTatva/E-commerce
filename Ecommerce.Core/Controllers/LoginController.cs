@@ -6,6 +6,7 @@ using Ecommerce.Service.interfaces;
 using static Ecommerce.Repository.Helpers.Enums;
 using Ecommerce.Repository.Models;
 using Ecommerce.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Ecommerce.Core.Controllers;
 
@@ -151,14 +152,19 @@ public class LoginController : Controller
     /// logout method for clearing cookies and session and redirect to login page
     /// </summary>
     /// <returns>redirect to login view</returns>
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
         try
         {
+            string? email = BaseValues.GetEmail(HttpContext);
             // Clear session and cookies
             SessionUtils.ClearSession(HttpContext);
             CookieUtils.ClearCookies(Response, "auth_token");
             CookieUtils.ClearCookies(Response, "previous_user");
+            string theme = CookieUtils.GetCookie(HttpContext, "theme") ?? "system";
+            ResponsesViewModel res = await _userService.ThemeChange(theme, email ?? "");
+            
+            // Clear theme cookie
             CookieUtils.ClearCookies(Response,"theme");
     
             TempData["SuccessMessage"] = "Logged out successfully!";

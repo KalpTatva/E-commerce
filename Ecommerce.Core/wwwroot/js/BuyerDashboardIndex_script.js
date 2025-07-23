@@ -1,94 +1,156 @@
 $(".loader3").hide();
 
 $(document).ready(function () {
-    let categoryInput= null;
-    let searchInput = null;
-
-    // signalR connection for real-time updates
-    // hub connection 
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/NotificationHub")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    // start connection
-    connection.start()
-        .then(() => console.log("SignalR Connected"))
-        .catch(err => console.error(err.toString()));
-
-    // receive notification
-    connection.on("ReceiveNotification", function (message) {
-        //fetcch products 
-        FetchProducts(categoryInput, searchInput);
-    });
-
-    var pageNumber = 0;
-    var isFetching = false;
-    var isReachedToBottom = false;
-    var pendingRequests = 0; // Track the number of pending requests
-
-    $(window).scroll(function () {
-        if (!isReachedToBottom && $(window).scrollTop() + $(window).height() >= $(document).height()) {
-            // fetch more products
-            FetchProducts(categoryInput, searchInput);
-        }
-    });
+    let categoryInput = new URLSearchParams(window.location.search).get('categoryId');
+    let searchInput = new URLSearchParams(window.location.search).get('search');
+    var currentPage = localStorage.getItem('currentPage') ? parseInt(localStorage.getItem('currentPage')) : 1;
+    var rowsPerPage = localStorage.getItem('rowsPerPage') >= 25 ? parseInt(localStorage.getItem('rowsPerPage')) : 25;
+    
+    // add search value into search input if exists
+    if (searchInput != null && searchInput != "null") {
+        $("#searchInput").val(searchInput);
+    }
 
     // function for getting product on page
-    function FetchProducts(categoryInput, searchInput) {
-        if (pageNumber > -1 && !isFetching) {
-            isFetching = true; // Set fetching flag
-            pageNumber++;
-            $(".loader3").show();
-            categoryInput = new URLSearchParams(window.location.search).get('categoryId');
+    function FetchProducts(categoryInput, searchInput, currentPage, rowsPerPage) {
+        $(".loader3").show();
 
-            return $.ajax({
-                url: '/BuyerDashboard/GetProducts',
-                type: 'GET',
-                data: {
-                    search: searchInput,
-                    category: categoryInput,
-                    page: pageNumber
-                }
-            })
-            .done(function (response) {
-                $(".loader3").hide();
-                $("#ProductsContainer").append(response);
-            })
-            .fail(function () {
+        categoryInput = new URLSearchParams(window.location.search).get('categoryId');
+        $.ajax({
+            url: '/BuyerDashboard/GetProducts',
+            type: 'GET',
+            data: {
+                search: searchInput,
+                category: categoryInput,
+                page: currentPage,
+                pageSize: rowsPerPage
+            },
+            success: function (response) {
+               
+                $("#ProductsContainer").html(response);
+                totalItems = parseInt($("#TableContainer").attr("data-total-items")) || 0;
+                updatePagination();
+            },
+            error: function () {
                 toastr.error('An error occurred while loading the product.');
-            })
-            .always(function () {
-                isFetching = false; // Reset fetching flag
-            });
-        }
-    }
+            },
+            complete: function () {
+                $(".loader3").hide();
+            }
+        });
+    };
 
 
     $(document).on('input','#searchInput',function(){
         searchInput = $(this).val();
-        pageNumber = 0;
+        // add search value with url for search consistancy
+        var url = new URL(window.location.href);
+
+        if (searchInput && categoryInput !== null) {
+            url.searchParams.set('search', searchInput);
+            url.searchParams.set('categoryId', categoryInput);
+        } else {
+            url.searchParams.delete('search');
+        }
+        window.history.pushState({}, '', url);
+        currentPage = 1;
+        rowsPerPage = 25;
         $("#ProductsContainer").empty();
-        FetchProducts(categoryInput, searchInput);
+
+        // debounce fetch products
+        clearTimeout($.data(this, 'timer'));
+        $(this).data('timer', setTimeout(function () {    
+            FetchProducts(categoryInput, searchInput, currentPage, rowsPerPage);
+        }
+        , 1000));
     });
 
+    
+    // Update pagination info
+    function updatePagination() {
+        if(totalItems == 0){
+            localStorage.setItem('currentPage', 1);
+            localStorage.setItem('rowsPerPage', 25);
+            currentPage = 1;
+            rowsPerPage = 25;
+        } 
+        var totalPages = Math.ceil(totalItems / rowsPerPage);
+        var startItem = (currentPage - 1) * rowsPerPage + 1;
+        var endItem = Math.min(currentPage * rowsPerPage, totalItems);
 
-    // Debounce function
-    function debounce(func, delay) {
-        let timer;
-        return function (...args) {
-            clearTimeout(timer);
-            timer = setTimeout(() => func.apply(this, args), delay);    
-        };
+        $("#pagination-info").text(
+        `Showing ${startItem}-${endItem} of ${totalItems}`
+        );
+        $("#itemsPerPageBtn").html(
+            `${rowsPerPage} <span><i class="bi bi-chevron-down"></i></span>`
+        );
+        $(".currentPage").html(`${currentPage}`);
+        $("#prevPage").toggleClass("disabled", currentPage === 1);
+        $("#nextPage").toggleClass("disabled", currentPage >= totalPages);
     }
 
-    // Search input handler with debounce
-    $(document).on('input', '#searchInput', debounce(function () {
-        searchInput = $(this).val();
-        pageNumber = 0; // Reset page number
-        $("#ProductsContainer").empty(); // Clear existing products
-        FetchProducts(categoryInput, searchInput);
-    }, 1000)); 
+    // Page size change
+    $(document).on("click", ".page-size-option", function (e) {
+        e.preventDefault();
+        var newSize = parseInt($(this).data("size"));
+        if (newSize !== rowsPerPage) {
+            rowsPerPage = newSize;
+            $("#itemsPerPageBtn").html(
+                `${rowsPerPage} <span><i class="bi bi-chevron-down"></i></span>`
+            );
+            localStorage.setItem('currentPage', 1);
+            localStorage.setItem('rowsPerPage', rowsPerPage);
+            currentPage = 1;
+            rowsPerPage = rowsPerPage;
+            FetchProducts(categoryInput, searchInput, currentPage, rowsPerPage);
+        }
+        $("#itemsPerPageMenu").hide();
+    });
+
+    // Hide dropdown when clicking outside
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest("#itemsPerPageBtn, #itemsPerPageMenu").length) {
+            $("#itemsPerPageMenu").hide();
+        }
+    });
+
+    // Toggle dropdown paging
+    $("#itemsPerPageBtn").on("click", function () {
+        $("#itemsPerPageMenu").toggle();
+    });
+
+    // Previous page
+    $(document).on("click", "#prevPage", function (e) {
+        e.preventDefault();
+        // scroll back to the top
+        $('html, body').animate({ scrollTop: 0 }, 'fast');
+        if (currentPage > 1) {
+            currentPage--;
+            FetchProducts(categoryInput, searchInput, currentPage, rowsPerPage);
+            // upadate local storage
+            localStorage.setItem('currentPage', currentPage);
+            localStorage.setItem('rowsPerPage', rowsPerPage);
+        }
+    });
+
+    // Next page
+    $(document).on("click", "#nextPage", function (e) {
+        e.preventDefault();
+        // scroll back to the top
+        $('html, body').animate({ scrollTop: 0 }, 'fast');
+        if (currentPage * rowsPerPage < totalItems) {
+            currentPage++;
+            FetchProducts(categoryInput, searchInput, currentPage, rowsPerPage);
+            // upadate local storage
+            localStorage.setItem('currentPage', currentPage);
+            localStorage.setItem('rowsPerPage', rowsPerPage);
+        }
+    });
+    
+    
+    FetchProducts(categoryInput, searchInput, currentPage, rowsPerPage);
+
+
 
     // for redirection to the selected product
     $(document).on('click', '.card-img', function () {
@@ -182,5 +244,10 @@ $(document).ready(function () {
 
     });
 
-    FetchProducts(categoryInput, searchInput);
+
+
+
+
+
+
 });
