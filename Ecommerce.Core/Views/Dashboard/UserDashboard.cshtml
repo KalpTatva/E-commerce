@@ -2,13 +2,132 @@
     Layout = "~/Views/Shared/_dashboardSeller.cshtml";
 }
 
-<h1 class="text-color">Users dashboard (Seller)</h1>
+<div class="container py-4 px-3 display-6 w-100">
+    <div class="d-flex pageTitle justify-content-between">
+        <h3 class="d-flex-inline text-color"> Dashboard</h3>
+
+        <div class="d-flex gap-2 justify-content-center align-items-center flex-column-reverse flex-md-row">
+            <div id="CustomDateValues" class="fs-6 text-nowrap text-color"></div>
+            <div class="dropdown">
+                <button style="width: 170px;" id="selectorText"
+                    class="text-decoration-none btn dropdown-toggle d-flex justify-content-between align-items-center  MyOrder "
+                    type="button" aria-haspopup="true" data-bs-toggle="dropdown" aria-expanded="false">
+                    Current month
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item border-bottom selector" data-value="1">Last 30 days</a></li>
+                    <li><a class="dropdown-item border-bottom selector" data-value="2">Last 12 months</a></li>
+                    <li><a class="dropdown-item selector" data-value="3">Custom date</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container mx-0 mw-100 px-0 mt-3">
+        <div class="row g-4">
+            <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                <div class="MyOrder TopAndLeastItemsHeight fs-4 pt-2 ps-3  rounding shadowing d-flex flex-column  align-items-start justify-content-start ">
+                    <h4 class="text-color">Top Selling Items</h4> 
+                    <div class=" w-100 h-100 text-white TopSellingProductNotFound fs-2">
+                        <div class="d-flex justify-content-center m-5">
+                            No Data Found
+                        </div>
+                    </div>
+                    <canvas id="TopSellingProductChart" style="width:100%;  padding:0 13px 15px 0"></canvas>
+                    <div id="topItems"></div>
+                </div>
+            </div>
+            <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                <div class="MyOrder TopAndLeastItemsHeight fs-4 pt-2 ps-3  rounding shadowing d-flex flex-column align-items-start justify-content-start ">
+                    <h4 class="text-color">Least Selling Items</h4>
+                    <div class=" w-100 h-100 text-white LeastSellingProductNotFound fs-2">
+                        <div class="d-flex justify-content-center m-5">
+                            No Data Found
+                        </div>
+                    </div>
+                    <canvas id="LeastSellingProductChart" style="width:100%;  padding:0 13px 15px 0"></canvas>
+                    <div id="lastItems" class></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mx-0 w-100 px-0 mt-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="MyOrder dashboardBoxHeight pt-2 mb-3 ps-3 fs-4 rounding shadowing d-flex flex-column  ">
+                    <h3 class="text-color">
+                        Revenue
+                    </h3>
+                    <div>
+                        <div class=" w-100 h-100 text-white   RevenueNotFound fs-2">
+                            <div class="d-flex justify-content-center m-5">
+                                No Data Found
+                            </div>
+                        </div>
+                        <canvas id="RevenueChart" style="width:100%;  padding:0 13px 15px 0"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="MyOrder dashboardBoxHeight pt-2 mb-3 ps-3 fs-4 rounding shadowing d-flex flex-column ">
+                    <h3 class="text-color">
+                        Customer Growth
+                    </h3>
+                    <div>
+                        <canvas id="CustomerChart" style="width:100%; height:300px; padding:0 13px 15px 0"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+@* custom date Modal *@
+
+<div class="modal fade" id="CustomDates" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 text-color" id="exampleModalLabel">Custome</h1>
+                <button type="button" class="btn-close cloasing" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex gap-2">
+                    <div class="form-floating mb-3 w-50">
+                        <input type="date" class="form-control" id="FromDateInput" placeholder="DD-MM-YYYY">
+                        <label for="FromDateInput">From Date</label>
+                        <span class="text-danger" id="fromDateError"></span>
+                    </div>
+                    <div class="form-floating mb-2 w-50">
+                        <input type="date" class="form-control" id="ToDateInput" placeholder="DD-MM-YYYY">
+                        <label for="ToDateInput">To Date</label>
+                        <span class="text-danger" id="toDateError"></span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center w-100 gap-2">
+                    <button type="button" class="btn btn-primary mb-3" id="customdateSubmit">Submit</button>
+                    <button type="button" class="btn border-primary text-primary mb-3 ml-1 cloasing"
+                        data-bs-dismiss="modal" id="">Cancel</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 @section scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script>
         window.successMessage = '@TempData["SuccessMessage"]';
         window.errorMessage = '@TempData["ErrorMessage"]';
     </script>
     <script src="~/js/toastr_script.js"></script>
+    <script src="~/js/dashboard_script.js" asp-append-version="true"></script>
 }

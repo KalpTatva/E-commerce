@@ -30,6 +30,7 @@ $(document).ready(function () {
                 $("#ProductsContainer").html(response);
                 totalItems = parseInt($("#TableContainer").attr("data-total-items")) || 0;
                 updatePagination();
+                $(".loader3").show();
             },
             error: function () {
                 toastr.error('An error occurred while loading the product.');
@@ -53,11 +54,13 @@ $(document).ready(function () {
             url.searchParams.delete('search');
         }
         window.history.pushState({}, '', url);
+
         currentPage = 1;
         rowsPerPage = 25;
         $("#ProductsContainer").empty();
 
         // debounce fetch products
+        $(".loader3").show();
         clearTimeout($.data(this, 'timer'));
         $(this).data('timer', setTimeout(function () {    
             FetchProducts(categoryInput, searchInput, currentPage, rowsPerPage);

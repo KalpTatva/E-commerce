@@ -154,4 +154,11 @@ public interface IProductService
 
 
     Task<ResponsesViewModel> UploadProducts(IFormFile file, string email);
+
+    Task<DashBoardViewModel> GetDashboardData(
+        string email,
+        int? selector = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null);
+    
 }

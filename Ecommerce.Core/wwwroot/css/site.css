@@ -43,21 +43,20 @@ html {
 
 [data-theme="dark"] {
   --background: #ffffff;
-  --texthover: #039c88;
-  --bgblue: #182041;
+  --texthover: #4caf50;
+  --bgblue: #3e3f42;
   --textheader: #fff;
   --text: #f8f9fa;
   --fonts: #f8f9fa;
   --btn-success: #5567df;
   --btn-success-hover: #5567df;
-  --background-main: #0b1437;
+  --background-main: #161618;
   --sidebarbackgroud: #353c42;
   --sidebarcolor: #f8f9fa;
   --offercard-background: #00000000;
   --description-background: #00000000;
   --description-fonts: #f8f9fa;
-
-  --card-background: #182041;
+  --card-background: #1a1b1e;
   --card-border: #ffffff2a;
 }
 
@@ -81,6 +80,7 @@ html {
     --card-border: #000f11;
   }
 }
+
 
 .theme-toggle {
   display: flex;
@@ -577,6 +577,10 @@ body {
   opacity: 1;
 }
 
+.form-floating>.form-control:focus~label, .form-floating>.form-control:not(:placeholder-shown)~label, .form-floating>.form-select~label {
+  color: white;
+}
+
 .modal-content {
   background-color: var(--card-background) !important;
 }
@@ -609,7 +613,7 @@ body {
 .card {
   background-color: var(--card-background);
   padding: 10px;
-  width: 380px;
+  max-width: 360px;
   border-radius: 14px;
   padding: 20px;
   height: fit-content;
@@ -821,4 +825,12 @@ body {
 .form-switch .form-check-input {
   width: 2.8em !important;
   height: 1.5em !important;
+}
+
+
+.rounding {
+  border-radius: 8px;
+}
+.btn:hover {
+  color: var(--fonts);
 }

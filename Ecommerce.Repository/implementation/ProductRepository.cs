@@ -1,4 +1,5 @@
 using System.Data;
+using System.Threading.Tasks;
 using Dapper;
 using Ecommerce.Repository.interfaces;
 using Ecommerce.Repository.Models;
@@ -277,4 +278,142 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
         }   
     }
     
+
+    public async Task<List<PriceAndDateViewModel>> GetSalesData(
+        int UserId, DateTime startDate, DateTime endDate, bool isMonthly
+    )
+    {
+        try
+        {
+            List<PriceAndDateViewModel> salesData = await _context.OrderProducts
+                .Join(_context.Products,
+                    op => op.ProductId,
+                    p => p.ProductId,
+                    (op, p) => new { op, p })
+                .Where(x => x.p.SellerId == UserId &&
+                            x.op.CreatedAt >= startDate &&
+                            x.op.CreatedAt <= endDate)
+                .GroupBy(x => isMonthly ?
+                    (x.op.CreatedAt.HasValue ? new DateTime(x.op.CreatedAt.Value.Year, x.op.CreatedAt.Value.Month, 1) : default) :
+                    (x.op.CreatedAt.HasValue ? x.op.CreatedAt.Value.Date : default))
+                .Select(g => new PriceAndDateViewModel
+                {
+                    Price = g.Sum(x => x.op.PriceWithDiscount),
+                    Date = isMonthly ?
+                        (g.Key != default ? new DateTime(g.Key.Year, g.Key.Month, 1) : default) :
+                        g.Key
+                })
+                .ToListAsync();
+            return salesData;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async Task<List<CountAndDatewithImageViewModel>> CountTop(
+         int UserId, DateTime startDate, DateTime endDate
+    )
+    {
+        try
+        {  
+            List<CountAndDatewithImageViewModel> result = await _context.OrderProducts
+                .Join(_context.Products,
+                    op => op.ProductId,
+                    p => p.ProductId,
+                    (op, p) => new { op, p })
+                .Where(x => x.p.SellerId == UserId &&
+                            x.op.CreatedAt >= startDate &&
+                            x.op.CreatedAt <= endDate)
+                .GroupBy(x => new {x.op.ProductId})
+                .Select(g => new CountAndDatewithImageViewModel
+                {
+                    Count = g.Count(),
+                    productId = g.Key.ProductId,
+                    productName = _context.Products
+                        .Where(p => p.ProductId == g.Key.ProductId)
+                        .Select(p => p.ProductName)
+                        .FirstOrDefault(),
+                    ImageUrl = _context.Images
+                        .Where(i => i.ProductId == g.Key.ProductId)
+                        .OrderBy(i => i.ImageId)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault()
+                })
+                .OrderByDescending(x => x.Count)
+                .Take(5)
+                .ToListAsync();
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async Task<List<CountAndDatewithImageViewModel>> CountLeast(
+         int UserId, DateTime startDate, DateTime endDate
+    )
+    {
+        try 
+        {
+            List<CountAndDatewithImageViewModel> result = await _context.OrderProducts
+                    .Where(op => op.CreatedAt >= startDate && op.CreatedAt <= endDate)
+                    .Join(_context.Products.Where(p => p.SellerId == UserId),
+                        op => op.ProductId,
+                        p => p.ProductId,
+                        (op, p) => new { op, p })
+                    .GroupBy(x => new { x.op.ProductId, x.p.ProductName })
+                    .Select(g => new CountAndDatewithImageViewModel
+                    {
+                        Count = g.Count(),
+                        productId = g.Key.ProductId,
+                        productName = g.Key.ProductName,
+                        ImageUrl = _context.Images
+                            .Where(i => i.ProductId == g.Key.ProductId)
+                            .OrderBy(i => i.ImageId)
+                            .Select(i => i.ImageUrl)
+                            .FirstOrDefault()
+                    })
+                    .OrderBy(x => x.Count)
+                    .Take(5)
+                    .ToListAsync();
+                
+
+                return result;
+
+            // List<CountAndDatewithImageViewModel> result = await _context.Products
+            // .Where(p => p.SellerId == UserId)
+            // .GroupJoin(_context.OrderProducts
+            //     .Where(op => op.CreatedAt >= startDate && op.CreatedAt <= endDate),
+            //     p => p.ProductId,
+            //     op => op.ProductId,
+            //     (p, opGroup) => new { p, opGroup })
+            // .SelectMany(x => x.opGroup.DefaultIfEmpty(),(p, op) => new { p.p, op })
+            // .GroupBy(x => new { x.p.ProductId, x.p.ProductName })
+            // .Select(g => new CountAndDatewithImageViewModel
+            // {
+            //     Count = g.Count(x => x.op != null),
+            //     productId = g.Key.ProductId,
+            //     productName = g.Key.ProductName,
+            //     ImageUrl = _context.Images
+            //         .Where(i => i.ProductId == g.Key.ProductId)
+            //         .OrderBy(i => i.ImageId)
+            //         .Select(i => i.ImageUrl)
+            //         .FirstOrDefault()
+            // })
+            // .OrderBy(x => x.Count)
+            // .Take(5)
+            // .ToListAsync();
+
+            // return result;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
 }
+

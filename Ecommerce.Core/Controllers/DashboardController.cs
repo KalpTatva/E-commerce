@@ -537,4 +537,26 @@ public class DashboardController : Controller
             return Json(new {success=false,message=e.Message});
         }
     }
+
+
+    [HttpGet]
+    [Authorize(Roles = "Admin,Seller")]
+    public async Task<IActionResult> GetDashBoardData(
+        int? selector = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null
+    )
+    {
+        try
+        {
+            string? email = BaseValues.GetEmail(HttpContext);
+            DashBoardViewModel model = await _productService.GetDashboardData(email ?? "", selector, fromDate, toDate);
+            return Json(new { success = true, data = model });
+        }
+        catch (Exception e)
+        {
+            return Json(new { success = false, message = e.Message });
+        }
+    }
+
 }

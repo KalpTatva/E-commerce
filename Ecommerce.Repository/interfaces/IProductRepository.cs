@@ -53,5 +53,16 @@ public interface IProductRepository : IGenericRepository<Product>
     public List<ProductNameViewModel> GetAllProductsForOffer();
 
 
+    Task<List<PriceAndDateViewModel>> GetSalesData(
+        int UserId, DateTime startDate, DateTime endDate, bool isMonthly
+    );
+
+    
+    Task<List<CountAndDatewithImageViewModel>> CountTop(
+         int UserId, DateTime startDate, DateTime endDate
+    );
+    Task<List<CountAndDatewithImageViewModel>> CountLeast(
+       int UserId, DateTime startDate, DateTime endDate
+    );
 
 }

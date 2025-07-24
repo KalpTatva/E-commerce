@@ -42,9 +42,9 @@
             <header>
                 <nav class="navbar navbar-expand-sm navbar-toggleable-sm box-shadow navbar-bg">
                     <div class="container-fluid">
-                        <div class="position-relative">
+                        <div class="position-relative d-flex ">
                             <div class="sidebar-dropdown">
-                                <aside class="asideBar  ">
+                                <aside class="asideBar ">
                                     <div class="brand-content">
                                         <ul class="list-unstyled">
 
@@ -55,15 +55,14 @@
                                             @if (Model.BaseRole == RoleEnum.Admin.ToString())
                                             {
                                                 <li class="my-4"><a asp-action="Admin" asp-controller="Dashboard"
-                                                        class=" fw-bold text-decoration-none profile-link">Admin</a>
-                                                </li>
-                                                <li class="my-4"><a asp-action="BulkUpload" asp-controller="Product"
-                                                        class=" fw-bold text-decoration-none profile-link">Add Bulk
-                                                        Products</a>
+                                                        class=" fw-bold text-decoration-none profile-link">Offer Permissions</a>
                                                 </li>
                                             }
                                             @if (Model.BaseRole != RoleEnum.Buyer.ToString() && Model.BaseEmail != null)
                                             {
+                                                <li class="my-4"><a asp-action="UserDashboard" asp-controller="Dashboard"
+                                                        class=" fw-bold text-decoration-none profile-link">Dashboard</a>
+                                                </li>
                                                 <li class="my-4"><a asp-action="MyProducts" asp-controller="Product"
                                                         class=" fw-bold text-decoration-none profile-link">My
                                                         products</a>
@@ -94,9 +93,6 @@
                                                 <span></span>
                                             }
 
-
-
-
                                             <li class="my-4"><a asp-action="ContactUs" asp-controller="Dashboard"
                                                     class="text-success fw-bold text-decoration-none profile-link">Contact
                                                     Us</a>
@@ -118,7 +114,7 @@
 
 
 
-                        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <div class="navbar-collapse collapse d-sm-flex justify-content-between ">
                             @if (Model.BaseRole == RoleEnum.Buyer.ToString() && Model.BaseEmail != null)
                             {
                                 <ul class="navbar-nav flex-grow-1">
@@ -142,8 +138,7 @@
                                     </li>
                                 </ul>
                                 <!-- search -->
-
-                                <div class="position-relative rounded w-100">
+                                <div class="position-relative rounded float-end w-100">
                                     <input 
                                     type="text" 
                                     id="searchInput" 
@@ -154,7 +149,7 @@
                                 </div>
                             }
 
-                            <div class="d-flex align-items-center justify-content-end w-100">
+                            <div class="d-inline-flex d-sm-flex align-items-sm-center justify-content-end w-100">
                                 <div class="theme-toggle me-2">
                                     <i class="bi bi-circle-half theme-icon active" data-theme="system"
                                         title="System Theme"></i>
@@ -209,7 +204,10 @@
 
                                     </a>
 
-                                    <button class="btn btn-danger me-1" id="LogoutButton">Logout</button>
+                                    <button class="btn btn-danger me-1" id="LogoutButton">
+                                        <span class="d-none d-md-flex">Logout</span>
+                                        <i class="bi bi-box-arrow-left d-flex d-md-none"></i>    
+                                    </button>
                                 }
                                 else
                                 {

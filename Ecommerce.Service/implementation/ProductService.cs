@@ -944,6 +944,132 @@ public class ProductService : IProductService
     }
 
 
+
+
+    public async Task<DashBoardViewModel> GetDashboardData(
+        string email,
+        int? selector = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null)
+    {
+        try
+        {
+            User? user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if(user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            // Determine the time range based on selector
+            DateTime endDate = DateTime.Now;
+            DateTime startDate;
+            bool isMonthly = false;
+
+            switch (selector)
+            {
+                case 1: // Last 30 days
+                    startDate = endDate.AddDays(-30);
+                    break;
+                
+                case 2: // last 12 month 
+                    startDate = new DateTime(endDate.Year, endDate.Month, 1).AddMonths(-11);
+                    isMonthly = true;
+                    break;
+                    
+                case 3: // Custom date 
+                    if(fromDate != null && toDate != null)
+                    {
+                        if(fromDate.Value == toDate.Value)
+                        {
+                            startDate = new DateTime(endDate.Year, endDate.Month, endDate.Day);
+                            endDate = startDate.AddDays(1).AddTicks(-1);
+                        }
+                        else if (fromDate.Value.Year < toDate.Value.Year && 
+                                 (fromDate.Value.Month < toDate.Value.Month ||
+                                 (fromDate.Value.Month > toDate.Value.Month && fromDate.Value.Month - toDate.Value.Month >= 9))) {
+                            isMonthly = true;
+                            startDate = new DateTime(fromDate.Value.Year, fromDate.Value.Month, 1);
+                            endDate = new DateTime(toDate.Value.Year, toDate.Value.Month, 1).AddMonths(1).AddTicks(-1);
+                        } else {
+                            startDate = fromDate.Value;
+                            endDate = toDate.Value.AddDays(1).AddTicks(-1);
+                        }
+                        break;
+                    }
+                    else{
+                        startDate = new DateTime(endDate.Year, endDate.Month, 1);
+                        isMonthly = true;
+                        break;
+                    }
+                    
+                default: // Default to current month
+                    startDate = new DateTime(endDate.Year, endDate.Month, 1);
+                    isMonthly = true;
+                    break;
+            }
+
+            // get revenew 
+            List<PriceAndDateViewModel> salesData = await _unitOfWork.ProductRepository.GetSalesData(user.UserId, startDate, endDate, isMonthly);
+            // get monst selling product of seller 
+            List<CountAndDatewithImageViewModel> TopSellingProduct = await _unitOfWork.ProductRepository.CountTop(user.UserId, startDate, endDate);
+            // get least selling product of seller
+            List<CountAndDatewithImageViewModel> LeastSellingProduct = await _unitOfWork.ProductRepository.CountLeast(user.UserId, startDate, endDate);
+
+            List<PriceAndDateViewModel> ResultSalesDate = new ();
+
+            // setup data as per selectors
+            if(salesData != null && salesData.Any())
+            {
+                if(isMonthly)
+                {
+                    // for 12 months 
+                    for(DateTime date = startDate; date <= endDate; date = date.AddMonths(1))
+                    {
+                        // get revenue of that perticular month
+                        decimal revenue = salesData
+                            .Where(s => s.Date.Year == date.Year && s.Date.Month == date.Month)
+                            .Sum(s => s.Price);
+                        ResultSalesDate.Add(new PriceAndDateViewModel
+                        {
+                            Date = new DateTime(date.Year, date.Month, 1),
+                            Price = revenue,
+                            dateNumber = date.ToString("yyy -MM")
+                        });       
+                    }
+                }
+                else
+                {
+                    // for 30 days 
+                    for(DateTime date = startDate; date <= endDate; date = date.AddDays(1))
+                    {
+                       // get revenue of that perticular day
+                        decimal revenue = salesData
+                            .Where(s => s.Date.Date == date.Date)
+                            .Sum(s => s.Price);
+                        ResultSalesDate.Add(new PriceAndDateViewModel
+                        {
+                            Date = date,
+                            Price = revenue,
+                            dateNumber = date.ToString("MMM dd")
+                        });       
+                    }
+                }
+            }
+            return new DashBoardViewModel{
+                priceAndDate = ResultSalesDate,
+                TopSellingProduct = TopSellingProduct,
+                LeastSellingProduct = LeastSellingProduct,
+            };
+        }
+        catch (Exception e)
+        {
+            return new DashBoardViewModel();
+        }
+    } 
+
+
+
+
     #endregion
     #region Buyer's service
     
@@ -1505,11 +1631,6 @@ public class ProductService : IProductService
     }
 
     #endregion
-
-
-
-
-
 
 
 
