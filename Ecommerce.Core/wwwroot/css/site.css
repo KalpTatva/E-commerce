@@ -20,6 +20,10 @@ html {
   position: relative;
   min-height: 100vh;
 }
+/* .margin-top
+{
+  margin-top: 70px;
+} */
 
 :root {
   --background: #ffffff;
@@ -123,7 +127,9 @@ body {
 }
 
 /* colors */
-
+.font-color {
+  color: var(--fonts) !important;
+}
 .banner-color {
   color: var(--textheader) !important;
 }

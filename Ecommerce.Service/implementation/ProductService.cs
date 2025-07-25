@@ -1011,13 +1011,18 @@ public class ProductService : IProductService
             // get revenew 
             List<PriceAndDateViewModel> salesData = await _unitOfWork.ProductRepository.GetSalesData(user.UserId, startDate, endDate, isMonthly);
             // get monst selling product of seller 
-            List<CountAndDatewithImageViewModel> TopSellingProduct = await _unitOfWork.ProductRepository.CountTop(user.UserId, startDate, endDate);
+            List<CountAndProductwithImageViewModel> TopSellingProduct = await _unitOfWork.ProductRepository.CountTop(user.UserId, startDate, endDate);
             // get least selling product of seller
-            List<CountAndDatewithImageViewModel> LeastSellingProduct = await _unitOfWork.ProductRepository.CountLeast(user.UserId, startDate, endDate);
+            List<CountAndProductwithImageViewModel> LeastSellingProduct = await _unitOfWork.ProductRepository.CountLeast(user.UserId, startDate, endDate);
+
+            List<CountAndDatewithImageViewModel> NewCustomerRegistered = await _unitOfWork.UserRepository.GetCustomersData(startDate, endDate, isMonthly);
 
             List<PriceAndDateViewModel> ResultSalesDate = new ();
+            List<CountAndDatewithImageViewModel> ResultCustomersDate = new ();
 
             // setup data as per selectors
+
+            // sales chart helper
             if(salesData != null && salesData.Any())
             {
                 if(isMonthly)
@@ -1055,10 +1060,50 @@ public class ProductService : IProductService
                     }
                 }
             }
+
+            // registered users chart
+            if(NewCustomerRegistered != null && NewCustomerRegistered.Any())
+            {
+                if(isMonthly)
+                {
+                    // for 12 months 
+                    for(DateTime date = startDate; date <= endDate; date = date.AddMonths(1))
+                    {
+                        // get count of new customers of that perticular month
+                        decimal count = NewCustomerRegistered
+                            .Where(s => s.Date.Year == date.Year && s.Date.Month == date.Month)
+                            .Sum(s => s.CustomerCount);
+                        ResultCustomersDate.Add(new CountAndDatewithImageViewModel
+                        {
+                            Date = new DateTime(date.Year, date.Month, 1),
+                            CustomerCount = count,
+                            dateNumber = date.ToString("yyy -MM")
+                        });       
+                    }
+                }
+                else
+                {
+                    // for 30 days 
+                    for(DateTime date = startDate; date <= endDate; date = date.AddDays(1))
+                    {
+                       // get count of new customers of that perticular day
+                        decimal count = NewCustomerRegistered
+                            .Where(s => s.Date.Date == date.Date)
+                            .Sum(s => s.CustomerCount);
+                        ResultCustomersDate.Add(new CountAndDatewithImageViewModel
+                        {
+                            Date = date,
+                            CustomerCount = count,
+                            dateNumber = date.ToString("MMM dd")
+                        });       
+                    }
+                }
+            }
             return new DashBoardViewModel{
                 priceAndDate = ResultSalesDate,
                 TopSellingProduct = TopSellingProduct,
                 LeastSellingProduct = LeastSellingProduct,
+                CustomersData = ResultCustomersDate,
             };
         }
         catch (Exception e)

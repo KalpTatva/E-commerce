@@ -31,4 +31,7 @@ public interface IUserRepository : IGenericRepository<User>
 
     Task<List<UserViewmodel>> GetSellersGrant();  
 
+    Task<List<CountAndDatewithImageViewModel>> GetCustomersData(
+        DateTime startDate, DateTime endDate, bool isMonthly
+    );
 }

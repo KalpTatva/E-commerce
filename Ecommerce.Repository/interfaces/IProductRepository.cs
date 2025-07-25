@@ -58,10 +58,10 @@ public interface IProductRepository : IGenericRepository<Product>
     );
 
     
-    Task<List<CountAndDatewithImageViewModel>> CountTop(
+    Task<List<CountAndProductwithImageViewModel>> CountTop(
          int UserId, DateTime startDate, DateTime endDate
     );
-    Task<List<CountAndDatewithImageViewModel>> CountLeast(
+    Task<List<CountAndProductwithImageViewModel>> CountLeast(
        int UserId, DateTime startDate, DateTime endDate
     );
 

@@ -312,13 +312,13 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
         }
     }
 
-    public async Task<List<CountAndDatewithImageViewModel>> CountTop(
+    public async Task<List<CountAndProductwithImageViewModel>> CountTop(
          int UserId, DateTime startDate, DateTime endDate
     )
     {
         try
         {  
-            List<CountAndDatewithImageViewModel> result = await _context.OrderProducts
+            List<CountAndProductwithImageViewModel> result = await _context.OrderProducts
                 .Join(_context.Products,
                     op => op.ProductId,
                     p => p.ProductId,
@@ -327,7 +327,7 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
                             x.op.CreatedAt >= startDate &&
                             x.op.CreatedAt <= endDate)
                 .GroupBy(x => new {x.op.ProductId})
-                .Select(g => new CountAndDatewithImageViewModel
+                .Select(g => new CountAndProductwithImageViewModel
                 {
                     Count = g.Count(),
                     productId = g.Key.ProductId,
@@ -353,20 +353,20 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
         }
     }
 
-    public async Task<List<CountAndDatewithImageViewModel>> CountLeast(
+    public async Task<List<CountAndProductwithImageViewModel>> CountLeast(
          int UserId, DateTime startDate, DateTime endDate
     )
     {
         try 
         {
-            List<CountAndDatewithImageViewModel> result = await _context.OrderProducts
+            List<CountAndProductwithImageViewModel> result = await _context.OrderProducts
                     .Where(op => op.CreatedAt >= startDate && op.CreatedAt <= endDate)
                     .Join(_context.Products.Where(p => p.SellerId == UserId),
                         op => op.ProductId,
                         p => p.ProductId,
                         (op, p) => new { op, p })
                     .GroupBy(x => new { x.op.ProductId, x.p.ProductName })
-                    .Select(g => new CountAndDatewithImageViewModel
+                    .Select(g => new CountAndProductwithImageViewModel
                     {
                         Count = g.Count(),
                         productId = g.Key.ProductId,

@@ -133,5 +133,33 @@ public class UserRepository : GenericRepository<User> ,IUserRepository
             throw new Exception("An error occurred while fetching sellers.", e);
         }
     }
+
+    public async Task<List<CountAndDatewithImageViewModel>> GetCustomersData(
+        DateTime startDate, DateTime endDate, bool isMonthly
+    )
+    {
+        try{
+            List<CountAndDatewithImageViewModel> customersData = await _context.Users
+                .Where(u => u.RoleId == (int)RoleEnum.Buyer && 
+                            u.CreatedAt >= startDate && 
+                            u.CreatedAt <= endDate)
+                .GroupBy(x => isMonthly ?
+                    (x.CreatedAt.HasValue ? new DateTime(x.CreatedAt.Value.Year, x.CreatedAt.Value.Month, 1) : default) :
+                    (x.CreatedAt.HasValue ? x.CreatedAt.Value.Date : default))
+                .Select(g => new CountAndDatewithImageViewModel
+                {
+                    CustomerCount = g.Count(),
+                    Date = isMonthly ?
+                        (g.Key != default ? new DateTime(g.Key.Year, g.Key.Month, 1) : default) :
+                        g.Key
+                }).ToListAsync();
+
+            return customersData;
+        }
+        catch (Exception e)
+        {
+            throw new Exception("An error occurred while fetching customer data.", e);
+        }
+    }
   
 }

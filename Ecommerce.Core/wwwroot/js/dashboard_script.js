@@ -1,8 +1,13 @@
 $('.RevenueNotFound').hide();
 $('.TopSellingProductNotFound').hide();
+$('.CustomersNotFound').hide();
+$('.RevenueNotFound').hide();
+$('.TopSellingProductNotFound').hide();
+$('.LeastSellingProductNotFound').hide();
+
 
 $(document).ready(function () {
-    Chart.defaults.global.defaultFontColor = '#ffffff';
+    Chart.defaults.global.defaultFontColor = 'rgb(139, 139, 139)';
     var selector;
     var openCustomeDateModal = new bootstrap.Modal(document.getElementById('CustomDates'), {backdrop: 'static', keyboard: false});
     
@@ -45,7 +50,7 @@ $(document).ready(function () {
             },
             success: function (data) {
                 // Update the charts and items with the received data
-                console.log(data.data);
+                console.log(data);
                 setData(data.data);
             },
             error: function (error) {
@@ -63,18 +68,22 @@ $(document).ready(function () {
             $('#RevenueChart').show();
             generateRevenueChart(data.priceAndDate);
         }
+        if(data.customersData.length === 0) {
+            $('.CustomersNotFound').show();
+            $('#CustomersChart').hide();
+        }else {
+            $('.CustomersNotFound').hide();
+            $('#CustomersChart').show();
+            generateCustomersChart(data.customersData);
+        }
         if(data.topSellingProduct.length === 0) {
             $('.TopSellingProductNotFound').show();
             $('#topItems').hide();
         }else {
             $('.TopSellingProductNotFound').hide();
             fetchItems(data.topSellingProduct, "#topItems");
+            generateTopSellingProductChart(data.topSellingProduct);
             $('#topItems').show();
-            horizontalChart("TopSellingProductChart",
-                data.topSellingProduct.map(i => i.productName.substring(0, 30) + "..."),
-                data.topSellingProduct.map(i => i.count),
-                "top Selling Product"
-            );
         }   
         if(data.leastSellingProduct.length === 0) {
             $('.LeastSellingProductNotFound').show();
@@ -83,13 +92,8 @@ $(document).ready(function () {
         else {
             $('.LeastSellingProductNotFound').hide();
             fetchItems(data.leastSellingProduct, "#lastItems");
+            generateLeastSellingProductChart(data.leastSellingProduct);
             $('#lastItems').show();
-            horizontalChart("LeastSellingProductChart",
-                data.leastSellingProduct.map(i => i.productName.substring(0, 30) + "..."),
-                data.leastSellingProduct.map(i => i.count),
-                "Least Selling Product"
-            );
-
         }
 
     }
@@ -123,6 +127,21 @@ $(document).ready(function () {
         const revenues = data.map(i => i.price);
         chartGenerator("RevenueChart", dateNumbers, revenues, "Revenue");
     }
+    function generateCustomersChart(data) {
+        const dateNumbers = data.map(i => i.dateNumber);
+        const customers = data.map(i => i.customerCount);
+        chartGenerator("CustomerChart", dateNumbers, customers, "Customers");
+    }
+    function generateTopSellingProductChart(data) {
+        const productNames = data.map(i => i.productName.substring(0, 30) + "...");
+        const productCounts = data.map(i => i.count);
+        horizontalChart("TopSellingProductChart", productNames, productCounts, "Top Selling Product");
+    }
+    function generateLeastSellingProductChart(data) {
+        const productNames = data.map(i => i.productName.substring(0, 30) + "...");
+        const productCounts = data.map(i => i.count);
+        horizontalChart("LeastSellingProductChart", productNames, productCounts, "Least Selling Product");
+    }
 
     // function for generating charts
     function chartGenerator(chartFor, dateNumbers, revenues, labels) {
@@ -137,7 +156,7 @@ $(document).ready(function () {
                         borderColor: "#4caf50",
                         data: revenues,
                         fill: true,
-                        backgroundColor: "#223225a6",
+                        backgroundColor: "#4caf506b",
                     },
                 ],
             },
