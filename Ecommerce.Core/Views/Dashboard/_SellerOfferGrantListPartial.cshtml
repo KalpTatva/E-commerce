@@ -23,36 +23,31 @@
                         <td>@user.UserName</td>
                         <td>@user.Email</td>
                         <td>
-                            <div class="dropdown">
-                                <button class="btn btn-warning dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    Select Categories
-                                </button>
-                                <ul class="dropdown-menu">
+                            <div class="custom-dropdown">   
+                                <button class="btn btn-warning toggle-btn" type="button">Select Categories</button>
+                                <div class="dropdown-content" style="display: none;">
                                     @if (Model.categories != null && Model.categories.Any())
                                     {
-                                        @foreach (Category c in Model.categories)
-                                        {
-                                            bool check = false;
-                                            @foreach (GrantOfferPermission g in user.grantOfferPermissions)
+                                        <ul class="list-unstyled p-3">
+                                            @foreach (Category c in Model.categories)
                                             {
-                                                if (c.CategoryId == g.CategoryId)
+                                                bool check = false;
+                                                @foreach (GrantOfferPermission g in user.grantOfferPermissions)
                                                 {
-                                                    check = true;
+                                                    if (c.CategoryId == g.CategoryId)
+                                                    {
+                                                        check = true;
+                                                    }
                                                 }
+                                                <li class="category-item  d-flex justify-content-between align-items-center p-2" style="cursor: pointer;" data-user-id="@user.UserId" data-category-id="@c.CategoryId">
+                                                    <span class="font-color">@c.CategoryName</span>
+                                                    <input type="checkbox" @(check ? "checked" : "") data-user-id="@user.UserId" data-category-id="@c.CategoryId" />
+                                                </li>
                                             }
-                                            <li>
-                                                <span class="dropdown-item d-flex justify-content-between">
-                                                    @c.CategoryName
-                                                    <input type="checkbox" @(check == true ? "checked" : "") data-user-id="@user.UserId"
-                                                        data-category-id="@c.CategoryId" />
-                                                </span>
-                                            </li>
-                                        }
-                                        <button class="m-3 btn btn-danger grant-permission" data-user-id="@user.UserId">Grant permission</button>
-
+                                            <li><button class="m-3 btn btn-danger grant-permission" data-user-id="@user.UserId">Grant permission</button></li>
+                                        </ul>
                                     }
-                                </ul>
+                                </div>
                             </div>
                         </td>
                     </tr>

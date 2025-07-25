@@ -142,7 +142,7 @@
                                     <input 
                                     type="text" 
                                     id="searchInput" 
-                                    placeholder="Search item here..." 
+                                    placeholder="Search" 
                                     asp-for="SearchInput"
                                     class="search_bar w-100">
                                     <i class="bi bi-search search_bar_img"></i>
@@ -240,8 +240,9 @@
                 if (searchInput == null) {
                     window.location.href = '@Url.Action("Index", "BuyerDashboard")?categoryId=' + categoryId;
                     return;
+                }else{
+                    window.location.href = '@Url.Action("Index", "BuyerDashboard")?categoryId=' + categoryId + '&search=' + searchInput;
                 }
-                window.location.href = '@Url.Action("Index", "BuyerDashboard")?categoryId=' + categoryId + '&search=' + searchInput;
             });
             $(document).on('click',".Ecommerce-link",function(){
                 let searchInput = new URLSearchParams(window.location.search).get('search') || null;

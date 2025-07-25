@@ -14,21 +14,21 @@
         window.successMessage = '@TempData["SuccessMessage"]';
         window.errorMessage = '@TempData["ErrorMessage"]';
         $(document).ready(function () {
-
             function fetchSellers() {
                 $.ajax({
                     url: "/Dashboard/GetSellers",
                     type: "GET",
                     success: function (data) {
                         $("#SellersList").html(data);
-                    }, error: function () {
+                    },
+                    error: function () {
                         toastr.error('An error occurred while setting up order', "Error", { timeOut: 4000 });
                     }
                 });
             }
-
-            $(document).on('click','.grant-permission', function (e) {
-                e.stopPropagation();
+            $(document).on('click', '.grant-permission', function (e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent closing dropdown
                 var selectedPermissions = [];
 
                 $(this).closest('.dropdown-menu').find('input[type="checkbox"]:checked').each(function () {
@@ -50,18 +50,14 @@
                     });
                 }
 
-
                 $.ajax({
                     url: '/Dashboard/GrantPermission',
                     type: 'POST',
-                    data: {obj:JSON.stringify(selectedPermissions)},
+                    data: { obj: JSON.stringify(selectedPermissions) },
                     success: function (response) {
-                        if(response.success)
-                        { 
-                            toastr.success(response.message,"Success",{timeOut:5000});
-                        }
-                        else
-                        {
+                        if (response.success) {
+                            toastr.success(response.message, "Success", { timeOut: 5000 });
+                        } else {
                             toastr.error('Error granting permissions', "Error", { timeOut: 5000 });
                         }
                     },
@@ -69,11 +65,32 @@
                         toastr.error('Error granting permissions', "Error", { timeOut: 5000 });
                     }
                 });
+            });
 
+            $(document).on('click', '.toggle-btn', function (e) {
+                e.preventDefault();
+                var $dropdownContent = $(this).siblings('.dropdown-content');
+                $('.dropdown-content').not($dropdownContent).hide(); // Close other dropdowns
+                $dropdownContent.toggle(); // Toggle this dropdown
+            });
+
+            $(document).on('click', '.category-item', function (e) {
+                e.stopPropagation(); // Prevent closing dropdown
+                var $checkbox = $(this).find('input[type="checkbox"]');
+                // If the click target is not the checkbox, toggle the checkbox state
+                if (!$(e.target).is('input[type="checkbox"]')) {
+                    e.preventDefault(); // Prevent default only for non-checkbox clicks
+                    $checkbox.prop('checked', !$checkbox.prop('checked'));
+                }
+            });
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('.custom-dropdown').length) {
+                    $('.dropdown-content').hide(); // Close dropdown when clicking outside
+                }
             });
 
             fetchSellers();
-        })
+        });
     </script>
     <script src="~/js/toastr_script.js"></script>
 }

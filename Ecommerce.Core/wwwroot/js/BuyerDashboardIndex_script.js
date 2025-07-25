@@ -47,9 +47,15 @@ $(document).ready(function () {
         // add search value with url for search consistancy
         var url = new URL(window.location.href);
 
-        if (searchInput && categoryInput !== null) {
-            url.searchParams.set('search', searchInput);
+        if(categoryInput !== null) {
             url.searchParams.set('categoryId', categoryInput);
+        }
+        else {
+            url.searchParams.delete('categoryId');
+        }
+        if (searchInput !== null) {
+            url.searchParams.set('search', searchInput);
+           
         } else {
             url.searchParams.delete('search');
         }
