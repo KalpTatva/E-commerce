@@ -23,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR(); 
 builder.Services.AddHostedService<NotificationCleanupService>();
-builder.Services.AddHostedService<OfferExpireCleanupService>();
+// builder.Services.AddHostedService<OfferExpireCleanupService>();
 
 // db connection string
 if (builder.Environment.IsEnvironment("Test"))

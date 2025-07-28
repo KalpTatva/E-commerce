@@ -34,6 +34,11 @@ public class UserRepository : GenericRepository<User> ,IUserRepository
         }
     }
 
+    /// <summary>
+    /// method for getting user by username
+    /// </summary>
+    /// <param name="UserName"></param>
+    /// <returns> returns User object </returns>
     public User? GetUserByUserName(string UserName)
     {
         try
@@ -114,7 +119,11 @@ public class UserRepository : GenericRepository<User> ,IUserRepository
         }
     }
 
-
+    /// <summary>
+    /// method for getting all sellers with their grant offer permissions
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception">List<UserViewmodel></exception>
     public async Task<List<UserViewmodel>> GetSellersGrant()
     {
         try
@@ -134,6 +143,14 @@ public class UserRepository : GenericRepository<User> ,IUserRepository
         }
     }
 
+    /// <summary>
+    /// Method to get customer data based on the provided date range and whether the data is monthly or daily.
+    /// </summary>
+    /// <param name="startDate"></param>
+    /// <param name="endDate"></param>
+    /// <param name="isMonthly"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception">List<CountAndDatewithImageViewModel></exception>
     public async Task<List<CountAndDatewithImageViewModel>> GetCustomersData(
         DateTime startDate, DateTime endDate, bool isMonthly
     )

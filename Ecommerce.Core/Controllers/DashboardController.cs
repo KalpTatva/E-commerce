@@ -58,6 +58,7 @@ public class DashboardController : Controller
     /// Index method for user dashboard
     /// </summary>
     /// <returns>View with base view model</returns>
+    [Authorize(Roles = "Seller, Admin")]
     public IActionResult UserDashboard()
     {
         string? email = BaseValues.GetEmail(HttpContext);
@@ -302,6 +303,7 @@ public class DashboardController : Controller
     /// Method to get products list for offer
     /// </summary>
     /// <returns>Json</returns>
+    [Authorize(Roles = "Seller,Admin")]
     [HttpGet]
     public IActionResult GetProducts()
     {
@@ -323,7 +325,10 @@ public class DashboardController : Controller
         }
     }
 
-
+    /// <summary>
+    /// Method to get the count of notifications for the user
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult GetNotificationCount()
     {
@@ -340,6 +345,10 @@ public class DashboardController : Controller
     }
 
 
+    /// <summary>
+    /// Method to get notifications for the user
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult GetNotifications()
     {
@@ -507,6 +516,11 @@ public class DashboardController : Controller
         return View(baseViewModel);
     }
 
+
+    /// <summary>
+    /// Method to get the list of sellers for offer permission granting
+    /// </summary>
+    /// <returns>Partial view</returns>
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetSellers()
     {
@@ -514,6 +528,11 @@ public class DashboardController : Controller
         return PartialView("_SellerOfferGrantListPartial",res);
     }
 
+    /// <summary>
+    /// Method to grant offer permissions to sellers
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns>Json response</returns>
     [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> GrantPermission(string obj)
@@ -539,6 +558,13 @@ public class DashboardController : Controller
     }
 
 
+    /// <summary>
+    /// Method to get dashboard data for admin and seller
+    /// </summary>
+    /// <param name="selector"></param>
+    /// <param name="fromDate"></param>
+    /// <param name="toDate"></param>
+    /// <returns>Json object</returns>
     [HttpGet]
     [Authorize(Roles = "Admin,Seller")]
     public async Task<IActionResult> GetDashBoardData(
@@ -559,4 +585,4 @@ public class DashboardController : Controller
         }
     }
 
-}
+}   

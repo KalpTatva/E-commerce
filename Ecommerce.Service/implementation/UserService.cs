@@ -679,7 +679,12 @@ public class UserService : IUserService
         }
     }
 
-
+    /// <summary>
+    /// Method to change the theme for the user.
+    /// </summary>
+    /// <param name="theme"></param>
+    /// <param name="email"></param>
+    /// <returns>ResponsesViewModel</returns>
     public async Task<ResponsesViewModel> ThemeChange(string theme, string email) 
     {
         try
@@ -719,7 +724,10 @@ public class UserService : IUserService
         }
     }
 
-
+    /// <summary>
+    /// Method to get the list of sellers and their granted categories.
+    /// </summary>
+    /// <returns>SellersViewModel</returns>
     public async Task<SellersViewModel> GetSellers()
     {
         try
@@ -740,6 +748,11 @@ public class UserService : IUserService
         }
     }
 
+    /// <summary>
+    /// Method to grant offer service permissions to a seller.
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <returns>ResponsesViewModel</returns>
     public async Task<ResponsesViewModel> GrantOFferService(List<GrantOfferPermission> ids)
     {
         try

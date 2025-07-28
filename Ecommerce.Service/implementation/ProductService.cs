@@ -192,7 +192,12 @@ public class ProductService : IProductService
         }
     }
 
-
+    /// <summary>
+    /// method for getting total products count of seller by email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception">count of seller's total products</exception>
     public async Task<int> GetSellersTotalProductsCount(string email)
     {
         try
@@ -945,7 +950,14 @@ public class ProductService : IProductService
 
 
 
-
+    /// <summary>
+    /// method for getting dashboard data of seller
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="selector"></param>
+    /// <param name="fromDate"></param>
+    /// <param name="toDate"></param>
+    /// <returns>DashBoardViewModel</returns>
     public async Task<DashBoardViewModel> GetDashboardData(
         string email,
         int? selector = null,

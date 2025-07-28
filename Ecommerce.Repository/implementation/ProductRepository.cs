@@ -278,7 +278,15 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
         }   
     }
     
-
+    /// <summary>
+    /// method for getting sales data for a specific user within a date range
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="startDate"></param>
+    /// <param name="endDate"></param>
+    /// <param name="isMonthly"></param>
+    /// <returns>List<PriceAndDateViewModel></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<List<PriceAndDateViewModel>> GetSalesData(
         int UserId, DateTime startDate, DateTime endDate, bool isMonthly
     )
@@ -312,6 +320,14 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
         }
     }
 
+    /// <summary>
+    /// method for getting top 5 products sold by a user within a date range
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="startDate"></param>
+    /// <param name="endDate"></param>
+    /// <returns>List<CountAndProductwithImageViewModel></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<List<CountAndProductwithImageViewModel>> CountTop(
          int UserId, DateTime startDate, DateTime endDate
     )
@@ -353,6 +369,14 @@ public class ProductRepository : GenericRepository<Product>,  IProductRepository
         }
     }
 
+    /// <summary>
+    /// method for getting least sold products by a user within a date range
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="startDate"></param>
+    /// <param name="endDate"></param>
+    /// <returns>List<CountAndProductwithImageViewModel></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<List<CountAndProductwithImageViewModel>> CountLeast(
          int UserId, DateTime startDate, DateTime endDate
     )

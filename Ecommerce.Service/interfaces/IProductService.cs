@@ -56,6 +56,11 @@ public interface IProductService
     /// <param name="category"></param>
     /// <returns></returns>
     Task<ProductsViewModel> GetProducts(string? search = null, int? category = null, int? page = 1, int pageSize = 25);
+
+    /// <summary>
+    /// method for getting total products count for pagination
+    /// </summary>
+    /// <returns>count integer for total products</returns>
     Task<int> GetTotalProductsCount();
     
     /// <summary>
@@ -89,7 +94,6 @@ public interface IProductService
     /// <returns></returns>
     List<int> GetFavouritesByEmail(string email);
 
-
     /// <summary>
     /// method for adding product into cart
     /// </summary>
@@ -104,7 +108,6 @@ public interface IProductService
     /// <param name="email"></param>
     /// <returns>CartViewModel</returns>
     Task<CartViewModel> GetCartDetails(string email);
-
 
     /// <summary>
     /// method for updating cart product's quantity values and displaying updated totals 
@@ -134,15 +137,12 @@ public interface IProductService
     /// <returns></returns>
     Task<ResponsesViewModel> AddReview(int orderProductId,decimal rating, int productId, string reviewText,string email);
 
-
-
     /// <summary>
     /// method to check product stock by cart ids
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<ResponsesViewModel> CheckProductStockByCartId(string email);
-
 
     /// <summary>
     /// method for getting all products for offer by email
@@ -152,9 +152,22 @@ public interface IProductService
     /// <exception cref="Exception"></exception>
     List<ProductNameViewModel> GetProductsForOffer(string email);
 
-
+    /// <summary>
+    /// Method to upload products from an Zip file.
+    /// </summary>
+    /// <param name="file"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
     Task<ResponsesViewModel> UploadProducts(IFormFile file, string email);
 
+    /// <summary>
+    /// Method to get dashboard data for a user based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="selector"></param>
+    /// <param name="fromDate"></param>
+    /// <param name="toDate"></param>
+    /// <returns>DashBoardViewModel</returns>
     Task<DashBoardViewModel> GetDashboardData(
         string email,
         int? selector = null,

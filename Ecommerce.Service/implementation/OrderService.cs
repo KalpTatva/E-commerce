@@ -346,6 +346,12 @@ public class OrderService : IOrderService
         }
     }
 
+    /// <summary>
+    /// Method to get the count of order history for a user based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception">count of order history </exception>
     public async Task<int> GetMyOrderHistoryCount(string email)
     {
         try
@@ -798,7 +804,12 @@ public class OrderService : IOrderService
         }
     }
 
-
+    /// <summary>
+    /// Method to check if the offer is expired or not based on the provided objectCart and user email.
+    /// </summary>
+    /// <param name="objectCart"></param>
+    /// <param name="email"></param>
+    /// <returns>ResponsesViewModel</returns>
     public async Task<ResponsesViewModel> CheckOfferExpire(ObjectSessionViewModel objectCart, string email)
     {
         try

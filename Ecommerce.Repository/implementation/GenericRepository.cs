@@ -105,7 +105,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         }
     }
 
-
     public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
     {
         try
@@ -117,7 +116,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             throw new Exception($"Error counting entities: {e.Message}");
         }
     }
-
 
     public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate)
     {

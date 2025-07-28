@@ -166,8 +166,6 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     /// <param name="userId"></param>
     /// <returns>It returns a list of SellerOrderViewModel objects containing order and buyer details.</returns>
     /// <exception cref="Exception"></exception>
-    /// 
-    
     public async Task<List<SellerOrderViewModel>?> GetSellerOrders(int userId, int pageNumber = 1, int pageSize = 5)
     {
         try

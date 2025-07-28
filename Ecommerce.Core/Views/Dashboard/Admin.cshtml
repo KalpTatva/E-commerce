@@ -31,7 +31,7 @@
                 e.stopPropagation(); // Prevent closing dropdown
                 var selectedPermissions = [];
 
-                $(this).closest('.dropdown-menu').find('input[type="checkbox"]:checked').each(function () {
+                $(this).closest('.custom-dropdown').find('input[type="checkbox"]:checked').each(function () {
                     var userId = $(this).data('user-id');
                     var categoryId = $(this).data('category-id');
 

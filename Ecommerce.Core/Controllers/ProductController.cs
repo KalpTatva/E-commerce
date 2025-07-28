@@ -238,15 +238,23 @@ public class ProductController : Controller
         }
     }
 
+    /// <summary>
+    /// Method to download the product template for bulk upload
+    /// </summary>
+    /// <returns></returns>
     [Authorize(Roles ="Seller,Admin")]
     public IActionResult DownloadTemplate()
     {
-        string filePath = Path.Combine(_env.ContentRootPath,"wwwroot", "File\\ProductTemplate.xlsx");
+        string filePath = Path.Combine(_env.ContentRootPath,"wwwroot", "File\\sampleZip.zip");
         byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-        string fileName = "ProductTemplate.xlsx";
+        string fileName = "sampleZip.zip";
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
+    /// <summary>
+    /// Bulk upload view for sellers (not in use)
+    /// </summary>
+    /// <returns></returns>
     [Authorize(Roles ="Seller,Admin")]
     public IActionResult BulkUpload()
     {
@@ -261,6 +269,11 @@ public class ProductController : Controller
         return View(baseViewModel);
     }
 
+    /// <summary>
+    /// Method to handle the bulk upload of products from a zip file
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns> json oject </returns>
     [Authorize(Roles = "Seller, Admin")]
     [HttpPost]
     public async Task<IActionResult> UploadProducts(IFormFile file)

@@ -14,7 +14,13 @@ public class CartRepository : GenericRepository<Cart>, ICartRepository
         _context = context;
     }
 
-   public async Task<List<productAtCartViewModel>> GetproductAtCart(int userId)
+    /// <summary>
+    /// Retrieves a list of products in the cart for a specific user.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception">List<productAtCartViewModel></exception>
+    public async Task<List<productAtCartViewModel>> GetproductAtCart(int userId)
     {
         try
         {
@@ -50,6 +56,13 @@ public class CartRepository : GenericRepository<Cart>, ICartRepository
         }
     }
 
+    /// <summary>
+    /// Retrieves a product by its cart ID for a specific user.
+    /// </summary>
+    /// <param name="cartId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception">Product</exception>
     public async Task<Product?> GetProductByCartId(int cartId, int userId)
     {
         try

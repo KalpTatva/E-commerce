@@ -83,7 +83,6 @@ public interface IUserService
     /// <returns>ResponsesViewModel</returns>
     Task<ResponsesViewModel> EditUserDetails(EditRegisteredUserViewModel model);
 
-
     /// <summary>
     /// Method to add a contact message from the user.
     /// This method creates a new Contactu object with the provided details,
@@ -92,13 +91,25 @@ public interface IUserService
     /// <param name="model">ContactUsViewModel containing the contact message details</param>
     Task<ResponsesViewModel> AddContactMessage(ContactUsViewModel model);
 
-
+    /// <summary>
+    /// Method to change the theme for a user.
+    /// </summary>
+    /// <param name="theme"></param>
+    /// <param name="email"></param>
+    /// <returns>ResponsesViewModel</returns>
     Task<ResponsesViewModel> ThemeChange(string theme, string email); 
 
-
+    /// <summary>
+    /// Method to get the list of sellers.
+    /// </summary>
+    /// <returns>GetSellers</returns>
     Task<SellersViewModel> GetSellers();
 
-    
+    /// <summary>
+    /// Method to get the count of sellers.
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <returns>ResponsesViewModel</returns>
     Task<ResponsesViewModel> GrantOFferService(List<GrantOfferPermission> ids);
 
 }

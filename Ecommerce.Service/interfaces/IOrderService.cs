@@ -46,6 +46,11 @@ public interface IOrderService
     /// <returns>List of MyOrderViewModel containing order history</returns>
     Task<List<MyOrderViewModel>> GetMyOrderHistoryByEmail(string email, int? pageNumber = 1, int? pageSize = 2);
 
+    /// <summary>
+    /// Method to get the count of order history for a user based on their email address.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns>count of order history</returns>
     Task<int> GetMyOrderHistoryCount(string email);
     
     /// <summary>
@@ -107,9 +112,20 @@ public interface IOrderService
     /// <exception cref="Exception"></exception>
     Task MarkNotificationAsRead(string email);
 
-
+    /// <summary>
+    /// Method to create a payment for a user based on their ID and session object.
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="objRes"></param>
+    /// <returns>PaymentViewModel</returns>
     Task<PaymentViewModel> CreatePayment(int UserId,ObjectSessionViewModel objRes);
 
+    /// <summary>
+    /// Method to check if an offer has expired for a given object cart and user email.
+    /// </summary>
+    /// <param name="objectCart"></param>
+    /// <param name="email"></param>
+    /// <returns>ResponsesViewModel</returns>
     Task<ResponsesViewModel> CheckOfferExpire(ObjectSessionViewModel objectCart, string email);
 
 }

@@ -331,7 +331,12 @@ public class OrderController : Controller
 
 
 
-
+    /// <summary>
+    /// Method to create a payment for an order
+    /// </summary>
+    /// <param name="UserId"></param>
+    /// <param name="SessionId"></param>
+    /// <returns>View(paymentViewModel)</returns>
     public async Task<IActionResult> CreatePayment(int UserId, string SessionId)
     {
         
@@ -358,7 +363,11 @@ public class OrderController : Controller
     
     }
 
-
+    /// <summary>
+    /// Method to check if an offer has expired
+    /// </summary>
+    /// <param name="objectCart"></param>
+    /// <returns>Json object</returns>
     [HttpGet]
     public async Task<IActionResult> CheckOfferExpire(string objectCart)
     {
